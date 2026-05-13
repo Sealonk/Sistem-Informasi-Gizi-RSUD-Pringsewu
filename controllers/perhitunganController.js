@@ -89,7 +89,7 @@ const simpanPerhitungan = async (req, res, next) => {
 
         res.status(201).json({
             status: 'success',
-            message: 'Riwayat perhitungan gizi medis berhasil disimpan permanen',
+            message: 'Riwayat perhitungan gizi medis berhasil disimpan',
             data: {
                 id_perhitungan: insertId
             }

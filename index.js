@@ -36,6 +36,5 @@ app.use(errorHandler);
 app.listen(PORT, () => {
     console.log(`================================================`);
     console.log(`Server berjalan di http://localhost:${PORT}`);
-    console.log(`Menunggu koneksi dari Frontend...`);
     console.log(`================================================`);
 });

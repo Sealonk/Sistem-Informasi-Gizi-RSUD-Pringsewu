@@ -18,13 +18,13 @@ const db = pool.promise();
 pool.getConnection((err, connection) => {
     if (err) {
         console.error('================================================');
-        console.error('GAGAL terhubung ke Database MySQL (Laragon)!');
+        console.error('GAGAL terhubung ke Database MySQL!');
         console.error('Detail Error:', err.message);
-        console.error('Pastikan Laragon/MySQL sudah dalam keadaan RUNNING.');
+        console.error('Pastikan MySQL sudah dalam keadaan RUNNING.');
         console.log('================================================');
     } else {
         console.log('================================================');
-        console.log('BERHASIL terhubung ke Database MySQL (Laragon)');
+        console.log('BERHASIL terhubung ke Database MySQL');
         console.log(`Database: ${process.env.DB_NAME}`);
         console.log('================================================');
         connection.release();
