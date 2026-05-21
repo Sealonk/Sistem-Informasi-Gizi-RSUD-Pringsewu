@@ -1,6 +1,8 @@
 import axios from "axios";
 
 const BASE_URL = "http://localhost:5000";
+const TOKEN_KEY = "token";
+const USER_KEY = "user";
 
 // API Endpoints
 const API_ENDPOINTS = {
@@ -10,19 +12,6 @@ const API_ENDPOINTS = {
     register: `/api/auth/register`,
     refreshToken: `/api/auth/refresh-token`,
     verifyToken: `/api/auth/verify-token`,
-  },
-  pasien: {
-    getAll: `/api/pasien`,
-    getById: `/api/pasien/:id`,
-    create: `/api/pasien`,
-    update: `/api/pasien/:id`,
-    delete: `/api/pasien/:id`,
-  },
-  perhitungan: {
-    getAll: `/api/perhitungan`,
-    getById: `/api/perhitungan/:id`,
-    create: `/api/perhitungan`,
-    update: `/api/perhitungan/:id`,
   },
 };
 
@@ -49,6 +38,10 @@ axiosInstance.interceptors.request.use(
 
 export { API_ENDPOINTS, axiosInstance };
 
+const getAuthPayload = (responseData) => {
+  return responseData?.data || responseData || {};
+};
+
 /**
  * LOGIN USER
  * Melakukan login ke sistem
@@ -57,43 +50,50 @@ export { API_ENDPOINTS, axiosInstance };
  */
 export const loginUser = async (data) => {
   try {
-    const response = await axiosInstance.post(
-      API_ENDPOINTS.auth.login,
-      data
-    );
+    const response = await axiosInstance.post(API_ENDPOINTS.auth.login, data);
+    const authPayload = getAuthPayload(response.data);
+    const token = authPayload.token || response.data?.token;
+    const user = authPayload.user || response.data?.user || null;
 
-    const token = response.data.data.token;
-    const user = response.data.data.user;
+    if (!token) {
+      throw new Error("Token tidak ditemukan dari server");
+    }
 
     // Simpan token
     saveToken(token);
 
     // Simpan user info
-    localStorage.setItem(
-      "user",
-      JSON.stringify(user)
-    );
-
-    // Simpan status login
-    localStorage.setItem("isLogin", "true");
+    if (user) {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
 
     return response.data;
   } catch (error) {
+    if (error.message === "Token tidak ditemukan dari server") {
+      throw error;
+    }
+
     throw new Error(
-      error.response?.data?.message ||
-        "Login gagal, server bermasalah"
+      error.response?.data?.message || "Login gagal, server bermasalah"
     );
   }
 };
 
 /**
  * LOGOUT USER
- * Menghapus token dan session dari localStorage
+ * Menghapus token dan session dari localStorage.
+ * Jika backend menyediakan endpoint logout, request akan dikirim lebih dulu.
  */
-export const logoutUser = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  localStorage.removeItem("isLogin");
+export const logoutUser = async () => {
+  try {
+    if (getToken()) {
+      await axiosInstance.post(API_ENDPOINTS.auth.logout);
+    }
+  } catch {
+    // Tetap lanjut logout lokal meskipun request logout ke server gagal.
+  } finally {
+    clearAuthData();
+  }
 };
 
 /**
@@ -102,7 +102,7 @@ export const logoutUser = () => {
  * @param {string} token - Token dari server
  */
 export const saveToken = (token) => {
-  localStorage.setItem("token", token);
+  localStorage.setItem(TOKEN_KEY, token);
 };
 
 /**
@@ -111,7 +111,7 @@ export const saveToken = (token) => {
  * @returns {string|null} Token jika ada, null jika tidak ada
  */
 export const getToken = () => {
-  return localStorage.getItem("token");
+  return localStorage.getItem(TOKEN_KEY);
 };
 
 /**
@@ -120,5 +120,33 @@ export const getToken = () => {
  * @returns {boolean} true jika login, false jika tidak
  */
 export const isAuthenticated = () => {
-  return localStorage.getItem("isLogin") === "true";
+  return Boolean(getToken());
+};
+
+/**
+ * AMBIL USER
+ * Mengambil data user dari localStorage
+ * @returns {object|null} Data user jika ada, null jika tidak ada
+ */
+export const getUser = () => {
+  const user = localStorage.getItem(USER_KEY);
+
+  if (!user) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(user);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * HAPUS DATA AUTH
+ * Membersihkan semua data auth dari localStorage
+ */
+export const clearAuthData = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
 };

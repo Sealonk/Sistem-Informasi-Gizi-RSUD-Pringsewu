@@ -24,9 +24,9 @@ export default function JenisPenyakit({
       short: "CHF",
     },
     {
-      label: "Jantung",
-      value: "jantung",
-      short: "JTG",
+      label: "Lambung",
+      value: "lambung",
+      short: "LMB",
     },
     {
       label: "Stroke",

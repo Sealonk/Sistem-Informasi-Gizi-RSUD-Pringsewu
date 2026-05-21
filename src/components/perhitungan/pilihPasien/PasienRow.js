@@ -32,9 +32,6 @@ export default function PasienRow({
         </span>
       </td>
 
-      {/* RUANGAN */}
-      <td className="px-6 py-5 text-sm text-slate-600">{patient.ruangan}</td>
-
       {/* BUTTON */}
       <td className="px-6 py-5 text-right">
         <button

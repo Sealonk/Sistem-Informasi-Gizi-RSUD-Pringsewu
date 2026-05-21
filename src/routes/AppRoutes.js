@@ -10,6 +10,7 @@ import Assessment from "../pages/perhitungan/Assessment";
 import HasilPerhitungan from "../pages/perhitungan/HasilPerhitungan";
 import Riwayat from "../pages/riwayat/Riwayat";
 import DetailRiwayat from "../components/riwayat/DetailRiwayat";
+import RingkasanSistem from "../pages/ringkasanSistem/RingkasanSistem";
 
 
 export default function AppRoutes() {
@@ -30,6 +31,12 @@ export default function AppRoutes() {
         <Route
           path="/portal"
           element={<PortalPage />}
+        />
+
+        {/* RINGKASAN SISTEM */}
+        <Route
+          path="/ringkasan-sistem"
+          element={<RingkasanSistem />}
         />
 
         {/* PERHITUNGAN */}

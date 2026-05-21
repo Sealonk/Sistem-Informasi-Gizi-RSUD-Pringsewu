@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ClipboardList, UsersRound } from "lucide-react";
 import PasienTable from "../../components/perhitungan/pilihPasien/PasienTable";
 import FilterCard from "../../components/perhitungan/pilihPasien/FilterCard";
 
@@ -16,7 +16,6 @@ export default function PilihPasien() {
   const [search, setSearch] =
     useState("");
 
-  const [selectedRuangan, setSelectedRuangan] = useState("Semua Ruangan");
   const [selectedDate, setSelectedDate] = useState("");
 
   const [pageSize, setPageSize] = useState(10);
@@ -37,7 +36,6 @@ export default function PilihPasien() {
   const handleReset = () => {
     setPeriode("Hari Ini");
     setSearch("");
-    setSelectedRuangan("Semua Ruangan");
     setSelectedDate("");
     setFilterError("");
   };
@@ -51,7 +49,6 @@ export default function PilihPasien() {
       umur: "45 Tahun",
       jk: "Laki-laki",
       tanggal: "16 Mei 2026",
-      ruangan: "Bangsal Penyakit Dalam",
       dateISO: "2026-05-16",
     },
     {
@@ -61,7 +58,6 @@ export default function PilihPasien() {
       umur: "52 Tahun",
       jk: "Perempuan",
       tanggal: "16 Mei 2026",
-      ruangan: "Bangsal Bedah",
       dateISO: "2026-05-16",
     },
     {
@@ -71,7 +67,6 @@ export default function PilihPasien() {
       umur: "38 Tahun",
       jk: "Laki-laki",
       tanggal: "15 Mei 2026",
-      ruangan: "Bangsal Penyakit Dalam",
       dateISO: "2026-05-15",
     },
   ];
@@ -112,11 +107,9 @@ export default function PilihPasien() {
 
     const matchesSearch = !keyword || patient.nama.toLowerCase().includes(keyword) || patient.rm.toLowerCase().includes(keyword);
 
-    const matchesRoom = selectedRuangan === "Semua Ruangan" || patient.ruangan === selectedRuangan;
-
     const matchesPeriod = isInPeriod(patient.dateISO);
 
-    return matchesSearch && matchesRoom && matchesPeriod;
+    return matchesSearch && matchesPeriod;
   });
 
   return (
@@ -141,64 +134,115 @@ export default function PilihPasien() {
         {/* HEADER */}
         <div
           className="
-            flex
-            items-start
-            justify-between
+            rounded-[24px]
+            border
+            border-blue-100
+            bg-white
+            p-6
+            shadow-sm
             mb-10
           "
         >
+          <div
+            className="
+              flex
+              items-start
+              justify-between
+              gap-6
+              flex-wrap
+            "
+          >
+            <div
+              className="
+                flex
+                items-start
+                gap-4
+              "
+            >
+              <div
+                className="
+                  w-14
+                  h-14
+                  rounded-2xl
+                  bg-blue-50
+                  text-blue-600
+                  flex
+                  items-center
+                  justify-center
+                  shrink-0
+                "
+              >
+                <UsersRound size={24} />
+              </div>
 
-          <div>
+              <div className="flex-1">
+                <h1
+                  className="
+                    text-2xl
+                    font-bold
+                    tracking-tight
+                    text-slate-900
+                    mb-2
+                  "
+                >
+                  Perhitungan Gizi
+                </h1>
 
-            {/* BACK */}
+                <p
+                  className="
+                    text-sm
+                    text-slate-500
+                    mb-4
+                  "
+                >
+                  Pilih data pasien sebelum melakukan assessment gizi.
+                </p>
+
+                <div
+                  className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    px-4
+                    py-2
+                    rounded-xl
+                    bg-blue-50
+                    text-blue-600
+                    text-sm
+                    font-medium
+                  "
+                >
+                  <ClipboardList size={16} />
+                  Data pasien siap dipilih untuk perhitungan
+                </div>
+              </div>
+            </div>
+
             <button
               onClick={() =>
                 navigate("/portal")
               }
               className="
+                h-12
+                px-5
+                rounded-2xl
+                border
+                border-blue-200
+                bg-white
+                text-blue-600
+                text-sm
+                font-semibold
                 flex
                 items-center
                 gap-2
-                text-slate-500
-                text-sm
-                mb-5
-                hover:text-blue-600
+                hover:bg-blue-50
                 transition-all
               "
             >
-
               <ArrowLeft size={18} />
-
               Kembali ke Portal
-
             </button>
-
-            {/* TITLE */}
-            <h1
-              className="
-                text-4xl
-                font-bold
-                text-slate-900
-                tracking-tight
-                mb-3
-              "
-            >
-              Pilih Pasien
-            </h1>
-
-            {/* SUBTITLE */}
-            <p
-              className="
-                text-slate-500
-                text-base
-              "
-            >
-              Pilih data pasien sebelum
-              melakukan assessment gizi
-            </p>
-
           </div>
-
         </div>
 
         <FilterCard
@@ -212,8 +256,6 @@ export default function PilihPasien() {
             setSelectedDate(value);
             setFilterError("");
           }}
-          selectedRuangan={selectedRuangan}
-          setSelectedRuangan={setSelectedRuangan}
           search={search}
           setSearch={setSearch}
           error={filterError}

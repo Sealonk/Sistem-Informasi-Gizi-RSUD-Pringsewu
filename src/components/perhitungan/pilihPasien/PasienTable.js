@@ -43,7 +43,6 @@ export default function PasienTable({ patients, pageSize = 10, onChangePageSize,
               <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">No. RM</th>
               <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Umur</th>
               <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Jenis Kelamin</th>
-              <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Ruangan / Bangsal</th>
               <th className="text-right px-6 py-4 text-sm font-semibold text-slate-600">Aksi</th>
 
             </tr>
@@ -57,7 +56,7 @@ export default function PasienTable({ patients, pageSize = 10, onChangePageSize,
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-500">
+                <td colSpan={5} className="px-6 py-12 text-center text-sm text-slate-500">
                   Tidak ada pasien yang sesuai filter.
                 </td>
               </tr>

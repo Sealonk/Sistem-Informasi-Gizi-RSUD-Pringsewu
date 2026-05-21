@@ -7,7 +7,13 @@ export default function PenambahanKalori({
   setData,
 }) {
 
+  const isMale =
+    data.jenisKelamin === "L";
+
   const handleToggle = (value) => {
+    if (isMale) {
+      return;
+    }
 
     const current =
       data.penambahanKalori || [];
@@ -15,12 +21,28 @@ export default function PenambahanKalori({
     const exists =
       current.includes(value);
 
+    if (value === "tidak_ada") {
+      setData({
+        ...data,
+        penambahanKalori: exists
+          ? []
+          : ["tidak_ada"],
+      });
+
+      return;
+    }
+
+    const nextValue = current.filter(
+      (item) =>
+        item !== "tidak_ada"
+    );
+
     if (exists) {
 
       setData({
         ...data,
         penambahanKalori:
-          current.filter(
+          nextValue.filter(
             (item) =>
               item !== value
           ),
@@ -31,7 +53,7 @@ export default function PenambahanKalori({
       setData({
         ...data,
         penambahanKalori: [
-          ...current,
+          ...nextValue,
           value,
         ],
       });
@@ -53,8 +75,8 @@ export default function PenambahanKalori({
       value: "metabolik",
     },
     {
-      label: "Lainnya",
-      value: "lainnya",
+      label: "Tidak ada",
+      value: "tidak_ada",
     },
   ];
 
@@ -66,6 +88,25 @@ export default function PenambahanKalori({
       subtitle="Tambahan kebutuhan energi pasien"
       icon={<PlusCircle size={20} />}
     >
+
+      {isMale && (
+        <div
+          className="
+            mb-4
+            rounded-2xl
+            border
+            border-slate-100
+            bg-slate-50
+            px-4
+            py-3
+            text-sm
+            font-medium
+            text-slate-500
+          "
+        >
+          Penambahan energi tidak tersedia untuk pasien laki-laki.
+        </div>
+      )}
 
       {/* OPTIONS */}
       <div
@@ -91,6 +132,7 @@ export default function PenambahanKalori({
               onClick={() =>
                 handleToggle(item.value)
               }
+              disabled={isMale}
               className={`
                 h-11
                 px-4
@@ -100,6 +142,8 @@ export default function PenambahanKalori({
                 font-medium
                 transition-all
                 duration-300
+                disabled:cursor-not-allowed
+                disabled:opacity-50
 
                 ${
                   active
@@ -124,50 +168,6 @@ export default function PenambahanKalori({
         })}
 
       </div>
-
-      {/* INPUT LAINNYA */}
-      {data.penambahanKalori?.includes(
-        "lainnya"
-      ) && (
-
-        <div className="mt-5">
-
-          <input
-            type="text"
-            placeholder="Sebutkan kondisi tambahan..."
-            value={
-              data.kaloriLainnya ||
-              ""
-            }
-            onChange={(e) =>
-              setData({
-                ...data,
-                kaloriLainnya:
-                  e.target.value,
-              })
-            }
-            className="
-              w-full
-              h-12
-              rounded-2xl
-              border
-              border-blue-100
-              bg-white
-              px-4
-              text-sm
-              text-slate-700
-              outline-none
-              transition-all
-
-              focus:border-blue-500
-              focus:ring-4
-              focus:ring-blue-100
-            "
-          />
-
-        </div>
-
-      )}
 
     </SectionCard>
   );

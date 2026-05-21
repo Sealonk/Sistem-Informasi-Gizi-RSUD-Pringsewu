@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
+import AssessmentStep from "../../components/perhitungan/assessment/AssessmentStep";
 import HasilHeader from "../../components/perhitungan/Hasil/HasilHeader";
 import SummaryCard from "../../components/perhitungan/Hasil/SummaryCard";
 import MakroChart from "../../components/perhitungan/Hasil/MakroChart";
@@ -59,6 +60,9 @@ export default function HasilPerhitungan() {
           space-y-6
         "
       >
+
+        {/* STEP */}
+        <AssessmentStep activeStep={2} />
 
         {/* HEADER */}
         <HasilHeader

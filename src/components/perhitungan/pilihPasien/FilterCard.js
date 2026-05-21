@@ -5,8 +5,6 @@ export default function FilterCard({
   setPeriode,
   selectedDate,
   setSelectedDate,
-  selectedRuangan,
-  setSelectedRuangan,
   search,
   setSearch,
   error,
@@ -15,7 +13,7 @@ export default function FilterCard({
 }) {
   return (
     <div className="bg-white rounded-[18px] border border-blue-100 shadow-soft p-6 mb-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
 
         {/* 1. Periode Data */}
         <div>
@@ -61,24 +59,10 @@ export default function FilterCard({
           </div>
         </div>
 
-        {/* 2. Ruangan / Bangsal */}
-        <div>
-          <div className="text-sm text-slate-500 mb-3">2. Ruangan / Bangsal</div>
-          <select
-            value={selectedRuangan}
-            onChange={(e) => setSelectedRuangan(e.target.value)}
-            className="h-10 rounded-lg border border-slate-100 px-3 text-sm w-full"
-          >
-            <option>Semua Ruangan</option>
-            <option>Bangsal Penyakit Dalam</option>
-            <option>Bangsal Bedah</option>
-          </select>
-        </div>
-
-        {/* 3. Cari Pasien */}
+        {/* 2. Cari Pasien */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <div className="text-sm text-slate-500">3. Cari Pasien</div>
+            <div className="text-sm text-slate-500">2. Cari Pasien</div>
             <button onClick={onReset} className="text-sm text-blue-600 hover:underline">Reset Filter</button>
           </div>
 
