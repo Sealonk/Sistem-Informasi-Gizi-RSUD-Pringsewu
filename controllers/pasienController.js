@@ -1,12 +1,18 @@
 const db = require('../config/database');
-const { hitungIMT } = require('../utils/rumusGizi');
 
 const getAllPasien = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
+        
+        // Menangkap parameter filter dari Frontend
+        const search = req.query.search || '';
+        const periode = req.query.periode || ''; // 'hari_ini', 'minggu_ini', 'bulan_ini', 'custom'
+        const startDate = req.query.startDate || '';
+        const endDate = req.query.endDate || '';
 
+        // Query Statistik Ringkasan (Tetap)
         const queryStats = `
             SELECT 
                 COUNT(*) AS total_pasien,
@@ -17,20 +23,51 @@ const getAllPasien = async (req, res, next) => {
         `;
         const [[statsData]] = await db.execute(queryStats);
 
-        const queryList = `
+        // Membangun query dinamis untuk pencarian dan filter
+        let queryList = `
             SELECT 
-                p.id_pasien, p.nama_pasien, p.umur, p.jenis_kelamin, p.status_gizi,
+                p.id_pasien, p.nama_pasien, p.no_rm, p.umur, p.jenis_kelamin, p.status_gizi, p.tanggal_masuk,
                 GROUP_CONCAT(mp.nama_penyakit SEPARATOR ', ') AS diagnosis
             FROM pasien p
             LEFT JOIN pasien_diagnosa pd ON p.id_pasien = pd.id_pasien
             LEFT JOIN master_penyakit mp ON pd.id_penyakit = mp.id_penyakit
+            WHERE 1=1
+        `;
+        const queryParams = [];
+
+        // 1. Filter Pencarian (Nama atau No. RM)
+        if (search) {
+            queryList += ` AND (p.nama_pasien LIKE ? OR p.no_rm LIKE ?)`;
+            queryParams.push(`%${search}%`, `%${search}%`);
+        }
+
+        // 2. Filter Periode Data
+        if (periode === 'hari_ini') {
+            queryList += ` AND DATE(p.tanggal_masuk) = CURDATE()`;
+        } else if (periode === 'minggu_ini') {
+            queryList += ` AND YEARWEEK(p.tanggal_masuk, 1) = YEARWEEK(CURDATE(), 1)`;
+        } else if (periode === 'bulan_ini') {
+            queryList += ` AND MONTH(p.tanggal_masuk) = MONTH(CURDATE()) AND YEAR(p.tanggal_masuk) = YEAR(CURDATE())`;
+        } else if (periode === 'custom' && startDate && endDate) {
+            queryList += ` AND DATE(p.tanggal_masuk) BETWEEN ? AND ?`;
+            queryParams.push(startDate, endDate);
+        }
+
+        queryList += `
             GROUP BY p.id_pasien
-            ORDER BY p.id_pasien DESC
+            ORDER BY p.tanggal_masuk DESC, p.id_pasien DESC
             LIMIT ? OFFSET ?
         `;
         
-        const [listPasien] = await db.query(queryList, [limit, offset]);
+        // Menambahkan limit dan offset ke array parameter
+        queryParams.push(limit.toString(), offset.toString());
 
+        // Agar aman dari error tipe data saat LIMIT/OFFSET
+        const [listPasien] = await db.execute(queryList, queryParams);
+
+        // Menghitung total data yang ditemukan setelah di-filter (untuk info "Total ditemukan: 3 pasien")
+        let totalDitemukan = listPasien.length; 
+        
         res.status(200).json({
             status: 'success',
             data: {
@@ -42,6 +79,7 @@ const getAllPasien = async (req, res, next) => {
                 },
                 pasien: listPasien,
                 pagination: {
+                    total_ditemukan: totalDitemukan,
                     halaman_sekarang: page,
                     limit_per_halaman: limit
                 }
@@ -80,121 +118,7 @@ const getPasienById = async (req, res, next) => {
     }
 };
 
-const createPasien = async (req, res, next) => {
-    const connection = await db.getConnection();
-    await connection.beginTransaction();
-
-    try {
-        const { nama_pasien, umur, berat_badan, tinggi_badan, jenis_kelamin, diagnosa } = req.body;
-
-        if (!nama_pasien || !umur || !berat_badan || !tinggi_badan || !jenis_kelamin) {
-            throw new Error('Semua field identitas dan antropometri wajib diisi');
-        }
-
-        const { nilaiIMT, statusGizi } = hitungIMT(berat_badan, tinggi_badan);
-
-        const queryInsertPasien = `
-            INSERT INTO pasien (nama_pasien, umur, jenis_kelamin, berat_badan, tinggi_badan, imt, status_gizi)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-        const [resultPasien] = await connection.execute(queryInsertPasien, [
-            nama_pasien, umur, jenis_kelamin, berat_badan, tinggi_badan, nilaiIMT, statusGizi
-        ]);
-
-        const idPasienBaru = resultPasien.insertId;
-
-        if (diagnosa && Array.isArray(diagnosa) && diagnosa.length > 0) {
-            const queryInsertDiagnosa = 'INSERT INTO pasien_diagnosa (id_pasien, id_penyakit) VALUES (?, ?)';
-            for (let id_penyakit of diagnosa) {
-                await connection.execute(queryInsertDiagnosa, [idPasienBaru, id_penyakit]);
-            }
-        }
-
-        await connection.commit();
-
-        res.status(201).json({
-            status: 'success',
-            message: 'Data pasien berhasil disimpan',
-            data: {
-                id_pasien: idPasienBaru,
-                imt: nilaiIMT,
-                status_gizi: statusGizi
-            }
-        });
-    } catch (error) {
-        await connection.rollback();
-        next(error);
-    } finally {
-        connection.release();
-    }
-};
-
-const updatePasien = async (req, res, next) => {
-    const connection = await db.getConnection();
-    await connection.beginTransaction();
-
-    try {
-        const { id } = req.params;
-        const { nama_pasien, umur, berat_badan, tinggi_badan, jenis_kelamin, diagnosa } = req.body;
-
-        const { nilaiIMT, statusGizi } = hitungIMT(berat_badan, tinggi_badan);
-
-        const queryUpdatePasien = `
-            UPDATE pasien 
-            SET nama_pasien = ?, umur = ?, jenis_kelamin = ?, berat_badan = ?, tinggi_badan = ?, imt = ?, status_gizi = ?
-            WHERE id_pasien = ?
-        `;
-        await connection.execute(queryUpdatePasien, [
-            nama_pasien, umur, jenis_kelamin, berat_badan, tinggi_badan, nilaiIMT, statusGizi, id
-        ]);
-
-        await connection.execute('DELETE FROM pasien_diagnosa WHERE id_pasien = ?', [id]);
-
-        if (diagnosa && Array.isArray(diagnosa) && diagnosa.length > 0) {
-            const queryInsertDiagnosa = 'INSERT INTO pasien_diagnosa (id_pasien, id_penyakit) VALUES (?, ?)';
-            for (let id_penyakit of diagnosa) {
-                await connection.execute(queryInsertDiagnosa, [id, id_penyakit]);
-            }
-        }
-
-        await connection.commit();
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Data pasien berhasil diperbarui'
-        });
-    } catch (error) {
-        await connection.rollback();
-        next(error);
-    } finally {
-        connection.release();
-    }
-};
-
-const deletePasien = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-
-        const queryDelete = 'DELETE FROM pasien WHERE id_pasien = ?';
-        const [result] = await db.execute(queryDelete, [id]);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ status: 'error', message: 'Data pasien tidak ditemukan' });
-        }
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Data pasien berhasil dihapus'
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
 module.exports = {
     getAllPasien,
-    getPasienById,
-    createPasien,
-    updatePasien,
-    deletePasien
+    getPasienById
 };

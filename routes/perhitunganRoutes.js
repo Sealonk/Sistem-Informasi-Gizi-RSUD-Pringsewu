@@ -7,4 +7,10 @@ router.post('/preview', authenticateToken, perhitunganController.previewPerhitun
 
 router.post('/simpan', authenticateToken, perhitunganController.simpanPerhitungan);
 
+router.get('/riwayat', authenticateToken, perhitunganController.getRiwayat);
+
+router.get('/riwayat/:id', authenticateToken, perhitunganController.getRiwayatDetail);
+
+router.delete('/riwayat/:id', authenticateToken, perhitunganController.deleteRiwayat);
+
 module.exports = router;
