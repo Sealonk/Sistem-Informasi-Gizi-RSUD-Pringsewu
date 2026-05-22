@@ -35,10 +35,9 @@ const getDashboardStats = async (req, res, next) => {
         `;
 
         // 4. Ambil Distribusi Penyakit (1 Bulan Terakhir)
-        // Karena diagnosa digabung koma, kita hitung dengan operasi LIKE
         const queryPenyakit = `
             SELECT 
-                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%Diabetes%' THEN 1 ELSE 0 END) AS dm,
+                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%DM%' OR diagnosa_penyakit_saat_dihitung LIKE '%Diabetes%' THEN 1 ELSE 0 END) AS dm,
                 SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%Lambung%' THEN 1 ELSE 0 END) AS lambung,
                 SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%Stroke%' THEN 1 ELSE 0 END) AS stroke,
                 SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%CHF%' OR diagnosa_penyakit_saat_dihitung LIKE '%Jantung%' THEN 1 ELSE 0 END) as chf,
@@ -48,16 +47,20 @@ const getDashboardStats = async (req, res, next) => {
         `;
 
         // 5. Ambil 5 Riwayat Terakhir
+        // PERBAIKAN: Menggunakan MAX dan GROUP BY agar data tidak terduplikasi akibat baris ganda dari tabel SIMRS
         const queryRiwayatTerakhir = `
             SELECT 
-                p.nama_pasien, p.jenis_kelamin, p.umur,
+                MAX(p.nm_pasien) AS nama_pasien, 
+                MAX(p.jk) AS jenis_kelamin, 
+                MAX(p.umurdaftar) AS umur,
                 pg.tanggal_perhitungan AS tanggal, 
                 pg.metode_perhitungan AS metode, 
                 pg.kebutuhan_energi_total AS energi,
                 pg.status_gizi_saat_dihitung AS status_gizi, 
                 pg.diagnosa_penyakit_saat_dihitung AS penyakit
             FROM perhitungan_gizi pg
-            JOIN pasien p ON pg.id_pasien = p.id_pasien
+            JOIN pasien p ON pg.no_rawat = p.no_rawat
+            GROUP BY pg.id_perhitungan
             ORDER BY pg.tanggal_perhitungan DESC
             LIMIT 5
         `;
@@ -87,7 +90,7 @@ const getDashboardStats = async (req, res, next) => {
 
         // Data Status Gizi (Menghitung Persentase)
         const formatStatusGizi = statusGiziData.map(item => ({
-            status: item.status, // Normal, Kurang Gizi, Obesitas
+            status: item.status, 
             jumlah: item.jumlah,
             persentase: totalBulanIni > 0 ? parseFloat(((item.jumlah / totalBulanIni) * 100).toFixed(1)) : 0
         }));

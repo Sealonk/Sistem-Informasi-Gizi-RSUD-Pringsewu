@@ -29,7 +29,7 @@ const simpanPerhitungan = async (req, res, next) => {
         const id_user = req.user.id_user; 
         
         const {
-            // Data Identitas & Antropometri
+            // id_pasien dari frontend sekarang berisi data no_rawat dari SIMRS (Contoh: '2023/01/01/000002')
             id_pasien, umur, jenis_kelamin, berat_badan, tinggi_badan, ruang_bangsal,
             
             // Data Estimasi (Jika Ada)
@@ -45,17 +45,20 @@ const simpanPerhitungan = async (req, res, next) => {
         } = req.body;
 
         if (!id_pasien) {
-            return res.status(400).json({ status: 'error', message: 'ID Pasien tidak ditemukan' });
+            return res.status(400).json({ status: 'error', message: 'ID Pasien / No Rawat tidak ditemukan' });
         }
 
         // Generate data otomatis
         const kelompok_umur = getKelompokUmur(umur);
         const { nilaiIMT, statusGizi } = hitungIMT(berat_badan, tinggi_badan);
+        
+        // Memastikan diagnosa penyakit yang dikirim adalah string
         const diagnosa_string = Array.isArray(diagnosa_penyakit) ? diagnosa_penyakit.join(', ') : diagnosa_penyakit;
 
-        // Susun objek data (pastikan variabel undefined diubah menjadi null jika tidak ada)
+        // Susun objek data 
         const dataPerhitungan = {
-            id_pasien, id_user,
+            no_rawat: id_pasien, // <--- DIMAPPING KE SINI AGAR SESUAI DENGAN TABEL SIMRS
+            id_user,
             umur_saat_dihitung: umur,
             kelompok_umur, 
             ruang_bangsal: ruang_bangsal || null,
@@ -70,11 +73,13 @@ const simpanPerhitungan = async (req, res, next) => {
             persen_lila: persen_lila || null,
             
             diagnosa_penyakit_saat_dihitung: diagnosa_string,
-            aktivitas_fisik,
+            
+            // PENYEMPURNAAN: Ditambahkan fallback ('Bed rest' dan 'Normal') agar sesuai dengan ENUM database NOT NULL
+            aktivitas_fisik: aktivitas_fisik || 'Bed rest',
             status_hemodialisa: status_hemodialisa || null,
             kategori_penambahan_energi: kategori_penambahan_energi || 'Tidak ada',
             metode_perhitungan: metode_perhitungan || 'Mifflin St Jeor',
-            faktor_stres,
+            faktor_stres: faktor_stres || 'Normal',
             
             bmr, faktor_aktivitas_nilai, faktor_stres_nilai, penambahan_kalori,
             kebutuhan_energi_total, protein_gram, lemak_gram, karbohidrat_gram
