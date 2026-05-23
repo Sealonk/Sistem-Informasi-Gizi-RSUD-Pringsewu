@@ -3,6 +3,7 @@
 // ==========================================
 
 const db = require('../config/database');
+const { getKelompokUmur, hitungIMT } = require('../utils/sharedRumus');
 
 const getAllPasien = async (req, res, next) => {
     try {
@@ -189,6 +190,25 @@ const getPasienById = async (req, res, next) => {
         if (pasien.has_stroke) diagnosa_array.push('Stroke');
         if (pasien.has_lambung) diagnosa_array.push('Lambung');
 
+        // ==========================================
+        // PROSES KALKULASI IMT DAN KELOMPOK UMUR
+        // ==========================================
+        const berat = parseFloat(pasien.berat_badan) || 0;
+        const tinggi = parseFloat(pasien.tinggi_badan) || 0;
+        const dataIMT = hitungIMT(berat, tinggi);
+
+        // Konversi umur ke tahun murni agar getKelompokUmur bisa membaca data bayi/anak
+        let umurNumerik = parseFloat(pasien.umurdaftar) || 0;
+        const sttsUmurStr = String(pasien.sttsumur).toLowerCase();
+        
+        if (sttsUmurStr.includes('bl') || sttsUmurStr.includes('bulan')) {
+            umurNumerik = parseFloat((umurNumerik / 12).toFixed(2));
+        } else if (sttsUmurStr.includes('hr') || sttsUmurStr.includes('hari')) {
+            umurNumerik = parseFloat((umurNumerik / 365).toFixed(2));
+        }
+
+        const kelompokUmur = getKelompokUmur(umurNumerik);
+
         res.status(200).json({
             status: 'success',
             data: {
@@ -196,9 +216,12 @@ const getPasienById = async (req, res, next) => {
                 nama_pasien: pasien.nama_pasien,
                 no_rm: pasien.no_rm,
                 umur: `${pasien.umurdaftar} ${pasien.sttsumur}`,
+                kelompok_umur: kelompokUmur,
                 jenis_kelamin: pasien.jenis_kelamin,
-                tinggi_badan: pasien.tinggi_badan,
-                berat_badan: pasien.berat_badan,
+                tinggi_badan: tinggi > 0 ? tinggi : null,
+                berat_badan: berat > 0 ? berat : null,
+                imt: dataIMT.nilaiIMT,
+                status_gizi: dataIMT.statusGizi,
                 diagnosis: diagnosa_array.length > 0 ? diagnosa_array.join(' + ') : '-',
                 diagnosa_kategori: diagnosa_array
             }
