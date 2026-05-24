@@ -180,14 +180,20 @@ const getRiwayat = async (req, res, next) => {
 
         // Filter rumpun penyakit terhitung
         if (penyakit && penyakit !== 'Semua Penyakit') {
-            whereClause += ` AND pg.diagnosa_penyakit_saat_dihitung LIKE ?`;
-            queryParams.push(`%${penyakit}%`);
+            // 1. Pecah string "CHF, DM" menjadi array ['CHF', 'DM']
+            const arrayPenyakit = penyakit.split(',').map(item => item.trim()).filter(item => item !== '');
+    
+            // 2. Buat kondisi LIKE untuk setiap penyakit yang dicari
+            arrayPenyakit.forEach(namaPenyakit => {
+                whereClause += ` AND pg.diagnosa_penyakit_saat_dihitung LIKE ?`;
+                queryParams.push(`%${namaPenyakit}%`);
+            });
         }
 
         // Filter tanggal input riwayat gizi
+        // SESUDAH:
         if (tanggal) {
-            // Menggunakan fungsi DATE() untuk mencocokkan format YYYY-MM-DD
-            whereClause += ` AND DATE(pg.created_at) = ?`;
+            whereClause += ` AND DATE(pg.tanggal_perhitungan) = ?`;
             queryParams.push(tanggal);
         }
 
@@ -209,7 +215,7 @@ const getRiwayat = async (req, res, next) => {
                 p.no_rkm_medis AS no_rm,
                 pg.diagnosa_penyakit_saat_dihitung AS penyakit,
                 pg.kebutuhan_energi_total AS total_energi,
-                pg.created_at AS tanggal_perhitungan
+                pg.tanggal_perhitungan 
             FROM perhitungan_gizi pg
             JOIN pasien p ON pg.no_rawat = p.no_rawat
             ${whereClause}

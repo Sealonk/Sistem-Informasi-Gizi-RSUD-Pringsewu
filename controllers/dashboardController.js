@@ -15,15 +15,23 @@ const getDashboardStats = async (req, res, next) => {
             FROM perhitungan_gizi
         `;
 
-        // 2. Ambil sebaran Status Gizi (1 Bulan Terakhir)
+        // 2. Ambil sebaran Status Gizi (1 Bulan Terakhir) menggunakan pengelompokan baku (CASE WHEN)
         const queryStatusGizi = `
-            SELECT status_gizi_saat_dihitung AS status, COUNT(*) AS jumlah
+            SELECT 
+                CASE 
+                    WHEN status_gizi_saat_dihitung LIKE '%Kurus%' OR status_gizi_saat_dihitung LIKE '%Kekurangan%' THEN 'Kurus'
+                    WHEN status_gizi_saat_dihitung LIKE '%Normal%' THEN 'Normal'
+                    WHEN status_gizi_saat_dihitung LIKE '%Kelebihan%' THEN 'Overweight'
+                    WHEN status_gizi_saat_dihitung LIKE '%Obesitas%' THEN 'Obesitas'
+                    ELSE 'Lainnya'
+                END AS kategori_baku, 
+                COUNT(*) AS jumlah
             FROM perhitungan_gizi
             WHERE tanggal_perhitungan >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
-            GROUP BY status_gizi_saat_dihitung
+            GROUP BY kategori_baku
         `;
 
-        // 3. Ambil Rata-rata Makronutrien (1 Bulan Terakhir)
+        // 3. Ambil Rata-rata Makronutrien (KESELURUHAN / ALL TIME)
         const queryRataRata = `
             SELECT 
                 AVG(kebutuhan_energi_total) AS avg_energi,
@@ -31,26 +39,34 @@ const getDashboardStats = async (req, res, next) => {
                 AVG(lemak_gram) AS avg_lemak,
                 AVG(karbohidrat_gram) AS avg_karbo
             FROM perhitungan_gizi
-            WHERE tanggal_perhitungan >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
         `;
 
-        // 4. Ambil Distribusi Penyakit (1 Bulan Terakhir)
+        // 4. Ambil Distribusi Penyakit (1 Bulan Terakhir) - Mengakomodasi Komplikasi Ganda
         const queryPenyakit = `
             SELECT 
                 SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%DM%' OR diagnosa_penyakit_saat_dihitung LIKE '%Diabetes%' THEN 1 ELSE 0 END) AS dm,
-                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%Lambung%' THEN 1 ELSE 0 END) AS lambung,
-                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%Stroke%' THEN 1 ELSE 0 END) AS stroke,
-                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%CHF%' OR diagnosa_penyakit_saat_dihitung LIKE '%Jantung%' THEN 1 ELSE 0 END) as chf,
-                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%CKD%' OR diagnosa_penyakit_saat_dihitung LIKE '%Ginjal%' THEN 1 ELSE 0 END) as ckd
+                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%Lambung%' OR diagnosa_penyakit_saat_dihitung LIKE '%Gastritis%' OR diagnosa_penyakit_saat_dihitung LIKE '%Dyspepsia%' OR diagnosa_penyakit_saat_dihitung LIKE '%GERD%' THEN 1 ELSE 0 END) AS lambung,
+                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%Stroke%' OR diagnosa_penyakit_saat_dihitung LIKE '%Infarction%' THEN 1 ELSE 0 END) AS stroke,
+                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%CHF%' OR diagnosa_penyakit_saat_dihitung LIKE '%Jantung%' OR diagnosa_penyakit_saat_dihitung LIKE '%Heart%' THEN 1 ELSE 0 END) as chf,
+                SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%CKD%' OR diagnosa_penyakit_saat_dihitung LIKE '%Ginjal%' OR diagnosa_penyakit_saat_dihitung LIKE '%Renal%' THEN 1 ELSE 0 END) as ckd,
+                
+                -- Kategori 'Lainnya' untuk penyakit yang sama sekali tidak mengandung kata kunci utama di atas
+                SUM(CASE WHEN 
+                    diagnosa_penyakit_saat_dihitung NOT LIKE '%DM%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Diabetes%' AND 
+                    diagnosa_penyakit_saat_dihitung NOT LIKE '%Lambung%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Gastritis%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Dyspepsia%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%GERD%' AND
+                    diagnosa_penyakit_saat_dihitung NOT LIKE '%Stroke%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Infarction%' AND
+                    diagnosa_penyakit_saat_dihitung NOT LIKE '%CHF%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Jantung%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Heart%' AND
+                    diagnosa_penyakit_saat_dihitung NOT LIKE '%CKD%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Ginjal%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Renal%'
+                THEN 1 ELSE 0 END) as lainnya
             FROM perhitungan_gizi
             WHERE tanggal_perhitungan >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
         `;
 
-        // 5. Ambil 5 Riwayat Terakhir
-        // PERBAIKAN: Menggunakan MAX dan GROUP BY agar data tidak terduplikasi akibat baris ganda dari tabel SIMRS
+        // 5. Ambil 5 Riwayat Terakhir (Ditambah field no_rm)
         const queryRiwayatTerakhir = `
             SELECT 
                 MAX(p.nm_pasien) AS nama_pasien, 
+                MAX(p.no_rkm_medis) AS no_rm,
                 MAX(p.jk) AS jenis_kelamin, 
                 MAX(p.umurdaftar) AS umur,
                 pg.tanggal_perhitungan AS tanggal, 
@@ -84,33 +100,58 @@ const getDashboardStats = async (req, res, next) => {
         // PEMROSESAN DATA UNTUK FRONTEND
         // ==========================================
         
-        // Data Top Cards
         const cardData = topCardsData[0];
         const totalBulanIni = Number(cardData.bulan_ini) || 0;
 
-        // Data Status Gizi (Menghitung Persentase)
-        const formatStatusGizi = statusGiziData.map(item => ({
-            status: item.status, 
-            jumlah: item.jumlah,
-            persentase: totalBulanIni > 0 ? parseFloat(((item.jumlah / totalBulanIni) * 100).toFixed(1)) : 0
+        // 1. Data Status Gizi
+        // Buat kerangka default agar ke-5 kategori selalu muncul di UI meski datanya 0
+        const mapStatusGizi = { 'Normal': 0, 'Kurus': 0, 'Overweight': 0, 'Obesitas': 0, 'Lainnya': 0 };
+        statusGiziData.forEach(item => {
+            if(mapStatusGizi[item.kategori_baku] !== undefined) {
+                mapStatusGizi[item.kategori_baku] = Number(item.jumlah);
+            }
+        });
+
+        const formatStatusGizi = Object.keys(mapStatusGizi).map(key => ({
+            status: key,
+            jumlah: mapStatusGizi[key],
+            persentase: totalBulanIni > 0 ? parseFloat(((mapStatusGizi[key] / totalBulanIni) * 100).toFixed(1)) : 0
         }));
 
-        // Data Penyakit (Menghitung Persentase)
+        // 2. Data Penyakit
         const p = penyakitData[0];
-        const totalPenyakitTerdeteksi = Number(p.dm) + Number(p.lambung) + Number(p.stroke) + Number(p.chf) + Number(p.ckd);
-        
+        // Mempertahankan totalBulanIni sebagai pembagi persentase agar sama dengan angka di tengah lingkaran UI
         const formatPenyakit = [
-            { nama: 'Diabetes Melitus', jumlah: Number(p.dm), persentase: totalPenyakitTerdeteksi > 0 ? parseFloat(((p.dm / totalPenyakitTerdeteksi) * 100).toFixed(1)) : 0 },
-            { nama: 'Ginjal Kronik (CKD)', jumlah: Number(p.ckd), persentase: totalPenyakitTerdeteksi > 0 ? parseFloat(((p.ckd / totalPenyakitTerdeteksi) * 100).toFixed(1)) : 0 },
-            { nama: 'Penyakit Jantung (CHF)', jumlah: Number(p.chf), persentase: totalPenyakitTerdeteksi > 0 ? parseFloat(((p.chf / totalPenyakitTerdeteksi) * 100).toFixed(1)) : 0 },
-            { nama: 'Lambung', jumlah: Number(p.lambung), persentase: totalPenyakitTerdeteksi > 0 ? parseFloat(((p.lambung / totalPenyakitTerdeteksi) * 100).toFixed(1)) : 0 },
-            { nama: 'Stroke', jumlah: Number(p.stroke), persentase: totalPenyakitTerdeteksi > 0 ? parseFloat(((p.stroke / totalPenyakitTerdeteksi) * 100).toFixed(1)) : 0 },
-        ].sort((a, b) => b.jumlah - a.jumlah); // Urutkan dari yang terbanyak
+            { nama: 'Diabetes Melitus', jumlah: Number(p.dm), persentase: totalBulanIni > 0 ? parseFloat(((p.dm / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Penyakit Jantung', jumlah: Number(p.chf), persentase: totalBulanIni > 0 ? parseFloat(((p.chf / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Ginjal Kronik', jumlah: Number(p.ckd), persentase: totalBulanIni > 0 ? parseFloat(((p.ckd / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Lambung', jumlah: Number(p.lambung), persentase: totalBulanIni > 0 ? parseFloat(((p.lambung / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Stroke', jumlah: Number(p.stroke), persentase: totalBulanIni > 0 ? parseFloat(((p.stroke / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Lainnya', jumlah: Number(p.lainnya), persentase: totalBulanIni > 0 ? parseFloat(((p.lainnya / totalBulanIni) * 100).toFixed(1)) : 0 }
+        ].sort((a, b) => b.jumlah - a.jumlah); // Mengurutkan dari jumlah kasus terbanyak ke terendah
 
-        // Data Rata-rata
+        // 3. Data Rata-rata
         const r = rataRataData[0];
 
-        // Format Response Akhir
+        // 4. Data Riwayat Terakhir (Format UI Brief)
+        const formatRiwayat = riwayatTerakhirData.map(item => {
+            const tglObj = new Date(item.tanggal);
+            return {
+                nama_pasien: item.nama_pasien,
+                no_rm: item.no_rm,
+                info_pasien: `${item.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}, ${item.umur} Tahun`,
+                tanggal: tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+                jam: tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                metode: item.metode,
+                energi: Math.round(item.energi).toLocaleString('id-ID'), // Mengubah 1850.5 jadi "1.851"
+                status_gizi: item.status_gizi,
+                penyakit: item.penyakit
+            }
+        });
+
+        // ==========================================
+        // RESPONSE AKHIR
+        // ==========================================
         res.status(200).json({
             status: 'success',
             message: 'Data statistik dashboard berhasil diambil',
@@ -128,7 +169,7 @@ const getDashboardStats = async (req, res, next) => {
                     karbohidrat_gram: r.avg_karbo ? parseFloat(Number(r.avg_karbo).toFixed(1)) : 0
                 },
                 distribusi_penyakit: formatPenyakit,
-                riwayat_terakhir: riwayatTerakhirData
+                riwayat_terakhir: formatRiwayat
             }
         });
 
