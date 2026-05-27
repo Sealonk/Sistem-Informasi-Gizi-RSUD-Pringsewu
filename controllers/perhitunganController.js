@@ -52,6 +52,20 @@ const previewPerhitungan = async (req, res, next) => {
         // SINKRONISASI UMUR: Konversi unit umur sebelum kalkulasi rumus gizi dilakukan
         if (dataInput.umur) {
             dataInput.umur = konversiUmurKeTahun(dataInput.umur);
+            
+            // VALIDASI EKSTRA: Tolak jika umur yang diinput manual ternyata anak-anak (< 18 tahun)
+            if (dataInput.umur < 18) {
+                return res.status(403).json({
+                    status: 'error',
+                    message: 'Perhitungan tidak dapat dilanjutkan karena pasien termasuk dalam kategori usia anak-anak (di bawah 18 tahun).'
+                });
+            }
+        } else {
+            // Validasi jika field umur sama sekali tidak diisi (kosong)
+            return res.status(400).json({
+                status: 'error',
+                message: 'Umur pasien wajib diisi untuk melakukan perhitungan.'
+            });
         }
         
         const hasilKalkulasi = kalkulasiGiziTotal(dataInput);
@@ -101,6 +115,14 @@ const simpanPerhitungan = async (req, res, next) => {
 
         // SINKRONISASI UMUR: Ubah ke nominal tahun numerik untuk kalkulasi akurat internal backend
         const umurNumerikTahun = konversiUmurKeTahun(umur);
+
+        // VALIDASI EKSTRA: Cegah penyimpanan jika data umur di bawah 18 tahun
+        if (umurNumerikTahun < 18) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Data tidak dapat disimpan karena pasien termasuk dalam kategori usia anak-anak (di bawah 18 tahun).'
+            });
+        }
 
         const kelompok_umur = getKelompokUmur(umurNumerikTahun);
         const { nilaiIMT, statusGizi } = hitungIMT(berat_badan, tinggi_badan);
