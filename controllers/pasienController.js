@@ -37,8 +37,8 @@ const getAllPasien = async (req, res, next) => {
         }
 
         // =======================================================
-        // 2. CTE (Common Table Expression) - JANTUNG DARI FILTER INI
-        // Menggabungkan baris, mengambil rawat terakhir, dan memfilter strict penyakit
+        // 2. CTE (Common Table Expression) 
+        // Ditambahkan filter otomatis untuk menyembunyikan anak-anak dari list
         // =======================================================
         const cteQuery = `
             WITH LatestRawat AS (
@@ -56,14 +56,12 @@ const getAllPasien = async (req, res, next) => {
                     MAX(p.sttsumur) AS sttsumur,
                     MAX(p.tgl_masuk) AS tanggal_masuk,
                     
-                    -- Deteksi Penyakit Valid
                     MAX(CASE WHEN p.kd_penyakit LIKE 'E10%' OR p.kd_penyakit LIKE 'E11%' OR p.kd_penyakit LIKE 'E12%' OR p.kd_penyakit LIKE 'E13%' OR p.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
                     MAX(CASE WHEN p.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
                     MAX(CASE WHEN p.kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
                     MAX(CASE WHEN p.kd_penyakit LIKE 'I60%' OR p.kd_penyakit LIKE 'I61%' OR p.kd_penyakit LIKE 'I62%' OR p.kd_penyakit LIKE 'I63%' OR p.kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
                     MAX(CASE WHEN p.kd_penyakit LIKE 'K21%' OR p.kd_penyakit LIKE 'K25%' OR p.kd_penyakit LIKE 'K29%' OR p.kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
                     
-                    -- Deteksi Penyakit Diluar Sistem (Akan digunakan untuk memblokir pasien)
                     SUM(CASE WHEN 
                         (p.kd_penyakit NOT LIKE 'E10%' AND p.kd_penyakit NOT LIKE 'E11%' AND p.kd_penyakit NOT LIKE 'E12%' AND p.kd_penyakit NOT LIKE 'E13%' AND p.kd_penyakit NOT LIKE 'E14%') AND
                         (p.kd_penyakit NOT LIKE 'N18%') AND
@@ -74,15 +72,15 @@ const getAllPasien = async (req, res, next) => {
                     THEN 1 ELSE 0 END) AS count_other
                 FROM pasien p
                 INNER JOIN LatestRawat lr ON p.no_rawat = lr.max_rawat
-                WHERE 1=1 ${whereClause}
+                WHERE 1=1 ${whereClause} 
+                -- FILTER UMUR: Hanya Dewasa (Menyembunyikan pasien dengan unit Bulan/Hari, atau Tahun tapi < 18)
+                AND NOT (LOWER(p.sttsumur) LIKE '%bl%' OR LOWER(p.sttsumur) LIKE '%hr%' OR (LOWER(p.sttsumur) LIKE '%th%' AND p.umurdaftar < 18))
                 GROUP BY p.no_rawat, p.no_rkm_medis
                 
-                -- ATURAN KETAT: Dilarang ada penyakit lain (count_other = 0) DAN harus punya minimal 1 penyakit sistem
                 HAVING count_other = 0 AND (has_dm = 1 OR has_ckd = 1 OR has_chf = 1 OR has_stroke = 1 OR has_lambung = 1)
             )
         `;
 
-        // 3. Eksekusi 3 Query secara paralel untuk kecepatan maksimal
         const queryStats = cteQuery + `
             SELECT 
                 COUNT(*) AS total_pasien,
@@ -103,15 +101,64 @@ const getAllPasien = async (req, res, next) => {
         const [[statsData]] = await db.execute(queryStats, queryParams);
         const [[countData]] = await db.execute(queryCount, queryParams);
         
-        // Memasukkan array param untuk list beserta limit/offset
         const queryParamsList = [...queryParams, limit.toString(), offset.toString()];
         const [rowsPasien] = await db.execute(queryList, queryParamsList);
 
-        // 4. Formatter Data agar komplikasi sesuai ("DM + CKD + CHF")
+        // =======================================================
+        // 3. INVESTIGASI PENCARIAN (FALLBACK VALIDATION)
+        // Jika user mencari pasien spesifik tapi hasilnya kosong, kita cek alasannya
+        // =======================================================
+        if (search && rowsPasien.length === 0) {
+            const checkQuery = `
+                SELECT 
+                    MAX(p.umurdaftar) AS umurdaftar, 
+                    MAX(p.sttsumur) AS sttsumur,
+                    MAX(CASE WHEN p.kd_penyakit LIKE 'E10%' OR p.kd_penyakit LIKE 'E11%' OR p.kd_penyakit LIKE 'E12%' OR p.kd_penyakit LIKE 'E13%' OR p.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
+                    MAX(CASE WHEN p.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
+                    MAX(CASE WHEN p.kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
+                    MAX(CASE WHEN p.kd_penyakit LIKE 'I60%' OR p.kd_penyakit LIKE 'I61%' OR p.kd_penyakit LIKE 'I62%' OR p.kd_penyakit LIKE 'I63%' OR p.kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
+                    MAX(CASE WHEN p.kd_penyakit LIKE 'K21%' OR p.kd_penyakit LIKE 'K25%' OR p.kd_penyakit LIKE 'K29%' OR p.kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
+                    SUM(CASE WHEN 
+                        (p.kd_penyakit NOT LIKE 'E10%' AND p.kd_penyakit NOT LIKE 'E11%' AND p.kd_penyakit NOT LIKE 'E12%' AND p.kd_penyakit NOT LIKE 'E13%' AND p.kd_penyakit NOT LIKE 'E14%') AND
+                        (p.kd_penyakit NOT LIKE 'N18%') AND
+                        (p.kd_penyakit NOT LIKE 'I50%') AND
+                        (p.kd_penyakit NOT LIKE 'I60%' AND p.kd_penyakit NOT LIKE 'I61%' AND p.kd_penyakit NOT LIKE 'I62%' AND p.kd_penyakit NOT LIKE 'I63%' AND p.kd_penyakit NOT LIKE 'I64%') AND
+                        (p.kd_penyakit NOT LIKE 'K21%' AND p.kd_penyakit NOT LIKE 'K25%' AND p.kd_penyakit NOT LIKE 'K29%' AND p.kd_penyakit NOT LIKE 'K30%') AND
+                        p.kd_penyakit IS NOT NULL AND p.kd_penyakit != ''
+                    THEN 1 ELSE 0 END) AS count_other
+                FROM pasien p
+                WHERE p.nm_pasien LIKE ? OR p.no_rkm_medis LIKE ?
+                GROUP BY p.no_rawat
+                ORDER BY MAX(p.tgl_masuk) DESC
+                LIMIT 1
+            `;
+            
+            const [rawCheck] = await db.execute(checkQuery, [`%${search}%`, `%${search}%`]);
+
+            // Skenario 1: Pasien benar-benar tidak ada di database
+            if (rawCheck.length === 0) {
+                return res.status(404).json({ status: 'error', message: 'Pasien yang dicari tidak ada' });
+            }
+
+            const suspect = rawCheck[0];
+            
+            // Skenario 2: Pasien ada, tapi Anak-anak
+            const isBulanAtauHari = suspect.sttsumur.toLowerCase().includes('bl') || suspect.sttsumur.toLowerCase().includes('hr');
+            const isAnakAnak = isBulanAtauHari || (suspect.sttsumur.toLowerCase().includes('th') && parseInt(suspect.umurdaftar) < 18);
+
+            if (isAnakAnak) {
+                return res.status(403).json({ status: 'error', message: 'Pasien ditemukan, namun sistem perhitungan gizi saat ini belum didukung untuk kategori pasien pediatri (anak-anak).' });
+            }
+
+            // Skenario 3: Pasien ada & Dewasa, tapi Penyakit tidak valid / ada komplikasi luar sistem
+            const hasValidDisease = suspect.has_dm || suspect.has_ckd || suspect.has_chf || suspect.has_stroke || suspect.has_lambung;
+            if (!hasValidDisease || suspect.count_other > 0) {
+                return res.status(403).json({ status: 'error', message: 'Pasien ditemukan, namun diagnosa penyakit pasien berada di luar kriteria layanan diet khusus pada sistem ini.' });
+            }
+        }
+
         const listPasienFormatted = rowsPasien.map(item => {
             let penyakitArr = [];
-            
-            // Urutan pengecekan disusun agar string outputnya rapi sesuai permintaan
             if (item.has_dm) penyakitArr.push('DM');
             if (item.has_ckd) penyakitArr.push('CKD');
             if (item.has_chf) penyakitArr.push('CHF');
@@ -119,13 +166,13 @@ const getAllPasien = async (req, res, next) => {
             if (item.has_lambung) penyakitArr.push('Lambung');
 
             return {
-                id_pasien: item.id_pasien, // Menyimpan no_rawat terakhir
+                id_pasien: item.id_pasien, 
                 nama_pasien: item.nama_pasien,
                 no_rm: item.no_rm,
                 umur: `${item.umurdaftar} ${item.sttsumur}`,
                 jenis_kelamin: item.jenis_kelamin,
                 tanggal_masuk: item.tanggal_masuk,
-                diagnosis: penyakitArr.join(' + ') // Akan otomatis merangkai jadi 'DM + CKD'
+                diagnosis: penyakitArr.join(' + ') 
             };
         });
 
@@ -155,7 +202,7 @@ const getPasienById = async (req, res, next) => {
     try {
         const { id } = req.params; 
 
-        // PERBAIKAN: Semua kolom yang tidak di-GROUP BY wajib dibungkus MAX()
+        // Query ditambahkan pengecekan count_other untuk memblokir by ID jika ada yang mencoba menembus lewat URL
         const queryPasien = `
             SELECT 
                 no_rawat AS id_pasien, 
@@ -170,7 +217,15 @@ const getPasienById = async (req, res, next) => {
                 MAX(CASE WHEN kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
                 MAX(CASE WHEN kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
                 MAX(CASE WHEN kd_penyakit LIKE 'I60%' OR kd_penyakit LIKE 'I61%' OR kd_penyakit LIKE 'I62%' OR kd_penyakit LIKE 'I63%' OR kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
-                MAX(CASE WHEN kd_penyakit LIKE 'K21%' OR kd_penyakit LIKE 'K25%' OR kd_penyakit LIKE 'K29%' OR kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung
+                MAX(CASE WHEN kd_penyakit LIKE 'K21%' OR kd_penyakit LIKE 'K25%' OR kd_penyakit LIKE 'K29%' OR kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
+                SUM(CASE WHEN 
+                    (kd_penyakit NOT LIKE 'E10%' AND kd_penyakit NOT LIKE 'E11%' AND kd_penyakit NOT LIKE 'E12%' AND kd_penyakit NOT LIKE 'E13%' AND kd_penyakit NOT LIKE 'E14%') AND
+                    (kd_penyakit NOT LIKE 'N18%') AND
+                    (kd_penyakit NOT LIKE 'I50%') AND
+                    (kd_penyakit NOT LIKE 'I60%' AND kd_penyakit NOT LIKE 'I61%' AND kd_penyakit NOT LIKE 'I62%' AND kd_penyakit NOT LIKE 'I63%' AND kd_penyakit NOT LIKE 'I64%') AND
+                    (kd_penyakit NOT LIKE 'K21%' AND kd_penyakit NOT LIKE 'K25%' AND kd_penyakit NOT LIKE 'K29%' AND kd_penyakit NOT LIKE 'K30%') AND
+                    kd_penyakit IS NOT NULL AND kd_penyakit != ''
+                THEN 1 ELSE 0 END) AS count_other
             FROM pasien 
             WHERE no_rawat = ?
             GROUP BY no_rawat
@@ -183,6 +238,19 @@ const getPasienById = async (req, res, next) => {
 
         const pasien = rows[0];
 
+        // Validasi Ekstra untuk Get By ID
+        const isBulanAtauHari = pasien.sttsumur.toLowerCase().includes('bl') || pasien.sttsumur.toLowerCase().includes('hr');
+        const isAnakAnak = isBulanAtauHari || (pasien.sttsumur.toLowerCase().includes('th') && parseInt(pasien.umurdaftar) < 18);
+
+        if (isAnakAnak) {
+            return res.status(403).json({ status: 'error', message: 'Pasien ditemukan, namun sistem perhitungan gizi saat ini belum didukung untuk kategori pasien pediatri (anak-anak).' });
+        }
+
+        const hasValidDisease = pasien.has_dm || pasien.has_ckd || pasien.has_chf || pasien.has_stroke || pasien.has_lambung;
+        if (!hasValidDisease || pasien.count_other > 0) {
+            return res.status(403).json({ status: 'error', message: 'Pasien ditemukan, namun diagnosa penyakit pasien berada di luar kriteria layanan diet khusus pada sistem ini.' });
+        }
+
         let diagnosa_array = [];
         if (pasien.has_dm) diagnosa_array.push('DM');
         if (pasien.has_ckd) diagnosa_array.push('CKD');
@@ -190,23 +258,11 @@ const getPasienById = async (req, res, next) => {
         if (pasien.has_stroke) diagnosa_array.push('Stroke');
         if (pasien.has_lambung) diagnosa_array.push('Lambung');
 
-        // ==========================================
-        // PROSES KALKULASI IMT DAN KELOMPOK UMUR
-        // ==========================================
         const berat = parseFloat(pasien.berat_badan) || 0;
         const tinggi = parseFloat(pasien.tinggi_badan) || 0;
         const dataIMT = hitungIMT(berat, tinggi);
 
-        // Konversi umur ke tahun murni agar getKelompokUmur bisa membaca data bayi/anak
         let umurNumerik = parseFloat(pasien.umurdaftar) || 0;
-        const sttsUmurStr = String(pasien.sttsumur).toLowerCase();
-        
-        if (sttsUmurStr.includes('bl') || sttsUmurStr.includes('bulan')) {
-            umurNumerik = parseFloat((umurNumerik / 12).toFixed(2));
-        } else if (sttsUmurStr.includes('hr') || sttsUmurStr.includes('hari')) {
-            umurNumerik = parseFloat((umurNumerik / 365).toFixed(2));
-        }
-
         const kelompokUmur = getKelompokUmur(umurNumerik);
 
         res.status(200).json({
