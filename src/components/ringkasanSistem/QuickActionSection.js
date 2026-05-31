@@ -1,50 +1,259 @@
+import {
+  ArrowRight,
+  Calculator,
+  History,
+} from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
-import { quickActions } from "./ringkasanData";
 
 export default function QuickActionSection() {
-  const navigate = useNavigate();
+
+  const navigate =
+    useNavigate();
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-soft">
-      <div className="mb-4">
-        <h2 className="text-sm font-extrabold text-slate-900">Aksi Cepat</h2>
-        <p className="mt-1 text-sm font-medium text-slate-500">
-          Lanjutkan pekerjaan utama dari ringkasan sistem.
+
+    <section
+      className="
+        rounded-[32px]
+        border
+        border-slate-200/80
+        bg-white/75
+        backdrop-blur-md
+        p-6
+        shadow-sm
+        hover:shadow-md
+        transition-all
+        duration-300
+      "
+    >
+
+      {/* HEADER */}
+      <div className="mb-6">
+
+        <h2
+          className="
+            text-lg
+            font-bold
+            text-slate-900
+          "
+        >
+          Aksi Cepat Pelayanan
+        </h2>
+
+        <p
+          className="
+            text-sm
+            text-slate-500
+          "
+        >
+          Akses cepat untuk memulai tugas kalkulasi gizi baru atau memantau riwayat rekam medis pasien.
         </p>
+
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {quickActions.map((item) => {
-          const Icon = item.icon;
-          const ActionIcon = item.actionIcon;
+      {/* ACTIONS */}
+      <div
+        className="
+          grid
+          grid-cols-1
+          md:grid-cols-2
+          gap-5
+        "
+      >
 
-          return (
-            <button
-              key={item.path}
-              type="button"
-              onClick={() => navigate(item.path)}
-              className="flex items-center justify-between gap-4 rounded-xl border border-blue-100 bg-blue-50/40 p-4 text-left transition-colors hover:bg-blue-50"
+        {/* MULAI */}
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/perhitungan")
+          }
+          className="
+            group
+            relative
+            overflow-hidden
+            flex
+            items-center
+            justify-between
+            rounded-2xl
+            border
+            border-slate-200/60
+            bg-white/50
+            p-5
+            transition-all
+            duration-300
+            hover:bg-blue-50/50
+            hover:border-blue-200/80
+            hover:shadow-lg
+            hover:shadow-blue-500/5
+            hover:-translate-y-0.5
+          "
+        >
+          {/* Accent top gradient stripe */}
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+          <div className="flex items-center gap-4 relative z-10">
+
+            <div
+              className="
+                flex
+                h-12
+                w-12
+                items-center
+                justify-center
+                rounded-xl
+                bg-blue-50
+                text-blue-600
+                transition-all
+                duration-300
+                group-hover:bg-blue-600
+                group-hover:text-white
+              "
             >
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
-                  <Icon size={21} />
-                </div>
+              <Calculator size={22} className="transition-transform duration-300 group-hover:scale-110" />
+            </div>
 
-                <div>
-                  <h3 className="text-sm font-extrabold text-slate-900">
-                    {item.title}
-                  </h3>
-                  <p className="mt-1 text-xs font-medium leading-relaxed text-slate-500">
-                    {item.description}
-                  </p>
-                </div>
-              </div>
+            <div className="text-left">
 
-              <ActionIcon size={18} className="shrink-0 text-blue-600" />
-            </button>
-          );
-        })}
+              <h3
+                className="
+                  text-sm
+                  font-bold
+                  text-slate-800
+                  transition-colors
+                  duration-300
+                  group-hover:text-blue-900
+                "
+              >
+                Mulai Perhitungan Gizi
+              </h3>
+
+              <p
+                className="
+                  mt-1
+                  text-xs
+                  text-slate-400
+                  font-medium
+                "
+              >
+                Pilih pasien aktif SIMRS dan lakukan asesmen asuhan gizi.
+              </p>
+
+            </div>
+
+          </div>
+
+          <ArrowRight
+            size={18}
+            className="
+              text-blue-500
+              transition-transform
+              duration-300
+              group-hover:translate-x-1.5
+              relative
+              z-10
+            "
+          />
+
+        </button>
+
+        {/* RIWAYAT */}
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/riwayat")
+          }
+          className="
+            group
+            relative
+            overflow-hidden
+            flex
+            items-center
+            justify-between
+            rounded-2xl
+            border
+            border-slate-200/60
+            bg-white/50
+            p-5
+            transition-all
+            duration-300
+            hover:bg-indigo-50/50
+            hover:border-indigo-200/80
+            hover:shadow-lg
+            hover:shadow-indigo-500/5
+            hover:-translate-y-0.5
+          "
+        >
+          {/* Accent top gradient stripe */}
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+          <div className="flex items-center gap-4 relative z-10">
+
+            <div
+              className="
+                flex
+                h-12
+                w-12
+                items-center
+                justify-center
+                rounded-xl
+                bg-indigo-50
+                text-indigo-600
+                transition-all
+                duration-300
+                group-hover:bg-indigo-600
+                group-hover:text-white
+              "
+            >
+              <History size={22} className="transition-transform duration-300 group-hover:scale-110" />
+            </div>
+
+            <div className="text-left">
+
+              <h3
+                className="
+                  text-sm
+                  font-bold
+                  text-slate-800
+                  transition-colors
+                  duration-300
+                  group-hover:text-indigo-900
+                "
+              >
+                Lihat Riwayat Asuhan
+              </h3>
+
+              <p
+                className="
+                  mt-1
+                  text-xs
+                  text-slate-400
+                  font-medium
+                "
+              >
+                Buka, cari, dan tinjau rekapitulasi riwayat perhitungan pasien.
+              </p>
+
+            </div>
+
+          </div>
+
+          <ArrowRight
+            size={18}
+            className="
+              text-indigo-500
+              transition-transform
+              duration-300
+              group-hover:translate-x-1.5
+              relative
+              z-10
+            "
+          />
+
+        </button>
+
       </div>
+
     </section>
   );
 }

@@ -11,61 +11,34 @@ export default function FaktorPerhitungan({
 
   /* AKTIVITAS */
   const getAktivitas = () => {
-
-    switch (
-      data.aktivitasFisik
-    ) {
-
-      case "ringan":
-        return "Ringan";
-
-      case "sedang":
-        return "Sedang";
-
-      case "berat":
-        return "Berat";
-
-      default:
-        return "-";
-    }
+    const val = data.aktivitasFisikLabel || data.aktivitasFisik;
+    if (!val) return "-";
+    return String(val);
   };
 
   /* STRESS */
   const getStress = () => {
-
-    switch (
-      data.faktorStress
-    ) {
-
-      case "ringan":
-        return "Ringan";
-
-      case "sedang":
-        return "Sedang";
-
-      case "berat":
-        return "Berat";
-
-      default:
-        return "-";
-    }
+    const val = data.faktorStressLabel || data.faktorStress;
+    if (!val) return "-";
+    return String(val);
   };
 
   /* METODE */
   const getMetode = () => {
-
-    switch (
-      data.metodePerhitungan
-    ) {
-
+    if (!data.metodePerhitungan) return "-";
+    const s = String(data.metodePerhitungan).toLowerCase().trim();
+    switch (s) {
       case "who":
         return "WHO";
-
       case "mifflin":
+      case "mifflin st jeor":
+      case "mifflin_st_jeor":
         return "Mifflin St Jeor";
-
+      case "harris benedict":
+      case "harris_benedict":
+        return "Harris Benedict";
       default:
-        return "-";
+        return data.metodePerhitungan;
     }
   };
 
@@ -85,47 +58,101 @@ export default function FaktorPerhitungan({
   };
 
   const items = [
-    {
-      label: "Aktivitas",
-      value: getAktivitas(),
-      icon: (
-        <Activity size={18} />
-      ),
-      color:
-        "bg-blue-50 text-blue-600",
-    },
-    {
-      label: "Stress",
-      value: getStress(),
-      icon: (
-        <Flame size={18} />
-      ),
-      color:
-        "bg-violet-50 text-violet-600",
-    },
-    {
-      label: "Metode",
-      value: getMetode(),
-      icon: (
-        <Calculator
-          size={18}
-        />
-      ),
-      color:
-        "bg-emerald-50 text-emerald-600",
-    },
-    {
-      label: "Penyakit",
-      value: getPenyakit(),
-      icon: (
-        <ClipboardList
-          size={18}
-        />
-      ),
-      color:
-        "bg-amber-50 text-amber-600",
-    },
-  ];
+  {
+    label: "Aktivitas",
+    value: getAktivitas(),
+    icon: (
+      <Activity size={18} />
+    ),
+    color:
+      "bg-blue-50 text-blue-600",
+  },
+  {
+    label: "Stress",
+    value: getStress(),
+    icon: (
+      <Flame size={18} />
+    ),
+    color:
+      "bg-violet-50 text-violet-600",
+  },
+  {
+    label: "Metode",
+    value: getMetode(),
+    icon: (
+      <Calculator
+        size={18}
+      />
+    ),
+    color:
+      "bg-emerald-50 text-emerald-600",
+  },
+  {
+    label: "Penyakit",
+    value: getPenyakit(),
+    icon: (
+      <ClipboardList
+        size={18}
+      />
+    ),
+    color:
+      "bg-amber-50 text-amber-600",
+  },
+
+  // =========================
+  // DATA BACKEND TAMBAHAN
+  // =========================
+
+  {
+    label: "BBI",
+    value: `${data.bbi || 0} kg`,
+    icon: (
+      <Calculator size={18} />
+    ),
+    color:
+      "bg-cyan-50 text-cyan-600",
+  },
+
+  {
+    label: "BMR",
+    value: `${data.bmr || 0} kkal`,
+    icon: (
+      <Flame size={18} />
+    ),
+    color:
+      "bg-rose-50 text-rose-600",
+  },
+
+  {
+    label: "Faktor Aktivitas",
+    value: `${data.faktorAktivitasNilai ?? 0} kkal`,
+    icon: (
+      <Activity size={18} />
+    ),
+    color:
+      "bg-indigo-50 text-indigo-600",
+  },
+
+  {
+    label: "Faktor Stress",
+    value: `${data.faktorStressNilai ?? 0} kkal`,
+    icon: (
+      <Flame size={18} />
+    ),
+    color:
+      "bg-fuchsia-50 text-fuchsia-600",
+  },
+
+  {
+    label: "Penambahan Kalori",
+    value: `${data.penambahanKaloriNilai || 0} kkal`,
+    icon: (
+      <Calculator size={18} />
+    ),
+    color:
+      "bg-orange-50 text-orange-600",
+  },
+];
 
   return (
 

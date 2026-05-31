@@ -46,11 +46,10 @@ export default function IdentitasPasien({
             label="Nama Pasien"
             placeholder="Masukkan nama pasien"
             value={data.nama}
+            readOnly
             onChange={(value) => setData({ ...data, nama: value })}
+            error={showErrors ? errors.nama : ""}
           />
-          {showErrors && errors.nama && (
-            <p className="mt-2 text-xs text-rose-600 font-medium">⚠ {errors.nama}</p>
-          )}
         </div>
 
         {/* NO RM */}
@@ -59,11 +58,10 @@ export default function IdentitasPasien({
             label="Nomor Rekam Medis"
             placeholder="Masukkan nomor RM"
             value={data.noRM}
+            readOnly
             onChange={(value) => setData({ ...data, noRM: value })}
+            error={showErrors ? errors.noRM : ""}
           />
-          {showErrors && errors.noRM && (
-            <p className="mt-2 text-xs text-rose-600 font-medium">⚠ {errors.noRM}</p>
-          )}
         </div>
 
         {/* UMUR */}
@@ -74,11 +72,17 @@ export default function IdentitasPasien({
             placeholder="Masukkan umur"
             suffix="Tahun"
             value={data.umur}
+            readOnly
             onChange={(value) => setData({ ...data, umur: value })}
+            error={
+            errors.umur &&
+               Number(data.umur) < 19
+               ? errors.umur
+               : showErrors
+               ? errors.umur
+               : ""
+}
           />
-          {showErrors && errors.umur && (
-            <p className="mt-2 text-xs text-rose-600 font-medium">⚠ {errors.umur}</p>
-          )}
         </div>
 
         {/* KELOMPOK UMUR */}
@@ -91,7 +95,7 @@ export default function IdentitasPasien({
 
       {/* JENIS KELAMIN */}
       <div className="mt-8">
-
+      
         <label
           className="
             block
@@ -116,6 +120,7 @@ export default function IdentitasPasien({
           {/* LAKI */}
           <button
             type="button"
+            disabled
             onClick={() =>
               setData({
                 ...data,
@@ -155,6 +160,7 @@ export default function IdentitasPasien({
           {/* PEREMPUAN */}
           <button
             type="button"
+            disabled
             onClick={() =>
               setData({
                 ...data,

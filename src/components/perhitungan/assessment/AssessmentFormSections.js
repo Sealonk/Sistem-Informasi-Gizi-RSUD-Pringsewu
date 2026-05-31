@@ -4,7 +4,7 @@ import FaktorStress from "./FaktorStress";
 import Hemodialisa from "./Hemodialisa";
 import IdentitasPasien from "./IdentitasPasien";
 import JenisPenyakit from "./JenisPenyakit";
-import MetodePerhitungan from "./MetodePerhtungan";
+import MetodePerhitungan from "./MetodePerhitungan";
 import PenambahanKalori from "./PenambahanKalori";
 
 export default function AssessmentFormSections({
@@ -13,6 +13,14 @@ export default function AssessmentFormSections({
   errors,
   showErrors,
 }) {
+  const isCkdWithoutDm = data.penyakit?.includes("ckd") && !data.penyakit?.includes("dm");
+  const isStrokeOnly =
+    data.penyakit?.length === 1 &&
+    data.penyakit?.includes("stroke");
+  const disableAktivitasStress =
+    isCkdWithoutDm ||
+    isStrokeOnly;
+
   return (
     <div className="space-y-8">
       <IdentitasPasien
@@ -38,6 +46,8 @@ export default function AssessmentFormSections({
         <Hemodialisa
           data={data}
           setData={setData}
+          errors={errors}
+          showErrors={showErrors}
         />
       )}
 
@@ -47,6 +57,7 @@ export default function AssessmentFormSections({
           setData={setData}
           errors={errors}
           showErrors={showErrors}
+          disabled={disableAktivitasStress}
         />
 
         <FaktorStress
@@ -54,6 +65,7 @@ export default function AssessmentFormSections({
           setData={setData}
           errors={errors}
           showErrors={showErrors}
+          disabled={disableAktivitasStress}
         />
       </div>
 
@@ -61,6 +73,7 @@ export default function AssessmentFormSections({
         <PenambahanKalori
           data={data}
           setData={setData}
+          disabled={isCkdWithoutDm}
         />
 
         <MetodePerhitungan

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function RiwayatRow({
   item,
+  onDelete,
 }) {
 
   const navigate =
@@ -41,18 +42,16 @@ export default function RiwayatRow({
               mb-1
             "
           >
-            {item.nama}
+            {item.nama_pasien}
           </h4>
 
           <p
             className="
               text-xs
-              text-slate-500
+              text-slate-400
             "
           >
-            ID:
-            {" "}
-            {item.id}
+            No. RM: {item.no_rm}
           </p>
 
         </div>
@@ -102,7 +101,7 @@ export default function RiwayatRow({
               text-slate-900
             "
           >
-            {item.energi}
+            {item.total_energi}
             {" "}
             kkal
           </h4>
@@ -136,7 +135,7 @@ export default function RiwayatRow({
             font-medium
           "
         >
-          {item.tanggal}
+          {item.tanggal_perhitungan}
         </p>
 
       </td>
@@ -184,35 +183,37 @@ export default function RiwayatRow({
         >
 
           {/* DETAIL */}
-          <button
-            onClick={() =>
-              navigate(
-                `/riwayat/${item.id}`,
-                {
-                  state: item,
-                }
-              )
-            }
-            className="
-              w-10
-              h-10
-              rounded-xl
-              bg-blue-50
-              text-blue-600
-              flex
-              items-center
-              justify-center
-              hover:bg-blue-100
-              transition-all
-            "
-          >
+<button
+  onClick={() => {
 
-            <Eye size={18} />
+    console.log(
+      "ID PERHITUNGAN:",
+      item.id_perhitungan
+    );
 
-          </button>
+    navigate(
+      `/riwayat/${item.id_perhitungan}`
+    );
+  }}
+  className="
+    w-10
+    h-10
+    rounded-xl
+    bg-blue-50
+    text-blue-600
+    flex
+    items-center
+    justify-center
+    hover:bg-blue-100
+    transition-all
+  "
+>
+  <Eye size={18} />
+</button>
 
           {/* HAPUS */}
           <button
+            onClick={() => onDelete(item.id_perhitungan)}
             className="
               w-10
               h-10

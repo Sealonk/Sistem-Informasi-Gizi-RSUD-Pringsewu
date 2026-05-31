@@ -42,12 +42,16 @@ export default function RingkasanHeader() {
   return (
     <header
       className="
-        rounded-[24px]
+        rounded-[32px]
         border
-        border-blue-100
-        bg-white
+        border-slate-200/80
+        bg-white/75
+        backdrop-blur-md
         p-6
         shadow-sm
+        hover:shadow-md
+        transition-all
+        duration-300
       "
     >
       <div

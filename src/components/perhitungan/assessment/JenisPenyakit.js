@@ -1,6 +1,36 @@
-import { Stethoscope } from "lucide-react";
+import { Stethoscope, AlertTriangle } from "lucide-react";
 
 import SectionCard from "../../common/SectionCard";
+
+export function isValidCombination(penyakitArray) {
+  if (!penyakitArray || penyakitArray.length === 0) return false;
+
+  const validCombinations = [
+    ["dm"],
+    ["dm", "ckd"],
+    ["dm", "ckd", "chf"],
+    ["dm", "chf"],
+    ["dm", "lambung"],
+    ["dm", "stroke"],
+    ["ckd"],
+    ["ckd", "chf"],
+    ["ckd", "lambung"],
+    ["ckd", "stroke"],
+    ["chf"],
+    ["chf", "lambung"],
+    ["chf", "stroke"],
+    ["lambung"],
+    ["stroke"],
+  ];
+
+  const sorted = [...penyakitArray].sort();
+
+  return validCombinations.some((combo) => {
+    const sortedCombo = [...combo].sort();
+    if (sortedCombo.length !== sorted.length) return false;
+    return sortedCombo.every((val, idx) => val === sorted[idx]);
+  });
+}
 
 export default function JenisPenyakit({
   data,
@@ -275,6 +305,18 @@ export default function JenisPenyakit({
         })}
 
       </div>
+
+      {data.penyakit?.length > 0 && !isValidCombination(data.penyakit) && (
+        <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 flex items-start gap-3">
+          <div className="mt-0.5 text-amber-500">
+            <AlertTriangle size={20} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-amber-800 mb-1">Kombinasi Penyakit Tidak Didukung</p>
+            <p className="text-sm text-amber-700 leading-relaxed">Kombinasi penyakit yang Anda pilih belum didukung oleh sistem perhitungan gizi. Silakan periksa kembali pilihan penyakit pasien.</p>
+          </div>
+        </div>
+      )}
 
     </SectionCard>
   );

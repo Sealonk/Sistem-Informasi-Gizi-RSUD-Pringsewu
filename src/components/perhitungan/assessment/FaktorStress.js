@@ -8,47 +8,131 @@ export default function FaktorStress({
   setData,
   errors = {},
   showErrors = false,
+  disabled = false,
 }) {
 
-  const stressOptions = [
+  const isDM =
+    data.penyakit?.includes("dm");
+
+  const isCHF =
+    data.penyakit?.includes("chf");
+
+  const dmOptions = [
     {
-      label: "Normal",
-      value: "normal",
+      label: "Ringan (10%)",
+      value: "Ringan",
     },
     {
-      label: "Ringan",
-      value: "ringan",
+      label: "Sedang (20%)",
+      value: "Sedang",
     },
     {
-      label: "Sedang",
-      value: "sedang",
-    },
-    {
-      label: "Berat",
-      value: "berat",
+      label: "Berat (30%)",
+      value: "Berat",
     },
   ];
 
+  const chfOptions = [
+    {
+      label: "Tidak Ada Stress",
+      value: "Tidak ada stress",
+    },
+    {
+      label: "Stress Ringan",
+      value: "Stress Ringan",
+    },
+    {
+      label: "Stress Ringan Sepsis",
+      value: "Stress Ringan Sepsis",
+    },
+    {
+      label: "Stress Berat",
+      value: "Stress Berat",
+    },
+    {
+      label: "Stress Sangat Berat",
+      value: "Stress Sangat Berat",
+    },
+  ];
+
+  const standardOptions = [
+    {
+      label: "Tidak Ada Stress",
+      value: "Tidak ada stress",
+    },
+    {
+      label: "Stress Ringan",
+      value: "Stress Ringan",
+    },
+    {
+      label: "Stress Ringan Sepsis",
+      value: "Stress Ringan Sepsis",
+    },
+    {
+      label: "Stress Berat",
+      value: "Stress Berat",
+    },
+    {
+      label: "Stress Sangat Berat",
+      value: "Stress Sangat Berat",
+    },
+  ];
+
+  const stressOptions =
+    isDM
+      ? dmOptions
+      : isCHF
+      ? chfOptions
+      : standardOptions;
+
   const getDescription = () => {
+    if (disabled) {
+      return "Tidak diperlukan untuk kondisi klinis ini.";
+    }
 
-    switch (
-      data.faktorStress
-    ) {
+    if (isDM) {
+      switch (data.faktorStress) {
+        case "Ringan":
+          return "Ringan — Tambahan kebutuhan energi sebesar 10%.";
+        case "Sedang":
+          return "Sedang — Tambahan kebutuhan energi sebesar 20%.";
+        case "Berat":
+          return "Berat — Tambahan kebutuhan energi sebesar 30%.";
+        default:
+          return (
+            <span>
+              Pilihan faktor stress:
+              <br />• Ringan (10%)
+              <br />• Sedang (20%)
+              <br />• Berat (30%)
+            </span>
+          );
+      }
+    }
 
-      case "normal":
-        return "Contoh: pasien stabil tanpa kondisi metabolik berat.";
-
-      case "ringan":
-        return "Contoh: infeksi ringan atau pasca operasi kecil.";
-
-      case "sedang":
-        return "Contoh: penyakit kronis stabil atau operasi sedang.";
-
-      case "berat":
-        return "Contoh: luka bakar, sepsis, trauma berat.";
-
+    // Non-DM (CHF, Stroke, Lambung, dll)
+    switch (data.faktorStress) {
+      case "Tidak ada stress":
+        return "Tidak Ada Stress — Faktor pengali stress: 1.1";
+      case "Stress Ringan":
+        return "Stress Ringan — Faktor pengali stress: 1.3";
+      case "Stress Ringan Sepsis":
+        return "Stress Ringan Sepsis — Faktor pengali stress: 1.5";
+      case "Stress Berat":
+        return "Stress Berat — Faktor pengali stress: 1.6";
+      case "Stress Sangat Berat":
+        return "Stress Sangat Berat — Faktor pengali stress: 1.7";
       default:
-        return "Pilih tingkat stress metabolik pasien.";
+        return (
+          <span>
+            Pilihan faktor stress:
+            <br />• Tidak Ada Stress (faktor 1.1)
+            <br />• Stress Ringan (faktor 1.3)
+            <br />• Stress Ringan Sepsis (faktor 1.5)
+            <br />• Stress Berat (faktor 1.6)
+            <br />• Stress Sangat Berat (faktor 1.7)
+          </span>
+        );
     }
   };
 
@@ -61,19 +145,29 @@ export default function FaktorStress({
       icon={<Flame size={20} />}
     >
 
-      {/* SELECT */}
       <SelectField
         label=""
-        placeholder="Pilih Faktor Stress"
+        placeholder={
+          disabled
+            ? "Di-disable untuk kondisi klinis ini"
+            : "Pilih Faktor Stress"
+        }
         value={data.faktorStress}
-        onChange={(value) => setData({ ...data, faktorStress: value })}
+        onChange={(value) =>
+          setData({
+            ...data,
+            faktorStress: value,
+          })
+        }
         options={stressOptions}
+        error={
+          showErrors
+            ? errors.faktorStress
+            : ""
+        }
+        disabled={disabled}
       />
-      {showErrors && errors.faktorStress && (
-        <p className="mt-2 text-xs text-rose-600 font-medium">⚠ {errors.faktorStress}</p>
-      )}
 
-      {/* DESCRIPTION */}
       <p
         className="
           mt-4

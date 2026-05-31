@@ -9,6 +9,7 @@ export default function HasilHeader({
 
   /* TANGGAL */
   const tanggal =
+    data.tanggal ||
     new Date().toLocaleDateString(
       "id-ID",
       {
@@ -22,13 +23,17 @@ export default function HasilHeader({
 
     <div
       className="
-        rounded-[24px]
+        rounded-[32px]
         border
-        border-slate-200
-        bg-white
+        border-slate-200/80
+        bg-white/75
+        backdrop-blur-md
         px-8
         py-8
         shadow-sm
+        hover:shadow-md
+        transition-all
+        duration-300
       "
     >
 

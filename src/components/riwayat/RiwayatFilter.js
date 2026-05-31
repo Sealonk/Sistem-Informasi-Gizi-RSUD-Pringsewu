@@ -4,7 +4,11 @@ import {
   Filter,
 } from "lucide-react";
 
-export default function RiwayatFilter() {
+export default function RiwayatFilter({
+  filters,
+  setFilters,
+  setPage,
+}) {
 
   return (
 
@@ -62,7 +66,12 @@ export default function RiwayatFilter() {
 
             <input
               type="text"
-              placeholder="Cari nama pasien..."
+              placeholder="Cari nama pasien atau No. RM..."
+              value={filters.search}
+              onChange={(e) => {
+                setFilters(prev => ({ ...prev, search: e.target.value }));
+                setPage(1);
+              }}
               className="
                 w-full
                 h-12
@@ -115,6 +124,11 @@ export default function RiwayatFilter() {
             />
 
             <select
+              value={filters.penyakit}
+              onChange={(e) => {
+                setFilters(prev => ({ ...prev, penyakit: e.target.value }));
+                setPage(1);
+              }}
               className="
                 w-full
                 h-12
@@ -130,24 +144,28 @@ export default function RiwayatFilter() {
               "
             >
 
-              <option>
+              <option value="Semua Penyakit">
                 Semua Penyakit
               </option>
 
-              <option>
+              <option value="DM">
                 DM
               </option>
 
-              <option>
+              <option value="CKD">
                 CKD
               </option>
 
-              <option>
+              <option value="CHF">
                 CHF
               </option>
 
-              <option>
+              <option value="Stroke">
                 Stroke
+              </option>
+
+              <option value="Lambung">
+                Lambung
               </option>
 
             </select>
@@ -190,6 +208,11 @@ export default function RiwayatFilter() {
 
             <input
               type="date"
+              value={filters.tanggal}
+              onChange={(e) => {
+                setFilters(prev => ({ ...prev, tanggal: e.target.value }));
+                setPage(1);
+              }}
               className="
                 w-full
                 h-12

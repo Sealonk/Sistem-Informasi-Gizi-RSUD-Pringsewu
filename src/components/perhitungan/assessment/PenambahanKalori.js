@@ -5,13 +5,15 @@ import SectionCard from "../../common/SectionCard";
 export default function PenambahanKalori({
   data,
   setData,
+  disabled = false,
 }) {
 
   const isMale =
     data.jenisKelamin === "L";
 
   const handleToggle = (value) => {
-    if (isMale) {
+
+    if (isMale || disabled) {
       return;
     }
 
@@ -21,12 +23,13 @@ export default function PenambahanKalori({
     const exists =
       current.includes(value);
 
-    if (value === "tidak_ada") {
+    if (value === "Tidak ada") {
+
       setData({
         ...data,
         penambahanKalori: exists
           ? []
-          : ["tidak_ada"],
+          : ["Tidak ada"],
       });
 
       return;
@@ -34,7 +37,7 @@ export default function PenambahanKalori({
 
     const nextValue = current.filter(
       (item) =>
-        item !== "tidak_ada"
+        item !== "Tidak ada"
     );
 
     if (exists) {
@@ -53,7 +56,6 @@ export default function PenambahanKalori({
       setData({
         ...data,
         penambahanKalori: [
-          ...nextValue,
           value,
         ],
       });
@@ -62,23 +64,56 @@ export default function PenambahanKalori({
 
   const options = [
     {
-      label: "Kehamilan",
-      value: "kehamilan",
+      label: "Trimester 1",
+      value: "Trimester 1",
     },
     {
-      label: "Menyusui",
-      value: "menyusui",
+      label: "Trimester 2",
+      value: "Trimester 2",
     },
     {
-      label:
-        "Kondisi metabolik lain",
-      value: "metabolik",
+      label: "Trimester 3",
+      value: "Trimester 3",
     },
     {
       label: "Tidak ada",
-      value: "tidak_ada",
+      value: "Tidak ada",
     },
   ];
+
+  const getDescription = () => {
+    if (isMale) {
+      return "Penambahan energi hanya berlaku untuk pasien perempuan (kehamilan).";
+    }
+    if (disabled) {
+      return "Tidak diperlukan untuk kondisi klinis ini.";
+    }
+
+    const selected = data.penambahanKalori || [];
+
+    if (selected.includes("Trimester 1")) {
+      return "Trimester 1 — Penambahan energi sebesar 300 kkal.";
+    }
+    if (selected.includes("Trimester 2")) {
+      return "Trimester 2 — Penambahan energi sebesar 300 kkal.";
+    }
+    if (selected.includes("Trimester 3")) {
+      return "Trimester 3 — Penambahan energi sebesar 500 kkal.";
+    }
+    if (selected.includes("Tidak ada")) {
+      return "Tidak ada penambahan energi dari kehamilan.";
+    }
+
+    return (
+      <span>
+        Pilihan penambahan energi:
+        <br />• Trimester 1 (300 kkal)
+        <br />• Trimester 2 (300 kkal)
+        <br />• Trimester 3 (500 kkal)
+        <br />• Tidak ada
+      </span>
+    );
+  };
 
   return (
 
@@ -108,7 +143,25 @@ export default function PenambahanKalori({
         </div>
       )}
 
-      {/* OPTIONS */}
+      {disabled && !isMale && (
+        <div
+          className="
+            mb-4
+            rounded-2xl
+            border
+            border-slate-100
+            bg-slate-50
+            px-4
+            py-3
+            text-sm
+            font-medium
+            text-slate-500
+          "
+        >
+          Penambahan energi di-disable untuk kondisi klinis ini.
+        </div>
+      )}
+
       <div
         className="
           flex
@@ -132,7 +185,7 @@ export default function PenambahanKalori({
               onClick={() =>
                 handleToggle(item.value)
               }
-              disabled={isMale}
+              disabled={isMale || disabled}
               className={`
                 h-11
                 px-4
@@ -168,6 +221,17 @@ export default function PenambahanKalori({
         })}
 
       </div>
+
+      <p
+        className="
+          mt-4
+          text-sm
+          leading-relaxed
+          text-slate-500
+        "
+      >
+        {getDescription()}
+      </p>
 
     </SectionCard>
   );

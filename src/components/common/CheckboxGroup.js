@@ -3,9 +3,11 @@ export default function CheckboxGroup({
   options = [],
   values = [],
   onChange,
+  disabled,
 }) {
 
   const handleToggle = (value) => {
+    if (disabled) return;
 
     if (values.includes(value)) {
 
@@ -69,20 +71,27 @@ export default function CheckboxGroup({
                 rounded-2xl
                 border
                 p-4
-                cursor-pointer
                 transition-all
                 duration-300
 
                 ${
-                  checked
+                  disabled
+                    ? `
+                      border-slate-100
+                      bg-slate-50
+                      cursor-not-allowed
+                    `
+                    : checked
                     ? `
                       border-blue-500
                       bg-blue-50
+                      cursor-pointer
                     `
                     : `
                       border-blue-100
                       bg-white
                       hover:bg-blue-50/50
+                      cursor-pointer
                     `
                 }
               `}
@@ -92,6 +101,7 @@ export default function CheckboxGroup({
               <input
                 type="checkbox"
                 checked={checked}
+                disabled={disabled}
                 onChange={() =>
                   handleToggle(option.value)
                 }

@@ -6,6 +6,8 @@ export default function SelectField({
   onChange,
   options = [],
   placeholder = "Pilih",
+  error,
+  disabled,
 }) {
   return (
     <div className="w-full">
@@ -20,7 +22,15 @@ export default function SelectField({
         <select
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
-          className="w-full h-14 rounded-2xl border border-slate-100 bg-white px-4 pr-12 text-[15px] text-slate-800 outline-none appearance-none transition-all duration-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 hover:border-slate-200"
+          disabled={disabled}
+          aria-invalid={Boolean(error)}
+          className={`w-full h-14 rounded-2xl border px-4 pr-12 text-[15px] outline-none appearance-none transition-all duration-300 ${
+            disabled
+              ? "border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed"
+              : error
+              ? "border-rose-300 bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-100 hover:border-rose-300"
+              : "border-slate-100 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 hover:border-slate-200"
+          }`}
         >
           {/* PLACEHOLDER */}
           <option value="">{placeholder}</option>
@@ -39,6 +49,12 @@ export default function SelectField({
           className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
         />
       </div>
+
+      {error && (
+        <p className="mt-2 text-xs font-medium text-rose-600">
+          ! {error}
+        </p>
+      )}
     </div>
   );
 }

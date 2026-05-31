@@ -5,9 +5,10 @@ import SectionCard from "../../common/SectionCard";
 export default function Hemodialisa({
   data,
   setData,
+  errors = {},
+  showErrors = false,
 }) {
 
-  /* CEK CKD */
   const isCKD =
     data.penyakit?.includes("ckd");
 
@@ -29,7 +30,6 @@ export default function Hemodialisa({
       icon={<Droplets size={26} />}
     >
 
-      {/* INFO */}
       {!isCKD && (
 
         <div
@@ -59,7 +59,6 @@ export default function Hemodialisa({
 
       )}
 
-      {/* OPTIONS */}
       <div
         className="
           grid
@@ -74,7 +73,7 @@ export default function Hemodialisa({
           type="button"
           disabled={!isCKD}
           onClick={() =>
-            handleSelect(true)
+            handleSelect("Ya")
           }
           className={`
             relative
@@ -88,7 +87,7 @@ export default function Hemodialisa({
 
             ${
               data.hemodialisa ===
-                true && isCKD
+                "Ya" && isCKD
                 ? `
                   border-blue-500
                   bg-gradient-to-br
@@ -118,7 +117,6 @@ export default function Hemodialisa({
           `}
         >
 
-          {/* TITLE */}
           <h3
             className="
               text-lg
@@ -130,7 +128,6 @@ export default function Hemodialisa({
             Ya Hemodialisa
           </h3>
 
-          {/* DESC */}
           <p
             className="
               text-sm
@@ -149,7 +146,7 @@ export default function Hemodialisa({
           type="button"
           disabled={!isCKD}
           onClick={() =>
-            handleSelect(false)
+            handleSelect("Tidak")
           }
           className={`
             relative
@@ -163,7 +160,7 @@ export default function Hemodialisa({
 
             ${
               data.hemodialisa ===
-                false && isCKD
+                "Tidak" && isCKD
                 ? `
                   border-blue-500
                   bg-gradient-to-br
@@ -193,7 +190,6 @@ export default function Hemodialisa({
           `}
         >
 
-          {/* TITLE */}
           <h3
             className="
               text-lg
@@ -205,7 +201,6 @@ export default function Hemodialisa({
             Tidak Hemodialisa
           </h3>
 
-          {/* DESC */}
           <p
             className="
               text-sm
@@ -220,6 +215,12 @@ export default function Hemodialisa({
         </button>
 
       </div>
+
+      {showErrors && errors.hemodialisa && (
+        <p className="mt-3 text-xs font-medium text-rose-600">
+          ! {errors.hemodialisa}
+        </p>
+      )}
 
     </SectionCard>
   );

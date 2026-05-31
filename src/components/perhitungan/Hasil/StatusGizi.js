@@ -16,32 +16,51 @@ export default function StatusGizi({
     Number(data.tb || 0);
 
   /* IMT */
-  const imt =
-    bb && tb
-      ? (
-          bb /
-          (
-            (tb / 100) *
-            (tb / 100)
-          )
-        ).toFixed(1)
-      : "-";
+  const tinggiM = tb / 100;
+
+let imt = "-";
+
+if (bb && tb) {
+
+  imt =
+    (
+      bb /
+      (tinggiM * tinggiM)
+    ).toFixed(2);
+}
 
   /* STATUS */
   const getStatus = () => {
 
-    const nilai = Number(imt);
+  if (
+    !bb ||
+    !tb
+  ) {
+    return "-";
+  }
 
-    if (!nilai) return "-";
+  const nilaiIMT =
+    bb /
+    Math.pow(tb / 100, 2);
 
-    if (nilai < 18.5)
-      return "Kurus";
+  if (nilaiIMT < 17) {
+    return "KEKURANGAN BB TINGKAT BERAT";
+  }
 
-    if (nilai <= 25)
-      return "Normal";
+  if (nilaiIMT < 18.5) {
+    return "KEKURANGAN BB TINGKAT RINGAN";
+  }
 
-    return "Overweight";
-  };
+  if (nilaiIMT <= 25) {
+    return "NORMAL";
+  }
+
+  if (nilaiIMT <= 27) {
+    return "KELEBIHAN BB TINGKAT RINGAN";
+  }
+
+  return "KELEBIHAN BB TINGKAT BERAT";
+};
 
   const items = [
     {

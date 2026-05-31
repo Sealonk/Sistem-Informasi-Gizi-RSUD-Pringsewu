@@ -1,5 +1,9 @@
 import { useState } from "react";
 
+import {
+  useLocation,
+} from "react-router-dom";
+
 import RiwayatHeader from "../../components/riwayat/RiwayatHeader";
 import RiwayatFilter from "../../components/riwayat/RiwayatFilter";
 import RiwayatTabs from "../../components/riwayat/RiwayatTabs";
@@ -9,10 +13,23 @@ import RiwayatTable from "../../components/riwayat/gizi/RiwayatTable";
 
 export default function Riwayat() {
 
+  const location =
+    useLocation();
+
   const [
     activeTab,
     setActiveTab,
   ] = useState("gizi");
+
+  const [filters, setFilters] = useState({
+    search:
+      location.state?.search || "",
+    penyakit: "Semua Penyakit",
+    tanggal: "",
+  });
+
+  const [page, setPage] =
+    useState(1);
 
   return (
 
@@ -49,11 +66,22 @@ export default function Riwayat() {
         {/* FILTER */}
         {activeTab ===
         "gizi" && (
-          <RiwayatFilter />
+          <RiwayatFilter
+            filters={filters}
+            setFilters={setFilters}
+            setPage={setPage}
+          />
         )}
 
         {/* TABLE */}
-        <RiwayatTable />
+        {activeTab ===
+        "gizi" && (
+          <RiwayatTable
+            filters={filters}
+            page={page}
+            setPage={setPage}
+          />
+        )}
 
       </div>
 

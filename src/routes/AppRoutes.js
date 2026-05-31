@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
+
 import LoginPage from "../pages/auth/Login";
 import PortalPage from "../pages/portal/PortalPage";
 import PilihPasien from "../pages/perhitungan/PilihPasien";
@@ -11,14 +12,11 @@ import HasilPerhitungan from "../pages/perhitungan/HasilPerhitungan";
 import Riwayat from "../pages/riwayat/Riwayat";
 import DetailRiwayat from "../components/riwayat/DetailRiwayat";
 import RingkasanSistem from "../pages/ringkasanSistem/RingkasanSistem";
-
+import ProtectedRoute from "../routes/ProtectedRoute";
 
 export default function AppRoutes() {
-
   return (
-
     <BrowserRouter>
-
       <Routes>
 
         {/* LOGIN */}
@@ -30,32 +28,50 @@ export default function AppRoutes() {
         {/* PORTAL */}
         <Route
           path="/portal"
-          element={<PortalPage />}
+          element={
+            <ProtectedRoute>
+              <PortalPage />
+            </ProtectedRoute>
+          }
         />
 
         {/* RINGKASAN SISTEM */}
         <Route
           path="/ringkasan-sistem"
-          element={<RingkasanSistem />}
+          element={
+            <ProtectedRoute>
+              <RingkasanSistem />
+            </ProtectedRoute>
+          }
         />
 
         {/* PERHITUNGAN */}
         <Route
           path="/perhitungan"
-          element={<PilihPasien />}
+          element={
+            <ProtectedRoute>
+              <PilihPasien />
+            </ProtectedRoute>
+          }
         />
 
         {/* ASSESSMENT */}
         <Route
           path="/assessment"
-          element={<Assessment />}
+          element={
+            <ProtectedRoute>
+              <Assessment />
+            </ProtectedRoute>
+          }
         />
 
         {/* HASIL */}
         <Route
           path="/hasil"
           element={
-            <HasilPerhitungan />
+            <ProtectedRoute>
+              <HasilPerhitungan />
+            </ProtectedRoute>
           }
         />
 
@@ -63,19 +79,23 @@ export default function AppRoutes() {
         <Route
           path="/riwayat"
           element={
-            <Riwayat />
+            <ProtectedRoute>
+              <Riwayat />
+            </ProtectedRoute>
           }
         />
 
-<Route
-  path="/riwayat/:id"
-  element={
-    <DetailRiwayat />
-  }
-/>
+        {/* DETAIL RIWAYAT */}
+        <Route
+          path="/riwayat/:id"
+          element={
+            <ProtectedRoute>
+              <DetailRiwayat />
+            </ProtectedRoute>
+          }
+        />
 
       </Routes>
-
     </BrowserRouter>
   );
 }

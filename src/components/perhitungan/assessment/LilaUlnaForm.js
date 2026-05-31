@@ -3,6 +3,8 @@ import InputField from "../../common/InputField";
 export default function LilaUlnaForm({
   data,
   setData,
+  errors = {},
+  showErrors = false,
 }) {
 
   /* HITUNG PERSEN LILA */
@@ -50,6 +52,7 @@ export default function LilaUlnaForm({
             lila: value,
           })
         }
+        error={showErrors ? errors.lila : ""}
       />
 
       {/* ULNA */}
@@ -65,6 +68,7 @@ export default function LilaUlnaForm({
             ulna: value,
           })
         }
+        error={showErrors ? errors.ulna : ""}
       />
 
       {/* BB ESTIMASI */}
@@ -74,12 +78,7 @@ export default function LilaUlnaForm({
         placeholder="Estimasi berat badan"
         suffix="kg"
         value={data.bbEstimasi}
-        onChange={(value) =>
-          setData({
-            ...data,
-            bbEstimasi: value,
-          })
-        }
+        readOnly
       />
 
       {/* TB ESTIMASI */}
@@ -89,12 +88,7 @@ export default function LilaUlnaForm({
         placeholder="Estimasi tinggi badan"
         suffix="cm"
         value={data.tbEstimasi}
-        onChange={(value) =>
-          setData({
-            ...data,
-            tbEstimasi: value,
-          })
-        }
+        readOnly
       />
 
       {/* PERSEN LILA */}
@@ -104,12 +98,7 @@ export default function LilaUlnaForm({
         placeholder="Masukkan persen LILA"
         suffix="%"
         value={data.persenLila}
-        onChange={(value) =>
-          setData({
-            ...data,
-            persenLila: value,
-          })
-        }
+        readOnly
       />
 
       {/* STATUS GIZI */}

@@ -6,6 +6,7 @@ export default function InputField({
   onChange,
   suffix,
   readOnly = false,
+  error,
 }) {
   return (
     <div className="w-full">
@@ -22,11 +23,14 @@ export default function InputField({
           placeholder={placeholder}
           value={value}
           readOnly={readOnly}
+          aria-invalid={Boolean(error)}
           onChange={(e) => onChange?.(e.target.value)}
           className={`w-full h-14 rounded-2xl border bg-white px-4 text-[15px] text-slate-800 outline-none transition-all duration-300 ${
             readOnly
               ? "border-slate-100 bg-slate-50 text-slate-500 cursor-not-allowed"
-              : "border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 hover:border-slate-200"
+              : error
+                ? "border-rose-300 focus:border-rose-500 focus:ring-4 focus:ring-rose-100 hover:border-rose-300"
+                : "border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 hover:border-slate-200"
           } ${suffix ? "pr-14" : ""}`}
         />
 
@@ -37,6 +41,12 @@ export default function InputField({
           </span>
         )}
       </div>
+
+      {error && (
+        <p className="mt-2 text-xs font-medium text-rose-600">
+          ! {error}
+        </p>
+      )}
     </div>
   );
 }

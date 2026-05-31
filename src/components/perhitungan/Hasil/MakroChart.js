@@ -7,27 +7,32 @@ export default function MakroChart({
 }) {
 
   const data = [
-    {
-      label: "Protein",
-      value:
-        hasil?.protein || 0,
-      color: "bg-blue-500",
-    },
-    {
-      label: "Lemak",
-      value:
-        hasil?.lemak || 0,
-      color: "bg-yellow-500",
-    },
-    {
-      label: "Karbohidrat",
-      value:
-        hasil?.karbohidrat ||
-        0,
-      color:
-        "bg-emerald-500",
-    },
-  ];
+  {
+    label: "Protein",
+    value:
+      hasil?.protein || 0,
+    persen:
+      hasil?.proteinPersen || 0,
+    color: "bg-blue-500",
+  },
+  {
+    label: "Lemak",
+    value:
+      hasil?.lemak || 0,
+    persen:
+      hasil?.lemakPersen || 0,
+    color: "bg-yellow-500",
+  },
+  {
+    label: "Karbohidrat",
+    value:
+      hasil?.karbohidrat || 0,
+    persen:
+      hasil?.karbohidratPersen || 0,
+    color:
+      "bg-emerald-500",
+  },
+];
 
   const maxValue = Math.max(
     ...data.map(
@@ -138,15 +143,18 @@ export default function MakroChart({
                   {item.label}
                 </p>
 
-                <p
-                  className="
-                    text-sm
-                    font-semibold
-                    text-slate-900
-                  "
-                >
-                  {item.value} g
-                </p>
+              <p
+               className="
+                text-sm
+               font-semibold
+               text-slate-900
+  "
+>
+  {item.value} g
+  <span className="ml-2 text-slate-500 font-medium">
+    ({item.persen}%)
+  </span>
+</p>
 
               </div>
 

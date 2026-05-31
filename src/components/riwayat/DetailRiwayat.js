@@ -1,61 +1,139 @@
-import {
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+
+import { getRiwayatDetail } from "../../services/PasienServices/riwayatApi";
 
 import HasilHeader from "../../components/perhitungan/Hasil/HasilHeader";
 import SummaryCard from "../../components/perhitungan/Hasil/SummaryCard";
 import MakroChart from "../../components/perhitungan/Hasil/MakroChart";
 import FaktorPerhitungan from "../../components/perhitungan/Hasil/FaktorPerhitungan";
 import StatusGizi from "../../components/perhitungan/Hasil/StatusGizi";
-import HasilAction from "../../components/perhitungan/Hasil/HasilAction";
 
 export default function DetailRiwayat() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [detailData, setDetailData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const navigate =
-    useNavigate();
+  useEffect(() => {
+    const fetchDetail = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await getRiwayatDetail(id);
+        if (response.status === "success") {
+          setDetailData(response.data);
+        } else {
+          setError(response.message || "Gagal memuat detail riwayat");
+        }
+      } catch (err) {
+        setError(err.message || "Terjadi kesalahan saat menghubungi server");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const location =
-    useLocation();
+    if (id) {
+      fetchDetail();
+    }
+  }, [id]);
 
-  const pasien =
-    location.state;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
+        <Loader2 size={38} className="text-blue-600 animate-spin" />
+        <p className="text-sm font-semibold text-slate-500">Memuat detail riwayat perhitungan...</p>
+      </div>
+    );
+  }
 
-  /* DATA */
-  const data = {
-    nama:
-      pasien?.nama || "-",
+  if (error || !detailData) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-2xl font-bold mb-4">
+          !
+        </div>
+        <h2 className="text-xl font-bold text-slate-900 mb-2">Terjadi Kesalahan</h2>
+        <p className="text-slate-500 max-w-md mb-6">{error || "Data riwayat perhitungan tidak ditemukan."}</p>
+        <button
+          onClick={() => navigate("/riwayat")}
+          className="h-11 px-5 bg-blue-600 text-white rounded-2xl font-semibold text-sm hover:bg-blue-700 transition-all shadow-md"
+        >
+          Kembali ke Riwayat
+        </button>
+      </div>
+    );
+  }
 
-    bb: 62,
-    tb: 168,
+  /* 1. MAPPING UNTUK HASIL HEADER */
+  const formattedTanggal = new Date(detailData.tanggal_perhitungan).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 
-    aktivitasFisik:
-      "sedang",
-
-    faktorStress:
-      "ringan",
-
-    metodePerhitungan:
-      "mifflin",
-
-    penyakit: [
-      pasien?.penyakit ||
-        "-",
-    ],
+  const headerData = {
+    nama: detailData.nama_pasien,
+    noRM: detailData.no_rm,
+    umur: detailData.umur_saat_dihitung ? Math.round(detailData.umur_saat_dihitung) : "-",
+    jenisKelamin: detailData.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan",
+    tanggal: formattedTanggal,
+    ruangan: detailData.ruang_bangsal || "-",
   };
 
-  /* HASIL */
-  const hasil = {
-    energi:
-      pasien?.energi || 0,
+  /* 2. MAPPING UNTUK SUMMARY CARD & MAKRO CHART */
+  const hasilData = {
+    energi: detailData.kebutuhan_energi_total || 0,
+    protein: detailData.protein_gram || 0,
+    lemak: detailData.lemak_gram || 0,
+    karbohidrat: detailData.karbohidrat_gram || 0,
+  };
 
-    protein: 72,
-    lemak: 57,
-    karbohidrat: 215,
+  /* 3. MAPPING UNTUK FAKTOR PERHITUNGAN */
+  const penyakitArray = detailData.diagnosa_penyakit_saat_dihitung
+    ? detailData.diagnosa_penyakit_saat_dihitung.split(",").map((p) => p.trim())
+    : [];
+
+  const faktorData = {
+  aktivitasFisik:
+    detailData.aktivitas_fisik,
+
+  faktorStress:
+    detailData.faktor_stres,
+
+  metodePerhitungan:
+    detailData.metode_perhitungan,
+
+  penyakit:
+    penyakitArray,
+
+  bbi:
+    detailData.berat_badan_ideal,
+
+  bmr:
+    detailData.bmr,
+
+  faktorAktivitasNilai:
+    detailData.faktor_aktivitas_nilai,
+
+  faktorStressNilai:
+    detailData.faktor_stres_nilai,
+
+  penambahanKalori:
+    detailData.penambahan_kalori,
+};
+
+  /* 4. MAPPING UNTUK STATUS GIZI */
+  const statusGiziData = {
+    bb: detailData.berat_badan_saat_dihitung,
+    tb: detailData.tinggi_badan_saat_dihitung,
+    imt_nilai: detailData.imt_saat_dihitung,
+    imt_status: detailData.status_gizi_saat_dihitung,
   };
 
   return (
-
     <div
       className="
         min-h-screen
@@ -64,7 +142,6 @@ export default function DetailRiwayat() {
         py-8
       "
     >
-
       <div
         className="
           max-w-7xl
@@ -72,16 +149,11 @@ export default function DetailRiwayat() {
           space-y-6
         "
       >
-
         {/* HEADER */}
-        <HasilHeader
-          data={data}
-        />
+        <HasilHeader data={headerData} />
 
         {/* SUMMARY */}
-        <SummaryCard
-          hasil={hasil}
-        />
+        <SummaryCard hasil={hasilData} />
 
         {/* GRID */}
         <div
@@ -92,31 +164,57 @@ export default function DetailRiwayat() {
             gap-6
           "
         >
-
           {/* CHART */}
-          <MakroChart
-            hasil={hasil}
-          />
+          <MakroChart hasil={hasilData} />
 
           {/* FAKTOR */}
-          <FaktorPerhitungan
-            data={data}
-          />
-
+          <FaktorPerhitungan data={faktorData} />
         </div>
 
         {/* STATUS */}
-        <StatusGizi
-          data={data}
-        />
+        <StatusGizi data={statusGiziData} />
 
         {/* ACTION */}
-        <HasilAction
-          navigate={navigate}
-        />
+        <div className= "flex flex-col sm:flex-row justify-end gap-3">
+          <button
+    type="button"
+    onClick={() => navigate("/portal")}
+    className="
+      h-12
+      px-6
+      rounded-2xl
+      border
+      border-slate-200
+      bg-white
+      text-slate-700
+      font-semibold
+      hover:bg-slate-50
+      transition-all
+    "
+  >
+    Kembali ke Portal
+  </button>
+
+  <button
+    type="button"
+    onClick={() => navigate("/riwayat")}
+    className="
+      h-12
+      px-6
+      rounded-2xl
+      bg-blue-600
+      text-white
+      font-semibold
+      hover:bg-blue-700
+      transition-all
+    "
+  >
+    Kembali ke Riwayat
+  </button>
+
+        </div>
 
       </div>
-
     </div>
   );
 }
