@@ -50,35 +50,37 @@ const hitungDM_CKD_CHF = (data) => {
 
     // 5. KOREKSI AKTIVITAS
     let koreksiAktivitasNilai = 0;
-    switch (aktivitas_fisik) {
-        case 'Bed rest':
-            koreksiAktivitasNilai = energiBasal * 0.10; 
+    const aktivitasNormal = aktivitas_fisik?.toLowerCase();
+    switch (aktivitasNormal) {
+        case 'bed rest':
+            koreksiAktivitasNilai = energiBasal * 0.10; // +10%
             break;
-        case 'Ringan':
-            koreksiAktivitasNilai = energiBasal * 0.20; 
+        case 'ringan':
+            koreksiAktivitasNilai = energiBasal * 0.20; // +20%
             break;
-        case 'Sedang':
-            koreksiAktivitasNilai = energiBasal * 0.30; 
+        case 'sedang':
+            koreksiAktivitasNilai = energiBasal * 0.30; // +30%
             break;
-        case 'Berat':
-            koreksiAktivitasNilai = energiBasal * 0.40; 
+        case 'berat':
+            koreksiAktivitasNilai = energiBasal * 0.40; // +40%
             break;
-        case 'Sangat Berat':
-            koreksiAktivitasNilai = energiBasal * 0.50; 
+        case 'sangat berat':
+            koreksiAktivitasNilai = energiBasal * 0.50; // +50%
             break;
     }
 
     // 6. STRES METABOLIK
     let koreksiStresNilai = 0;
-    switch (faktor_stres) {
-        case 'Ringan':
-            koreksiStresNilai = energiBasal * 0.10; 
+    const stressNormal = faktor_stres?.toLowerCase();
+    switch (stressNormal) {
+        case 'ringan':
+            koreksiStresNilai = energiBasal * 0.10; // +10%
             break;
-        case 'Sedang':
-            koreksiStresNilai = energiBasal * 0.20; 
+        case 'sedang':
+            koreksiStresNilai = energiBasal * 0.20; // +20%
             break;
-        case 'Berat':
-            koreksiStresNilai = energiBasal * 0.30; 
+        case 'berat':
+            koreksiStresNilai = energiBasal * 0.30; // +30%
             break;
     }
 
