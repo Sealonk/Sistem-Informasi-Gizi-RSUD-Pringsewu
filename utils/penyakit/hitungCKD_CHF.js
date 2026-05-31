@@ -27,18 +27,6 @@ const hitungCKD_CHF = (data) => {
         kebutuhan_energi_total = 30 * bbi;
     }
 
-    // 3. PENAMBAHAN KALORI (KEHAMILAN)
-    let penambahanKaloriNilai = 0;
-    if (kategori_penambahan_energi) {
-        const kategoriUpper = kategori_penambahan_energi.toUpperCase();
-        if (kategoriUpper.includes('TMSTR 1') || kategoriUpper.includes('TRIMESTER 1') || kategoriUpper.includes('TRIMESTER 2') || kategoriUpper.includes('1 & 2')) {
-            penambahanKaloriNilai = 300;
-        } else if (kategoriUpper.includes('TMSTR 3') || kategoriUpper.includes('TRIMESTER 3')) {
-            penambahanKaloriNilai = 500;
-        }
-        kebutuhan_energi_total += penambahanKaloriNilai;
-    }
-
     // =========================================================================
     // 4. DISTRIBUSI MAKRONUTRIEN CKD + CHF
     // PERBEDAAN UTAMA: Persentase alokasi lemak diturunkan menjadi 20%
@@ -69,16 +57,6 @@ const hitungCKD_CHF = (data) => {
     return {
         berat_badan_ideal: parseFloat(bbi.toFixed(2)),
 
-        // Kelompok Koreksi dinolkan karena mengikuti pakem perhitungan dasar CKD
-        koreksi: {
-            energi_basal: 0,
-            koreksi_umur: 0,
-            koreksi_aktivitas: 0,
-            koreksi_berat_badan: 0,
-            stress_metabolik: 0,
-            kehamilan: penambahanKaloriNilai
-        },
-
         perhitungan: {
             hasil: {
                 energi_kkal: parseFloat(kebutuhan_energi_total.toFixed(2)),
@@ -100,10 +78,6 @@ const hitungCKD_CHF = (data) => {
 
         data_simpan: {
             berat_badan_ideal: parseFloat(bbi.toFixed(2)),
-            bmr: 0, 
-            faktor_aktivitas_nilai: 0, 
-            faktor_stres_nilai: 0,
-            penambahan_kalori: penambahanKaloriNilai,
             kebutuhan_energi_total: parseFloat(kebutuhan_energi_total.toFixed(2)),
             protein_persen: parseFloat(protein_persen.toFixed(2)),
             lemak_persen: parseFloat(lemak_persen.toFixed(2)),

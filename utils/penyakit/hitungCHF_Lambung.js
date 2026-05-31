@@ -5,7 +5,7 @@
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungCHF_Lambung = (data) => {
-    const { jenis_kelamin, berat_badan, tinggi_badan, umur, aktivitas_fisik, faktor_stres, kategori_penambahan_energi } = data;
+    const { jenis_kelamin, berat_badan, tinggi_badan, umur, aktivitas_fisik, faktor_stres } = data;
 
     // 1. Dapatkan BBI dan IMT
     const bbi = hitungBeratBadanIdeal(jenis_kelamin, tinggi_badan);
@@ -23,20 +23,21 @@ const hitungCHF_Lambung = (data) => {
 
     // 3. FAKTOR AKTIVITAS (Menggunakan sistem Pengali/Multiplier)
     let faktorAktivitas = 1.2; // Default: Berbaring di tempat tidur
-    switch (aktivitas_fisik) {
-        case 'Bed rest':
+    const aktivitasNormal = aktivitas_fisik?.toLowerCase();
+    switch (aktivitasNormal) {
+        case 'bed rest':
             faktorAktivitas = 1.2;
             break;
-        case 'Ringan':
+        case 'ringan':
             faktorAktivitas = 1.3; // Dapat turun dari tempat tidur
             break;
-        case 'Sedang':
+        case 'sedang':
             faktorAktivitas = 1.6; // Kerja banyak duduk
             break;
         case 'Berat':
             faktorAktivitas = 1.8; // Kerja banyak berdiri
             break;
-        case 'Sangat Berat':
+        case 'sangat berat':
             faktorAktivitas = 2.0; // Olahraga sangat aktif
             break;
     }
@@ -50,40 +51,30 @@ const hitungCHF_Lambung = (data) => {
         faktorStres = parsedStress;
     } else {
         // Jika frontend mengirim teks, kita terjemahkan ke nilai representatif dari Excel
-        switch (faktor_stres) {
-            case 'Ringan':
+        const stresNormal = faktor_stres?.toLowerCase();
+        switch (stresNormal) {
+            case 'ringan':
                 faktorStres = 1.3; // Representasi range 1.2 - 1.4
                 break;
-            case 'Ringan Sepsis':
+            case 'ringan sepsis':
                 faktorStres = 1.5; // Representasi range 1.4 - 1.6
                 break;
-            case 'Berat':
+            case 'berat':
                 faktorStres = 1.6; // Representasi range 1.5 - 1.7
                 break;
-            case 'Sangat Berat':
+            case 'sangat berat':
                 faktorStres = 1.7; // Representasi khusus nilai 1.7
                 break;
-            case 'Tidak Ada':
+            case 'tidak ada':
             default:
                 faktorStres = 1.1; // Tidak ada stress
                 break;
         }
     }
 
-    // 5. PENAMBAHAN KALORI (KEHAMILAN)
-    let penambahanKaloriNilai = 0;
-    if (kategori_penambahan_energi) {
-        const kategoriUpper = kategori_penambahan_energi.toUpperCase();
-        if (kategoriUpper.includes('TMSTR 1') || kategoriUpper.includes('TRIMESTER 1') || kategoriUpper.includes('TRIMESTER 2') || kategoriUpper.includes('1 & 2')) {
-            penambahanKaloriNilai = 300;
-        } else if (kategoriUpper.includes('TMSTR 3') || kategoriUpper.includes('TRIMESTER 3')) {
-            penambahanKaloriNilai = 500;
-        }
-    }
-
     // 6. KEBUTUHAN ENERGI TOTAL (TEE)
     // Excel: = (BMR * Aktivitas * Stress) + Kehamilan
-    const kebutuhan_energi_total = (bmr * faktorAktivitas * faktorStres) + penambahanKaloriNilai;
+    const kebutuhan_energi_total = bmr * faktorAktivitas * faktorStres;
 
     // =========================================================================
     // 7. DISTRIBUSI MAKRONUTRIEN CHF + LAMBUNG
@@ -111,12 +102,9 @@ const hitungCHF_Lambung = (data) => {
 
         // KELOMPOK 1: KOREKSI 
         koreksi: {
-            energi_basal: parseFloat(bmr.toFixed(2)),
-            koreksi_umur: 0, 
+            energi_basal: parseFloat(bmr.toFixed(2)), 
             koreksi_aktivitas: parseFloat(faktorAktivitas.toFixed(2)),
-            koreksi_berat_badan: 0, 
             stress_metabolik: parseFloat(faktorStres.toFixed(2)),
-            kehamilan: penambahanKaloriNilai
         },
 
         perhitungan: {
@@ -143,7 +131,6 @@ const hitungCHF_Lambung = (data) => {
             bmr: parseFloat(bmr.toFixed(2)),
             faktor_aktivitas_nilai: parseFloat(faktorAktivitas.toFixed(2)), 
             faktor_stres_nilai: parseFloat(faktorStres.toFixed(2)),         
-            penambahan_kalori: penambahanKaloriNilai,
             kebutuhan_energi_total: parseFloat(kebutuhan_energi_total.toFixed(2)),
             protein_persen: parseFloat(protein_persen.toFixed(2)),
             lemak_persen: parseFloat(lemak_persen.toFixed(2)),

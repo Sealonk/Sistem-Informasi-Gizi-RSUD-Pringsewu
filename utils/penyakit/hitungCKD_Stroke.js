@@ -27,18 +27,6 @@ const hitungCKD_Stroke = (data) => {
         kebutuhan_energi_total = 30 * bbi;
     }
 
-    // 3. PENAMBAHAN KALORI (KEHAMILAN)
-    let penambahanKaloriNilai = 0;
-    if (kategori_penambahan_energi) {
-        const kategoriUpper = kategori_penambahan_energi.toUpperCase();
-        if (kategoriUpper.includes('TMSTR 1') || kategoriUpper.includes('TRIMESTER 1') || kategoriUpper.includes('TRIMESTER 2') || kategoriUpper.includes('1 & 2')) {
-            penambahanKaloriNilai = 300;
-        } else if (kategoriUpper.includes('TMSTR 3') || kategoriUpper.includes('TRIMESTER 3')) {
-            penambahanKaloriNilai = 500;
-        }
-        kebutuhan_energi_total += penambahanKaloriNilai;
-    }
-
     // =========================================================================
     // 4. DISTRIBUSI MAKRONUTRIEN CKD + STROKE
     // PERBEDAAN UTAMA: Persentase alokasi lemak menggunakan nilai standar 25%
@@ -58,7 +46,7 @@ const hitungCKD_Stroke = (data) => {
     // Hitung Lemak (CKD + Stroke menggunakan takaran 25%)
     const lemak_gram = (25 / 100 * kebutuhan_energi_total) / 9; 
     const kalori_lemak = lemak_gram * 9; 
-    const lemak_percent = (kalori_lemak / kebutuhan_energi_total) * 100;
+    const lemak_persen = (kalori_lemak / kebutuhan_energi_total) * 100;
 
     // Hitung Karbohidrat (Sisa kalori total setelah dikurangi protein dan lemak)
     const karbohidrat_gram = (kebutuhan_energi_total - kalori_protein - kalori_lemak) / 4; 
@@ -68,16 +56,6 @@ const hitungCKD_Stroke = (data) => {
     // 5. Return Format Data ke Controller
     return {
         berat_badan_ideal: parseFloat(bbi.toFixed(2)),
-
-        // Kelompok Koreksi dinolkan karena mengikuti struktur perhitungan murni CKD
-        koreksi: {
-            energi_basal: 0,
-            koreksi_umur: 0,
-            koreksi_aktivitas: 0,
-            koreksi_berat_badan: 0,
-            stress_metabolik: 0,
-            kehamilan: penambahanKaloriNilai
-        },
 
         perhitungan: {
             hasil: {
@@ -93,20 +71,16 @@ const hitungCKD_Stroke = (data) => {
             },
             persen: {
                 protein: parseFloat(protein_persen.toFixed(2)),
-                lemak: parseFloat(lemak_percent.toFixed(2)),
+                lemak: parseFloat(lemak_persen.toFixed(2)),
                 karbohidrat: parseFloat(karbohidrat_persen.toFixed(2))
             }
         },
 
         data_simpan: {
             berat_badan_ideal: parseFloat(bbi.toFixed(2)),
-            bmr: 0, 
-            faktor_aktivitas_nilai: 0, 
-            faktor_stres_nilai: 0,
-            penambahan_kalori: penambahanKaloriNilai,
             kebutuhan_energi_total: parseFloat(kebutuhan_energi_total.toFixed(2)),
             protein_persen: parseFloat(protein_persen.toFixed(2)),
-            lemak_persen: parseFloat(lemak_percent.toFixed(2)),
+            lemak_persen: parseFloat(lemak_persen.toFixed(2)),
             karbohidrat_persen: parseFloat(karbohidrat_persen.toFixed(2)),
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
