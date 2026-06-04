@@ -21,6 +21,9 @@ const hitungCKD_Stroke = require('./penyakit/hitungCKD_Stroke');
 const hitungStroke = require('./penyakit/hitungStroke');
 const hitungLambung = require('./penyakit/hitungLambung');
 
+// Import file Universal Mifflin
+const hitungMifflin = require('./penyakit/hitungMifflin');
+
 const kalkulasiGiziTotal = (dataInput) => {
     // 1. Normalisasi Input Penyakit menjadi Array yang Seragam
     let diagnosisArray = [];
@@ -33,16 +36,25 @@ const kalkulasiGiziTotal = (dataInput) => {
         diagnosisArray = dataInput.diagnosa_penyakit.split(/[\+,]/).map(item => item.trim());
     }
 
-    // 2. Fungsi Pembantu: Mengecek apakah pasien memiliki penyakit tertentu
+    // =====================================================================
+    // 2. ATURAN PRIORITAS GIZI KLINIS (Sangat Penting!)
+    // Jika pasien punya komplikasi penyakit khusus (DM/CKD dll) BERSAMAAN 
+    // dengan penyakit umum (Mifflin), maka penyakit khusus harus menang.
+    // Kita filter/hapus 'Mifflin' dari array agar perhitungan memakai rumus khusus.
+    // Contoh: ["DM", "Mifflin"] -> Menjadi ["DM"] -> Dieksekusi ke hitungDM
+    // =====================================================================
+    if (diagnosisArray.length > 1 && diagnosisArray.includes('Mifflin')) {
+        diagnosisArray = diagnosisArray.filter(p => p !== 'Mifflin');
+    }
+
+    // 3. Fungsi Pembantu: Mengecek apakah pasien memiliki penyakit tertentu
     const has = (penyakit) => diagnosisArray.includes(penyakit);
 
-    // 3. ROUTER PENYAKIT
+    // 4. ROUTER PENYAKIT
     // PENTING: Pengecekan wajib diurutkan dari yang komplikasi paling kompleks (3 penyakit) ke tunggal!
 
     // --- 3 KOMPLIKASI ---
-    if (has('DM') && has('CKD') && has('CHF')) {
-        return hitungDM_CKD_CHF(dataInput);
-    }
+    if (has('DM') && has('CKD') && has('CHF')) return hitungDM_CKD_CHF(dataInput);
 
     // --- 2 KOMPLIKASI ---
     if (has('DM') && has('CKD')) return hitungDM_CKD(dataInput);
@@ -57,15 +69,21 @@ const kalkulasiGiziTotal = (dataInput) => {
     if (has('CHF') && has('Lambung')) return hitungCHF_Lambung(dataInput);
     if (has('CHF') && has('Stroke')) return hitungCHF_Stroke(dataInput);
 
-    // --- 1 PENYAKIT (TUNGGAL) ---
+    // --- 1 PENYAKIT (TUNGGAL KHUSUS) ---
     if (has('DM')) return hitungDM(dataInput);
     if (has('CKD')) return hitungCKD(dataInput);
     if (has('CHF')) return hitungCHF(dataInput);
     if (has('Stroke')) return hitungStroke(dataInput);
     if (has('Lambung')) return hitungLambung(dataInput);
 
-    // --- JIKA TIDAK ADA YANG COCOK ---
-    throw new Error(`Sistem belum mendukung perhitungan khusus untuk komplikasi: ${diagnosisArray.join(' + ')}`);
+    // --- JIKA HANYA PENYAKIT UMUM / MIFFLIN ---
+    // Masuk ke sini jika array HANYA berisi ['Mifflin'] (Misal: Demam saja, TB saja)
+    if (has('Mifflin')) return hitungMifflin(dataInput);
+
+    // --- JIKA TIDAK ADA YANG COCOK SAMA SEKALI (UNIVERSAL FALLBACK) ---
+    // Daripada memberikan error 'crash' yang mematikan aplikasi, 
+    // sistem akan otomatis menggunakan rumus Mifflin (Gizi normal seimbang)
+    return hitungMifflin(dataInput);
 };
 
 // Export fungsi utama agar bisa dipakai oleh Controller

@@ -30,14 +30,6 @@ const hitungDM = (data) => {
         koreksiUmurNilai = energiBasal * -0.20; // -20%
     }
 
-    // 4. KOREKSI BERAT BADAN / IMT
-    let koreksiBBNilai = 0;
-    if (kategoriIMT.includes('KURUS') || kategoriIMT.includes('KEKURANGAN')) {
-        koreksiBBNilai = energiBasal * 0.20;  // Kurus (+20%)
-    } else if (kategoriIMT.includes('GEMUK') || kategoriIMT.includes('KELEBIHAN') || kategoriIMT.includes('OBESITAS')) {
-        koreksiBBNilai = energiBasal * -0.20; // Gemuk (-20%)
-    }
-
     // 5. KOREKSI AKTIVITAS
     let koreksiAktivitasNilai = 0;
     const aktivitasNormal = aktivitas_fisik?.toLowerCase();
@@ -88,7 +80,7 @@ const hitungDM = (data) => {
 
     // 8. KEBUTUHAN ENERGI TOTAL (TEE)
     // Sesuai rumus L9 (Laki-laki) atau L18 (Perempuan)
-    const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiBBNilai + koreksiStresNilai + penambahanKaloriNilai;
+    const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
     // =========================================================================
     // 9. DISTRIBUSI MAKRONUTRIEN DM (Sama untuk Laki-laki & Perempuan)
@@ -118,7 +110,6 @@ const hitungDM = (data) => {
             energi_basal: parseFloat(energiBasal.toFixed(2)),
             koreksi_umur: parseFloat(koreksiUmurNilai.toFixed(2)),
             koreksi_aktivitas: parseFloat(koreksiAktivitasNilai.toFixed(2)),
-            koreksi_berat_badan: parseFloat(koreksiBBNilai.toFixed(2)),
             stress_metabolik: parseFloat(koreksiStresNilai.toFixed(2)),
             kehamilan: penambahanKaloriNilai
         },

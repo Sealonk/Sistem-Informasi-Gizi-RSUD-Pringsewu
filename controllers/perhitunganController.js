@@ -70,6 +70,11 @@ const previewPerhitungan = async (req, res, next) => {
         
         const hasilKalkulasi = kalkulasiGiziTotal(dataInput);
 
+        // Sisipkan kembali keterangan penyakit lainnya agar tampil di response preview (opsional tapi disarankan)
+        if (dataInput.diagnosa_penyakit && dataInput.diagnosa_penyakit.includes('Mifflin') && dataInput.penyakit_lainnya) {
+            hasilKalkulasi.penyakit_lainnya = dataInput.penyakit_lainnya;
+        }
+
         res.status(200).json({
             status: 'success',
             message: 'Preview perhitungan berhasil di-generate',
@@ -87,7 +92,7 @@ const simpanPerhitungan = async (req, res, next) => {
         const {
             id_pasien, umur, jenis_kelamin, berat_badan, tinggi_badan, ruang_bangsal,
             is_estimasi, lila_cm, ulna_cm, persen_lila,
-            diagnosa_penyakit, aktivitas_fisik, status_hemodialisa, faktor_stres,
+            diagnosa_penyakit, penyakit_lainnya, aktivitas_fisik, status_hemodialisa, faktor_stres,
             kategori_penambahan_energi, metode_perhitungan,
             
             berat_badan_ideal, bmr, faktor_aktivitas_nilai, faktor_stres_nilai, penambahan_kalori,
@@ -101,7 +106,7 @@ const simpanPerhitungan = async (req, res, next) => {
         }
 
         // =========================================================================
-        // VALIDASI DATABASE: Pastikan no_rawat benar-benar ada di tabel pasien
+        // VALIDASI DATABASE
         // =========================================================================
         const [cekPasien] = await db.execute('SELECT no_rawat FROM pasien WHERE no_rawat = ?', [id_pasien]);
         
@@ -111,12 +116,11 @@ const simpanPerhitungan = async (req, res, next) => {
                 message: `Gagal menyimpan! Pasien dengan No. Rawat ${id_pasien} tidak ditemukan di database.` 
             });
         }
-        // =========================================================================
 
-        // SINKRONISASI UMUR: Ubah ke nominal tahun numerik untuk kalkulasi akurat internal backend
+        // SINKRONISASI UMUR
         const umurNumerikTahun = konversiUmurKeTahun(umur);
 
-        // VALIDASI EKSTRA: Cegah penyimpanan jika data umur di bawah 18 tahun
+        // VALIDASI EKSTRA UMUR ANAK
         if (umurNumerikTahun < 18) {
             return res.status(403).json({
                 status: 'error',
@@ -127,7 +131,12 @@ const simpanPerhitungan = async (req, res, next) => {
         const kelompok_umur = getKelompokUmur(umurNumerikTahun);
         const { nilaiIMT, statusGizi } = hitungIMT(berat_badan, tinggi_badan);
         
-        const diagnosa_string = Array.isArray(diagnosa_penyakit) ? diagnosa_penyakit.join(', ') : diagnosa_penyakit;
+        // PENGELOLAAN STRING DIAGNOSA (Menggabungkan Mifflin dengan Penyakit Asli)
+        let diagnosa_string = Array.isArray(diagnosa_penyakit) ? diagnosa_penyakit.join(', ') : diagnosa_penyakit;
+
+        if (diagnosa_string.includes('Mifflin') && penyakit_lainnya) {
+            diagnosa_string = diagnosa_string.replace('Mifflin', `Mifflin (${penyakit_lainnya})`);
+        }
 
         const dataPerhitungan = {
             no_rawat: id_pasien, 
@@ -148,7 +157,7 @@ const simpanPerhitungan = async (req, res, next) => {
             ulna_cm: ulna_cm || null,
             persen_lila: persen_lila || null,
             
-            diagnosa_penyakit_saat_dihitung: diagnosa_string,
+            diagnosa_penyakit_saat_dihitung: diagnosa_string, // String yang sudah dirapikan
             
             aktivitas_fisik: aktivitas_fisik || 'Bed rest',
             status_hemodialisa: status_hemodialisa || null,
@@ -181,7 +190,6 @@ const simpanPerhitungan = async (req, res, next) => {
 
 const getRiwayat = async (req, res, next) => {
     try {
-        // 1. Ambil query parameter pagination & filter dari Frontend
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
@@ -190,36 +198,27 @@ const getRiwayat = async (req, res, next) => {
         const penyakit = req.query.penyakit || '';
         const tanggal = req.query.tanggal || '';
 
-        // 2. Buat klausa WHERE dinamis berdasarkan filter
         let whereClause = 'WHERE 1=1';
         const queryParams = [];
 
-        // Cari berdasarkan Nama Pasien atau No. RM
         if (search) {
             whereClause += ` AND (p.nm_pasien LIKE ? OR p.no_rkm_medis LIKE ?)`;
             queryParams.push(`%${search}%`, `%${search}%`);
         }
 
-        // Filter rumpun penyakit terhitung
         if (penyakit && penyakit !== 'Semua Penyakit') {
-            // 1. Pecah string "CHF, DM" menjadi array ['CHF', 'DM']
             const arrayPenyakit = penyakit.split(',').map(item => item.trim()).filter(item => item !== '');
-    
-            // 2. Buat kondisi LIKE untuk setiap penyakit yang dicari
             arrayPenyakit.forEach(namaPenyakit => {
                 whereClause += ` AND pg.diagnosa_penyakit_saat_dihitung LIKE ?`;
                 queryParams.push(`%${namaPenyakit}%`);
             });
         }
 
-        // Filter tanggal input riwayat gizi
-        // SESUDAH:
         if (tanggal) {
             whereClause += ` AND DATE(pg.tanggal_perhitungan) = ?`;
             queryParams.push(tanggal);
         }
 
-        // 3. Hitung total data yang cocok (untuk keperluan kontrol pagination)
         const countQuery = `
             SELECT COUNT(*) AS total
             FROM perhitungan_gizi pg
@@ -229,7 +228,6 @@ const getRiwayat = async (req, res, next) => {
         const [[countResult]] = await db.execute(countQuery, queryParams);
         const totalData = countResult.total;
 
-        // 4. Ambil data ringkas (Brief) sesuai layout tabel halaman histori UI
         const dataQuery = `
             SELECT 
                 pg.id_perhitungan,
@@ -248,7 +246,6 @@ const getRiwayat = async (req, res, next) => {
         const finalQueryParams = [...queryParams, limit.toString(), offset.toString()];
         const [rows] = await db.execute(dataQuery, finalQueryParams);
 
-        // 5. Format hasil agar sesuai dengan komponen kartu/tabel UI
         const formattedRiwayat = rows.map(item => {
             const dateObj = new Date(item.tanggal_perhitungan);
             const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
@@ -257,15 +254,14 @@ const getRiwayat = async (req, res, next) => {
             return {
                 id_perhitungan: item.id_perhitungan,
                 nama_pasien: item.nama_pasien,
-                no_rm: item.no_rm, // Menampilkan No RM di bawah nama sesuai rekomendasi klinis
+                no_rm: item.no_rm, 
                 penyakit: item.penyakit,
-                total_energi: Math.round(item.total_energi), // Dibulatkan tanpa desimal agar rapi di list brief
+                total_energi: Math.round(item.total_energi), 
                 tanggal_perhitungan: tanggalRapi,
-                status: "Tersimpan" // Label status pelaporan fungsional
+                status: "Tersimpan" 
             };
         });
 
-        // 6. Kirim response terstruktur
         res.status(200).json({
             status: 'success',
             message: 'Data riwayat berhasil diambil',
