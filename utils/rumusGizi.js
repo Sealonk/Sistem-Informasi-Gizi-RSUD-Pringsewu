@@ -29,62 +29,109 @@ const kalkulasiGiziTotal = (dataInput) => {
     let diagnosisArray = [];
     
     if (Array.isArray(dataInput.diagnosa_penyakit)) {
-        // Jika dari Frontend masuk sebagai Array ["DM", "CKD"]
-        diagnosisArray = dataInput.diagnosa_penyakit;
+        diagnosisArray = [...dataInput.diagnosa_penyakit]; // Cloning array agar aman
     } else if (typeof dataInput.diagnosa_penyakit === 'string') {
-        // Jika masuk sebagai String "DM + CKD" atau "DM, CKD"
         diagnosisArray = dataInput.diagnosa_penyakit.split(/[\+,]/).map(item => item.trim());
     }
 
     // =====================================================================
-    // 2. ATURAN PRIORITAS GIZI KLINIS (Sangat Penting!)
-    // Jika pasien punya komplikasi penyakit khusus (DM/CKD dll) BERSAMAAN 
-    // dengan penyakit umum (Mifflin), maka penyakit khusus harus menang.
-    // Kita filter/hapus 'Mifflin' dari array agar perhitungan memakai rumus khusus.
-    // Contoh: ["DM", "Mifflin"] -> Menjadi ["DM"] -> Dieksekusi ke hitungDM
+    // FITUR EKSKLUSIF: CRITICAL ILL (PASIEN ICU)
+    // =====================================================================
+    // Mengecek apakah Frontend mengirimkan 'Critical Ill' di dalam array penyakit
+    const hasCriticalIll = diagnosisArray.some(p => p.toLowerCase() === 'critical ill' || p.toLowerCase() === 'icu');
+    
+    if (hasCriticalIll) {
+        // ATURAN 1: Aktivitas fisik WAJIB dikunci ke "Bed rest" untuk pasien ICU
+        dataInput.aktivitas_fisik = 'Bed rest';
+        
+        // ATURAN 2: Keluarkan 'Critical Ill' sementara dari array agar 
+        // tidak mengacaukan router penyakit utama (DM, CKD, dll) di bawah.
+        diagnosisArray = diagnosisArray.filter(p => p.toLowerCase() !== 'critical ill' && p.toLowerCase() !== 'icu');
+    }
+
+    // =====================================================================
+    // ATURAN PRIORITAS GIZI KLINIS (Penyakit Khusus menang atas Mifflin)
     // =====================================================================
     if (diagnosisArray.length > 1 && diagnosisArray.includes('Mifflin')) {
         diagnosisArray = diagnosisArray.filter(p => p !== 'Mifflin');
     }
 
-    // 3. Fungsi Pembantu: Mengecek apakah pasien memiliki penyakit tertentu
+    // Fungsi Pembantu
     const has = (penyakit) => diagnosisArray.includes(penyakit);
 
-    // 4. ROUTER PENYAKIT
-    // PENTING: Pengecekan wajib diurutkan dari yang komplikasi paling kompleks (3 penyakit) ke tunggal!
+    // Variabel penampung hasil rumus murni (Sebelum dipotong 80%)
+    let hasil; 
 
-    // --- 3 KOMPLIKASI ---
-    if (has('DM') && has('CKD') && has('CHF')) return hitungDM_CKD_CHF(dataInput);
+    // =====================================================================
+    // ROUTER PENYAKIT (Menggunakan if-else berantai agar fleksibel)
+    // =====================================================================
+    if (has('DM') && has('CKD') && has('CHF')) hasil = hitungDM_CKD_CHF(dataInput);
+    
+    else if (has('DM') && has('CKD')) hasil = hitungDM_CKD(dataInput);
+    else if (has('DM') && has('CHF')) hasil = hitungDM_CHF(dataInput);
+    else if (has('DM') && has('Lambung')) hasil = hitungDM_Lambung(dataInput);
+    else if (has('DM') && has('Stroke')) hasil = hitungDM_Stroke(dataInput);
+    
+    else if (has('CKD') && has('CHF')) hasil = hitungCKD_CHF(dataInput);
+    else if (has('CKD') && has('Lambung')) hasil = hitungCKD_Lambung(dataInput);
+    else if (has('CKD') && has('Stroke')) hasil = hitungCKD_Stroke(dataInput);
+    
+    else if (has('CHF') && has('Lambung')) hasil = hitungCHF_Lambung(dataInput);
+    else if (has('CHF') && has('Stroke')) hasil = hitungCHF_Stroke(dataInput);
+    
+    else if (has('DM')) hasil = hitungDM(dataInput);
+    else if (has('CKD')) hasil = hitungCKD(dataInput);
+    else if (has('CHF')) hasil = hitungCHF(dataInput);
+    else if (has('Stroke')) hasil = hitungStroke(dataInput);
+    else if (has('Lambung')) hasil = hitungLambung(dataInput);
+    
+    else if (has('Mifflin')) hasil = hitungMifflin(dataInput);
+    else hasil = hitungMifflin(dataInput); // Fallback Universal
 
-    // --- 2 KOMPLIKASI ---
-    if (has('DM') && has('CKD')) return hitungDM_CKD(dataInput);
-    if (has('DM') && has('CHF')) return hitungDM_CHF(dataInput);
-    if (has('DM') && has('Lambung')) return hitungDM_Lambung(dataInput);
-    if (has('DM') && has('Stroke')) return hitungDM_Stroke(dataInput);
+    // =====================================================================
+    // KALKULASI AKHIR: PEMOTONGAN 80% CRITICAL ILL & HITUNG ULANG MAKRO
+    // =====================================================================
+    if (hasCriticalIll) {
+        // Ambil energi normal, lalu kalikan 80% (0.8)
+        const oldTee = hasil.data_simpan.kebutuhan_energi_total;
+        const newTee = oldTee * 0.8;
 
-    if (has('CKD') && has('CHF')) return hitungCKD_CHF(dataInput);
-    if (has('CKD') && has('Lambung')) return hitungCKD_Lambung(dataInput);
-    if (has('CKD') && has('Stroke')) return hitungCKD_Stroke(dataInput);
+        // Ambil persentase makronutrien asli dari rumus penyakitnya
+        const p_persen = hasil.data_simpan.protein_persen;
+        const l_persen = hasil.data_simpan.lemak_persen;
+        const k_persen = hasil.data_simpan.karbohidrat_persen;
 
-    if (has('CHF') && has('Lambung')) return hitungCHF_Lambung(dataInput);
-    if (has('CHF') && has('Stroke')) return hitungCHF_Stroke(dataInput);
+        // Kalkulasi ulang gramasi berdasarkan energi (kalori) yang baru (80%)
+        const kalori_protein = (p_persen / 100) * newTee;
+        const protein_gram = kalori_protein / 4;
 
-    // --- 1 PENYAKIT (TUNGGAL KHUSUS) ---
-    if (has('DM')) return hitungDM(dataInput);
-    if (has('CKD')) return hitungCKD(dataInput);
-    if (has('CHF')) return hitungCHF(dataInput);
-    if (has('Stroke')) return hitungStroke(dataInput);
-    if (has('Lambung')) return hitungLambung(dataInput);
+        const kalori_lemak = (l_persen / 100) * newTee;
+        const lemak_gram = kalori_lemak / 9;
 
-    // --- JIKA HANYA PENYAKIT UMUM / MIFFLIN ---
-    // Masuk ke sini jika array HANYA berisi ['Mifflin'] (Misal: Demam saja, TB saja)
-    if (has('Mifflin')) return hitungMifflin(dataInput);
+        const kalori_karbo = (k_persen / 100) * newTee;
+        const karbo_gram = kalori_karbo / 4;
 
-    // --- JIKA TIDAK ADA YANG COCOK SAMA SEKALI (UNIVERSAL FALLBACK) ---
-    // Daripada memberikan error 'crash' yang mematikan aplikasi, 
-    // sistem akan otomatis menggunakan rumus Mifflin (Gizi normal seimbang)
-    return hitungMifflin(dataInput);
+        // Timpa hasil di objek data_simpan (Untuk di-save ke Database)
+        hasil.data_simpan.kebutuhan_energi_total = parseFloat(newTee.toFixed(2));
+        hasil.data_simpan.protein_gram = parseFloat(protein_gram.toFixed(2));
+        hasil.data_simpan.lemak_gram = parseFloat(lemak_gram.toFixed(2));
+        hasil.data_simpan.karbohidrat_gram = parseFloat(karbo_gram.toFixed(2));
+
+        // Timpa hasil di objek perhitungan (Untuk ditampilkan di UI Frontend)
+        hasil.perhitungan.hasil.energi_kkal = parseFloat(newTee.toFixed(2));
+        hasil.perhitungan.hasil.protein_gr = parseFloat(protein_gram.toFixed(2));
+        hasil.perhitungan.hasil.lemak_gr = parseFloat(lemak_gram.toFixed(2));
+        hasil.perhitungan.hasil.karbohidrat_gr = parseFloat(karbo_gram.toFixed(2));
+
+        hasil.perhitungan.dalam_kkal.protein = parseFloat(kalori_protein.toFixed(2));
+        hasil.perhitungan.dalam_kkal.lemak = parseFloat(kalori_lemak.toFixed(2));
+        hasil.perhitungan.dalam_kkal.karbohidrat = parseFloat(kalori_karbo.toFixed(2));
+
+        // Tambahkan label penanda untuk UI bahwa mode ICU diaktifkan
+        hasil.koreksi.critical_ill = "Aktif (Total Energi x 80%)";
+    }
+
+    return hasil;
 };
 
-// Export fungsi utama agar bisa dipakai oleh Controller
 module.exports = { kalkulasiGiziTotal, getKelompokUmur, hitungIMT };
