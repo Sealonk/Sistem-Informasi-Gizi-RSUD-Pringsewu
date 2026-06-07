@@ -43,7 +43,7 @@ const hitungIMT = (beratKg, tinggiCm) => {
     
     if (imt < 17) {
         status = 'KEKURANGAN BB TINGKAT BERAT';
-    } else if (imt < 18.5) { 
+    } else if (imt < 18.4) { 
         status = 'KEKURANGAN BB TINGKAT RINGAN';
     } else if (imt <= 25) {  
         status = 'NORMAL';

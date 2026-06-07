@@ -1,19 +1,29 @@
 // ==========================================
-// UTILS/PENYAKIT: hitungLambung.js
+// UTILS/PENYAKIT: hitungLambung.js (Dispepsia / Saluran Cerna Atas)
+// Pendekatan Hybrid: Energi (Excel RS/Mifflin) + Makro (Buku Biru)
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungLambung = (data) => {
-    const { jenis_kelamin, berat_badan, tinggi_badan, umur, aktivitas_fisik, faktor_stres } = data;
+    const { 
+        jenis_kelamin, 
+        berat_badan, 
+        tinggi_badan, 
+        umur, 
+        aktivitas_fisik, 
+        faktor_stres 
+    } = data;
 
     // 1. Dapatkan BBI dan IMT
     const bbi = hitungBeratBadanIdeal(jenis_kelamin, tinggi_badan);
     const dataIMT = hitungIMT(berat_badan, tinggi_badan);
 
+    // =========================================================================
     // 2. ENERGI BASAL (BMR) - Menggunakan Rumus Mifflin-St Jeor dengan BBI
     // Excel Laki-laki: =(10*BBI) + (6.25*TB) - (5*Umur) + 5
     // Excel Perempuan: =(10*BBI) + (6.25*TB) - (5*Umur) - 161
+    // =========================================================================
     let bmr = 0;
     if (jenis_kelamin === 'L') {
         bmr = (10 * bbi) + (6.25 * tinggi_badan) - (5 * umur) + 5;
@@ -21,7 +31,9 @@ const hitungLambung = (data) => {
         bmr = (10 * bbi) + (6.25 * tinggi_badan) - (5 * umur) - 161; 
     }
 
-    // 3. FAKTOR AKTIVITAS (Menggunakan sistem Pengali/Multiplier)
+    // =========================================================================
+    // 3. FAKTOR AKTIVITAS (Menggunakan sistem Pengali/Multiplier Excel)
+    // =========================================================================
     let faktorAktivitas = 1.2; // Default: Berbaring di tempat tidur
     const aktivitasNormal = aktivitas_fisik?.toLowerCase();
     switch (aktivitasNormal) {
@@ -34,7 +46,7 @@ const hitungLambung = (data) => {
         case 'sedang':
             faktorAktivitas = 1.6; // Kerja banyak duduk
             break;
-        case 'Berat':
+        case 'berat':
             faktorAktivitas = 1.8; // Kerja banyak berdiri
             break;
         case 'sangat berat':
@@ -42,10 +54,12 @@ const hitungLambung = (data) => {
             break;
     }
 
-    // 4. FAKTOR STRES METABOLIK (Menggunakan sistem Pengali/Multiplier)
+    // =========================================================================
+    // 4. FAKTOR STRES METABOLIK (Menggunakan sistem Pengali/Multiplier Excel)
+    // =========================================================================
     let faktorStres = 1.1; // Default: Tidak ada stress
     
-    // Pengecekan jika frontend mengirim angka langsung (misal "1.4")
+    // Pengecekan jika frontend mengirim angka langsung
     const parsedStress = parseFloat(faktor_stres);
     if (!isNaN(parsedStress) && parsedStress >= 1.1 && parsedStress <= 1.7) {
         faktorStres = parsedStress;
@@ -72,30 +86,36 @@ const hitungLambung = (data) => {
         }
     }
 
-    // 6. KEBUTUHAN ENERGI TOTAL (TEE)
-    // Excel: = (BMR * Aktivitas * Stress) + Kehamilan
+    // =========================================================================
+    // 5. KEBUTUHAN ENERGI TOTAL (TEE)
+    // = BMR * Aktivitas * Stress
+    // =========================================================================
     const kebutuhan_energi_total = bmr * faktorAktivitas * faktorStres;
 
     // =========================================================================
-    // 7. DISTRIBUSI MAKRONUTRIEN LAMBUNG
+    // 6. DISTRIBUSI MAKRONUTRIEN LAMBUNG / DISPEPSIA (Buku Biru)
+    // Protein: 15% | Lemak: 15% (Rendah) | Karbohidrat: 70%
     // =========================================================================
     
-    // Hitung Protein (= 1 * BBI)
-    const protein_gram = 1 * bbi;
-    const kalori_protein = protein_gram * 4; 
-    const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
+    // Hitung Protein (15% dari TEE)
+    const protein_persen = 15;
+    const kalori_protein = (protein_persen / 100) * kebutuhan_energi_total;
+    const protein_gram = kalori_protein / 4;
 
-    // Hitung Lemak (20% dari TEE)
-    const lemak_gram = (20 / 100 * kebutuhan_energi_total) / 9; 
-    const kalori_lemak = lemak_gram * 9; 
-    const lemak_persen = (kalori_lemak / kebutuhan_energi_total) * 100;
+    // Hitung Lemak (15% dari TEE - Penurunan drastis sesuai diet lambung)
+    const lemak_persen = 15;
+    const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
+    const lemak_gram = kalori_lemak / 9;
 
-    // Hitung Karbohidrat (Sisa TEE dikurangi Protein dan Lemak)
-    const kalori_karbohidrat = kebutuhan_energi_total - kalori_protein - kalori_lemak;
-    const karbohidrat_gram = kalori_karbohidrat / 4; 
-    const karbohidrat_persen = (kalori_karbohidrat / kebutuhan_energi_total) * 100;
+    // Hitung Karbohidrat (70% - Sisa TEE dikurangi Protein dan Lemak)
+    const karbohidrat_persen = 70;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
+    const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // 8. Return Format Data ke Controller
+    // Keterangan klinis tambahan dari Buku Biru
+    const keterangan_serat = "Rendah serat (terutama serat tidak larut air)";
+
+    // 7. Return Format Data ke Controller
     return {
         berat_badan_ideal: parseFloat(bbi.toFixed(2)),
 
@@ -104,6 +124,8 @@ const hitungLambung = (data) => {
             energi_basal: parseFloat(bmr.toFixed(2)),
             koreksi_aktivitas: parseFloat(faktorAktivitas.toFixed(2)),
             stress_metabolik: parseFloat(faktorStres.toFixed(2)),
+            koreksi_umur: 0,
+            kehamilan: 0
         },
 
         perhitungan: {
@@ -111,7 +133,10 @@ const hitungLambung = (data) => {
                 energi_kkal: parseFloat(kebutuhan_energi_total.toFixed(2)),
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
-                karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2))
+                karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
+                
+                // Indikator klinis lambung untuk ditampilkan di UI
+                keterangan_serat: keterangan_serat
             },
             dalam_kkal: {
                 protein: parseFloat(kalori_protein.toFixed(2)),
@@ -129,14 +154,15 @@ const hitungLambung = (data) => {
             berat_badan_ideal: parseFloat(bbi.toFixed(2)),
             bmr: parseFloat(bmr.toFixed(2)),
             faktor_aktivitas_nilai: parseFloat(faktorAktivitas.toFixed(2)), 
-            faktor_stres_nilai: parseFloat(faktorStres.toFixed(2)),         
+            faktor_stres_nilai: parseFloat(faktorStres.toFixed(2)),        
             kebutuhan_energi_total: parseFloat(kebutuhan_energi_total.toFixed(2)),
             protein_persen: parseFloat(protein_persen.toFixed(2)),
             lemak_persen: parseFloat(lemak_persen.toFixed(2)),
             karbohidrat_persen: parseFloat(karbohidrat_persen.toFixed(2)),
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
-            karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2))
+            karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
+            keterangan_serat: keterangan_serat
         }
     };
 };
