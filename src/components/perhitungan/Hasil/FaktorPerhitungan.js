@@ -53,6 +53,7 @@ export default function FaktorPerhitungan({
     }
 
     return data.penyakit
+      .map(item => item === "critical_ill" ? "critical ill" : item)
       .join(", ")
       .toUpperCase();
   };
@@ -125,7 +126,7 @@ export default function FaktorPerhitungan({
 
   {
     label: "Faktor Aktivitas",
-    value: `${data.faktorAktivitasNilai ?? 0} kkal`,
+    value: `${data.faktorAktivitasNilai ?? 0}`,
     icon: (
       <Activity size={18} />
     ),
@@ -135,7 +136,7 @@ export default function FaktorPerhitungan({
 
   {
     label: "Faktor Stress",
-    value: `${data.faktorStressNilai ?? 0} kkal`,
+    value: `${data.faktorStressNilai ?? 0}`,
     icon: (
       <Flame size={18} />
     ),

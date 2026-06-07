@@ -107,7 +107,13 @@ export default function AktivitasFisik({
     ];
   }
 
+  const isCriticalIll = data.penyakit?.includes("critical_ill");
+
   const getDescription = () => {
+    if (isCriticalIll) {
+      return "Untuk kondisi Critical Ill (ICU), aktivitas fisik otomatis dikunci ke Bed rest (Berbaring di tempat tidur / Istirahat) sesuai dengan protokol medis backend.";
+    }
+
     if (disabled) {
       return "Tidak diperlukan untuk kondisi klinis ini.";
     }
@@ -176,7 +182,9 @@ export default function AktivitasFisik({
       <SelectField
         label=""
         placeholder={
-          disabled
+          isCriticalIll
+            ? "Bed rest (Otomatis)"
+            : disabled
             ? "Di-disable untuk kondisi klinis ini"
             : "Pilih Aktivitas"
         }

@@ -2,8 +2,18 @@ import { Stethoscope, AlertTriangle } from "lucide-react";
 
 import SectionCard from "../../common/SectionCard";
 
+export const calculationTypeValues = ["critical_ill", "mifflin"];
+
+export function getDiseaseValues(penyakitArray) {
+  return (penyakitArray || []).filter(
+    (item) => !calculationTypeValues.includes(item)
+  );
+}
+
 export function isValidCombination(penyakitArray) {
-  if (!penyakitArray || penyakitArray.length === 0) return false;
+  const diseaseValues = getDiseaseValues(penyakitArray);
+
+  if (!diseaseValues.length) return false;
 
   const validCombinations = [
     ["dm"],
@@ -23,7 +33,7 @@ export function isValidCombination(penyakitArray) {
     ["stroke"],
   ];
 
-  const sorted = [...penyakitArray].sort();
+  const sorted = [...diseaseValues].sort();
 
   return validCombinations.some((combo) => {
     const sortedCombo = [...combo].sort();
@@ -36,6 +46,10 @@ export default function JenisPenyakit({
   data,
   setData,
 }) {
+  const selectedDiseaseValues = getDiseaseValues(data.penyakit);
+  const showUnsupportedCombination =
+    selectedDiseaseValues.length > 0 &&
+    !isValidCombination(selectedDiseaseValues);
 
   const penyakitOptions = [
     {
@@ -62,6 +76,16 @@ export default function JenisPenyakit({
       label: "Stroke",
       value: "stroke",
       short: "STR",
+    },
+    {
+      label: "Critical Ill",
+      value: "critical_ill",
+      short: "CI",
+    },
+    {
+      label: "Mifflin",
+      value: "mifflin",
+      short: "MIF",
     },
   ];
 
@@ -97,7 +121,7 @@ export default function JenisPenyakit({
   return (
 
     <SectionCard
-      title="Jenis Penyakit"
+      title="Jenis Perhitungan"
       subtitle="Pilih jenis penyakit utama pasien yang mempengaruhi kebutuhan gizi dan perhitungan nutrisi"
       icon={<Stethoscope size={26} />}
     >
@@ -306,14 +330,14 @@ export default function JenisPenyakit({
 
       </div>
 
-      {data.penyakit?.length > 0 && !isValidCombination(data.penyakit) && (
+      {showUnsupportedCombination && (
         <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 flex items-start gap-3">
           <div className="mt-0.5 text-amber-500">
             <AlertTriangle size={20} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-amber-800 mb-1">Kombinasi Penyakit Tidak Didukung</p>
-            <p className="text-sm text-amber-700 leading-relaxed">Kombinasi penyakit yang Anda pilih belum didukung oleh sistem perhitungan gizi. Silakan periksa kembali pilihan penyakit pasien.</p>
+            <p className="text-sm font-semibold text-amber-800 mb-1">Kombinasi Belum Didukung</p>
+            <p className="text-sm text-amber-700 leading-relaxed">Kombinasi yang Anda pilih belum didukung oleh sistem perhitungan gizi. Silakan periksa kembali pilihan pasien.</p>
           </div>
         </div>
       )}

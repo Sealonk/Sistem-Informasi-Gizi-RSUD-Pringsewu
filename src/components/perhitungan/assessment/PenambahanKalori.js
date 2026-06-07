@@ -11,6 +11,8 @@ export default function PenambahanKalori({
   const isMale =
     data.jenisKelamin === "L";
 
+  const isDM = data.penyakit?.includes("dm");
+
   const handleToggle = (value) => {
 
     if (isMale || disabled) {
@@ -91,28 +93,53 @@ export default function PenambahanKalori({
 
     const selected = data.penambahanKalori || [];
 
-    if (selected.includes("Trimester 1")) {
-      return "Trimester 1 — Penambahan energi sebesar 300 kkal.";
-    }
-    if (selected.includes("Trimester 2")) {
-      return "Trimester 2 — Penambahan energi sebesar 300 kkal.";
-    }
-    if (selected.includes("Trimester 3")) {
-      return "Trimester 3 — Penambahan energi sebesar 500 kkal.";
-    }
-    if (selected.includes("Tidak ada")) {
-      return "Tidak ada penambahan energi dari kehamilan.";
-    }
+    if (isDM) {
+      if (selected.includes("Trimester 1")) {
+        return "Trimester 1 — Penambahan energi sebesar 180 kkal.";
+      }
+      if (selected.includes("Trimester 2")) {
+        return "Trimester 2 — Penambahan energi sebesar 300 kkal.";
+      }
+      if (selected.includes("Trimester 3")) {
+        return "Trimester 3 — Penambahan energi sebesar 300 kkal.";
+      }
+      if (selected.includes("Tidak ada")) {
+        return "Tidak ada penambahan energi dari kehamilan.";
+      }
 
-    return (
-      <span>
-        Pilihan penambahan energi:
-        <br />• Trimester 1 (300 kkal)
-        <br />• Trimester 2 (300 kkal)
-        <br />• Trimester 3 (500 kkal)
-        <br />• Tidak ada
-      </span>
-    );
+      return (
+        <span>
+          Pilihan penambahan energi:
+          <br />• Trimester 1 (180 kkal)
+          <br />• Trimester 2 (300 kkal)
+          <br />• Trimester 3 (300 kkal)
+          <br />• Tidak ada
+        </span>
+      );
+    } else {
+      if (selected.includes("Trimester 1")) {
+        return "Trimester 1 — Penambahan energi sebesar 300 kkal.";
+      }
+      if (selected.includes("Trimester 2")) {
+        return "Trimester 2 — Penambahan energi sebesar 300 kkal.";
+      }
+      if (selected.includes("Trimester 3")) {
+        return "Trimester 3 — Penambahan energi sebesar 500 kkal.";
+      }
+      if (selected.includes("Tidak ada")) {
+        return "Tidak ada penambahan energi dari kehamilan.";
+      }
+
+      return (
+        <span>
+          Pilihan penambahan energi:
+          <br />• Trimester 1 (300 kkal)
+          <br />• Trimester 2 (300 kkal)
+          <br />• Trimester 3 (500 kkal)
+          <br />• Tidak ada
+        </span>
+      );
+    }
   };
 
   return (
