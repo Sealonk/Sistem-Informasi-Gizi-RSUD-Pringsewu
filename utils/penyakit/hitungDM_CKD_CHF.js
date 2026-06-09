@@ -107,16 +107,10 @@ const hitungDM_CKD_CHF = (data) => {
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // LEMAK: 25% (Aman untuk DM, CKD, dan CHF)
-    // Jika Perempuan (P) DAN diukur dengan LILA/ULNA, diturunkan jadi 20%
-    let persentaseLemak = 25; 
-    if (jenis_kelamin === 'P' && is_estimasi === true) {
-        persentaseLemak = 20;
-    }
-
-    const lemak_gram = (persentaseLemak / 100 * kebutuhan_energi_total) / 9; 
-    const kalori_lemak = lemak_gram * 9; 
-    const lemak_persen = (kalori_lemak / kebutuhan_energi_total) * 100;
+    // LEMAK: Mutlak 25% (Aman untuk irisan DM, CKD, dan CHF)
+    const lemak_persen = 25; 
+    const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total; 
+    const lemak_gram = kalori_lemak / 9;
 
     // Rincian Lemak (Patokan Jenuh 7% dari Nefropati Diabetik)
     const lemak_jenuh_persen = 7;
