@@ -81,7 +81,14 @@ const previewPerhitungan = async (req, res, next) => {
             data: hasilKalkulasi
         });
     } catch (error) {
-        next(error);
+        // PERBAIKAN DI SINI:
+        // Kirim pesan error yang dilempar dari hitungDM ke Postman
+        console.error("Error pada perhitungan:", error.message);
+        
+        return res.status(400).json({
+            success: false,
+            message: "Gagal menghitung gizi: " + error.message // Pesan ini akan muncul di Postman
+        });
     }
 };
 
@@ -298,6 +305,80 @@ const getRiwayatDetail = async (req, res, next) => {
     }
 };
 
+const updateRiwayat = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const dataInput = req.body;
+
+        // 1. Cek apakah data riwayat yang akan di-update ada
+        const detailLama = await PerhitunganModel.findDetailById(id);
+        if (!detailLama) {
+            return res.status(404).json({ status: 'error', message: 'Data riwayat tidak ditemukan' });
+        }
+
+        // 2. Kalkulasi ulang dengan rumus
+        let hasilKalkulasi;
+        try {
+            if (dataInput.umur) {
+                dataInput.umur = konversiUmurKeTahun(dataInput.umur);
+            }
+            hasilKalkulasi = kalkulasiGiziTotal(dataInput);
+        } catch (err) {
+            return res.status(400).json({ status: 'error', message: err.message });
+        }
+
+        // 3. Validasi hasil kalkulasi
+        if (!hasilKalkulasi || !hasilKalkulasi.data_simpan) {
+            return res.status(500).json({ status: 'error', message: 'Hasil kalkulasi tidak valid' });
+        }
+
+        // 4. Pemrosesan String Diagnosa (Sama dengan logika di simpanPerhitungan)
+        let diagnosa_string = Array.isArray(dataInput.diagnosa_penyakit) 
+            ? dataInput.diagnosa_penyakit.join(', ') 
+            : dataInput.diagnosa_penyakit;
+
+        if (diagnosa_string && diagnosa_string.includes('Mifflin') && dataInput.penyakit_lainnya) {
+            diagnosa_string = diagnosa_string.replace('Mifflin', `Mifflin (${dataInput.penyakit_lainnya})`);
+        }
+
+        // 5. Siapkan data update (Pastikan keys sesuai dengan kolom tabel perhitungan_gizi)
+        const dataUpdate = {
+            berat_badan_saat_dihitung: dataInput.berat_badan,
+            tinggi_badan_saat_dihitung: dataInput.tinggi_badan,
+            diagnosa_penyakit_saat_dihitung: diagnosa_string, // Update diagnosa
+            berat_badan_ideal: hasilKalkulasi.data_simpan.berat_badan_ideal,
+            kebutuhan_energi_total: hasilKalkulasi.data_simpan.kebutuhan_energi_total,
+            protein_gram: hasilKalkulasi.data_simpan.protein_gram,
+            lemak_gram: hasilKalkulasi.data_simpan.lemak_gram,
+            karbohidrat_gram: hasilKalkulasi.data_simpan.karbohidrat_gram,
+            protein_persen: hasilKalkulasi.data_simpan.protein_persen,
+            lemak_persen: hasilKalkulasi.data_simpan.lemak_persen,
+            karbohidrat_persen: hasilKalkulasi.data_simpan.karbohidrat_persen,
+            faktor_stres: dataInput.faktor_stres || 'Normal',
+            aktivitas_fisik: dataInput.aktivitas_fisik || 'Bed rest',
+            bmr: hasilKalkulasi.data_simpan.bmr,
+            faktor_aktivitas_nilai: hasilKalkulasi.data_simpan.faktor_aktivitas_nilai,
+            faktor_stres_nilai: hasilKalkulasi.data_simpan.faktor_stres_nilai
+        };
+
+        // 6. Update ke database
+        const isUpdated = await PerhitunganModel.updateById(id, dataUpdate);
+
+        if (!isUpdated) {
+            return res.status(400).json({ status: 'error', message: 'Gagal memperbarui data atau tidak ada perubahan' });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Riwayat perhitungan berhasil diperbarui',
+            data: { id_perhitungan: id }
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 const deleteRiwayat = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -321,5 +402,6 @@ module.exports = {
     simpanPerhitungan,
     getRiwayat,
     getRiwayatDetail,
+    updateRiwayat,
     deleteRiwayat
 };

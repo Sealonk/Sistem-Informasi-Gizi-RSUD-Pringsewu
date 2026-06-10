@@ -7,8 +7,6 @@ const db = require('../config/database');
 const Perhitungan = {
     /**
      * Menyimpan data riwayat perhitungan gizi ke database (Snapshot)
-     * @param {Object} data - Objek berisi seluruh variabel yang akan di-insert
-     * @returns {Promise<number>} - Mengembalikan ID perhitungan yang baru saja dibuat
      */
     simpan: async (data) => {
         const queryInsert = `
@@ -40,11 +38,31 @@ const Perhitungan = {
     },
 
     /**
+     * FUNGSI BARU: Update data riwayat berdasarkan ID
+     * @param {number} id - ID perhitungan
+     * @param {Object} data - Objek data yang ingin diupdate
+     */
+    updateById: async (id, data) => {
+        // 1. Ambil keys (kolom) dan values (data) dari objek
+        const keys = Object.keys(data);
+        const values = Object.values(data);
+
+        // 2. Buat string SET kolom1 = ?, kolom2 = ?
+        const setClause = keys.map(key => `${key} = ?`).join(', ');
+
+        // 3. Gabungkan dengan ID ke dalam array values
+        const sql = `UPDATE perhitungan_gizi SET ${setClause} WHERE id_perhitungan = ?`;
+        const queryValues = [...values, id];
+
+        // 4. Eksekusi
+        const [result] = await db.execute(sql, queryValues);
+        return result.affectedRows > 0;
+    },
+
+    /**
      * Mengambil semua riwayat perhitungan dengan fitur Filter
-     * @param {Object} filters - Objek berisi search, penyakit, dan tanggal
      */
     findAllRiwayat: async (filters) => {
-        // PERBAIKAN: Menggunakan MAX() untuk mencegah duplikasi baris akibat JOIN dengan tabel SIMRS
         let query = `
             SELECT pg.*, 
                    MAX(p.nm_pasien) AS nama_pasien, 
@@ -55,25 +73,21 @@ const Perhitungan = {
         `;
         const values = [];
 
-        // Filter berdasarkan nama pasien (menggunakan nm_pasien)
         if (filters.search) {
             query += ` AND p.nm_pasien LIKE ?`;
             values.push(`%${filters.search}%`);
         }
         
-        // Filter berdasarkan jenis penyakit (kecuali jika dipilih "Semua Penyakit" atau kosong)
         if (filters.penyakit && filters.penyakit !== 'Semua Penyakit') {
             query += ` AND pg.diagnosa_penyakit_saat_dihitung LIKE ?`;
             values.push(`%${filters.penyakit}%`);
         }
         
-        // Filter berdasarkan tanggal perhitungan
         if (filters.tanggal) {
             query += ` AND DATE(pg.tanggal_perhitungan) = ?`;
             values.push(filters.tanggal);
         }
 
-        // PERBAIKAN: Menambahkan GROUP BY untuk menyatukan baris yang ganda
         query += ` GROUP BY pg.id_perhitungan ORDER BY pg.tanggal_perhitungan DESC`;
 
         const [rows] = await db.execute(query, values);
@@ -81,11 +95,9 @@ const Perhitungan = {
     },
 
     /**
-     * Mengambil detail satu riwayat spesifik beserta data pasiennya
-     * @param {number} id_perhitungan 
+     * Mengambil detail satu riwayat spesifik
      */
     findDetailById: async (id_perhitungan) => {
-        // PERBAIKAN: Menggunakan MAX() dan GROUP BY
         const query = `
             SELECT pg.*, 
                    MAX(p.nm_pasien) AS nama_pasien, 
@@ -100,11 +112,6 @@ const Perhitungan = {
         return rows[0]; 
     },
 
-    /**
-     * Mengambil riwayat perhitungan gizi berdasarkan no_rawat
-     * @param {string} no_rawat 
-     * @returns {Promise<Array>} - Daftar riwayat perhitungan
-     */
     findByPasienId: async (no_rawat) => {
         const query = `
             SELECT * FROM perhitungan_gizi 
@@ -115,11 +122,6 @@ const Perhitungan = {
         return rows;
     },
 
-    /**
-     * Menghapus sebuah riwayat perhitungan secara spesifik
-     * @param {number} id_perhitungan 
-     * @returns {Promise<boolean>}
-     */
     deleteById: async (id_perhitungan) => {
         const query = 'DELETE FROM perhitungan_gizi WHERE id_perhitungan = ?';
         const [result] = await db.execute(query, [id_perhitungan]);
