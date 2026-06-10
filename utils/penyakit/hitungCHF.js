@@ -1,6 +1,7 @@
 // ==========================================
 // UTILS/PENYAKIT: hitungCHF.js (Penyakit Jantung / Gagal Jantung)
 // Pendekatan Hybrid: Energi (Excel RS/Mifflin) + Makro/Mikro (Buku Biru)
+// Fitur: Validasi Slider Makronutrien Dinamis + Custom Stres Multiplier
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -12,7 +13,11 @@ const hitungCHF = (data) => {
         tinggi_badan, 
         umur, 
         aktivitas_fisik, 
-        faktor_stres 
+        faktor_stres,
+        // Parameter Baru untuk Slider Persentase Makronutrien
+        input_persen_protein,
+        input_persen_lemak,
+        input_persen_karbo 
     } = data;
 
     // 1. Dapatkan BBI dan IMT
@@ -40,21 +45,21 @@ const hitungCHF = (data) => {
             faktorAktivitas = 1.2;
             break;
         case 'ringan':
-            faktorAktivitas = 1.3; // Dapat turun dari tempat tidur
+            faktorAktivitas = 1.3; 
             break;
         case 'sedang':
-            faktorAktivitas = 1.6; // Kerja banyak duduk
+            faktorAktivitas = 1.6; 
             break;
         case 'berat':
-            faktorAktivitas = 1.8; // Kerja banyak berdiri
+            faktorAktivitas = 1.8; 
             break;
         case 'sangat berat':
-            faktorAktivitas = 2.0; // Pekerjaan berat / Olahraga aktif
+            faktorAktivitas = 2.0; 
             break;
     }
 
     // =========================================================================
-    // 4. FAKTOR STRES METABOLIK (Menggunakan sistem Pengali/Multiplier dari Excel)
+    // 4. FAKTOR STRES METABOLIK (Mendukung Custom Input Angka Desimal 1.1 - 1.7)
     // =========================================================================
     let faktorStres = 1.1; // Default: Tidak ada stress
     const parsedStress = parseFloat(faktor_stres);
@@ -65,20 +70,20 @@ const hitungCHF = (data) => {
         const stresNormal = faktor_stres?.toLowerCase();
         switch (stresNormal) {
             case 'ringan':
-                faktorStres = 1.3; // Representasi range 1.2 - 1.4
+                faktorStres = 1.3; 
                 break;
             case 'ringan sepsis':
-                faktorStres = 1.5; // Representasi range 1.4 - 1.5
+                faktorStres = 1.5; 
                 break;
             case 'berat':
-                faktorStres = 1.6; // Representasi range 1.5 - 1.6
+                faktorStres = 1.6; 
                 break;
             case 'sangat berat':
-                faktorStres = 1.7; // Representasi khusus nilai 1.7
+                faktorStres = 1.7; 
                 break;
             case 'tidak ada':
             default:
-                faktorStres = 1.1; // Tidak ada stress
+                faktorStres = 1.1; 
                 break;
         }
     }
@@ -90,34 +95,61 @@ const hitungCHF = (data) => {
     const kebutuhan_energi_total = bmr * faktorAktivitas * faktorStres;
 
     // =========================================================================
-    // 6. DISTRIBUSI MAKRONUTRIEN CHF (Buku Biru Edisi 5)
-    // Protein: 15%, Lemak Total: 25%, Karbohidrat: 60%
+    // 6. DISTRIBUSI MAKRONUTRIEN CHF (Validasi Slider Dinamis Buku Biru Edisi 5)
     // =========================================================================
     
-    // Protein (15%)
-    const protein_persen = 15;
+    // Nilai Default Aman untuk CHF
+    let protein_persen = 15;
+    let lemak_persen = 25;
+    let karbohidrat_persen = 60;
+
+    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
+    if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {
+        const p = parseFloat(input_persen_protein);
+        const l = parseFloat(input_persen_lemak);
+        const k = parseFloat(input_persen_karbo);
+
+        // Validasi 1: Total harus tepat 100%
+        if (Math.round(p + l + k) !== 100) {
+            throw new Error(`Total persentase makronutrien harus 100%. Saat ini: ${p + l + k}%`);
+        }
+
+        // Validasi 2: Pagar Aman Buku Biru CHF
+        if (p < 15 || p > 25) {
+            throw new Error(`Persentase Protein CHF harus antara 15% - 25%. Input ditolak: ${p}%`);
+        }
+        if (l < 20 || l > 25) {
+            throw new Error(`Persentase Lemak CHF harus antara 20% - 25%. Input ditolak: ${l}%`);
+        }
+        if (k < 50 || k > 60) {
+            throw new Error(`Persentase Karbohidrat CHF harus antara 50% - 60%. Input ditolak: ${k}%`);
+        }
+
+        // Lolos validasi, timpa nilai default
+        protein_persen = p;
+        lemak_persen = l;
+        karbohidrat_persen = k;
+    }
+
+    // Eksekusi Kalori ke Gram
     const kalori_protein = (protein_persen / 100) * kebutuhan_energi_total;
     const protein_gram = kalori_protein / 4;
 
-    // Lemak Total (25%)
-    const lemak_persen = 25;
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Pemecahan Komposisi Lemak sesuai Buku Biru:
-    // Lemak Jenuh: 10% | Lemak Tidak Jenuh (Ganda+Tunggal): 15%
-    const lemak_jenuh_persen = 10;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
+    const karbohidrat_gram = kalori_karbohidrat / 4;
+
+    // Pemecahan Komposisi Lemak Dinamis menyesuaikan input user
+    // Lemak Jenuh dikunci di rasio aman maksimal 10% (sesuai Buku Biru)
+    const lemak_jenuh_persen = Math.floor(lemak_persen * (10/25));
     const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
 
-    const lemak_tidak_jenuh_persen = 15;
+    const lemak_tidak_jenuh_persen = lemak_persen - lemak_jenuh_persen;
     const kalori_lemak_tidak_jenuh = (lemak_tidak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_tidak_jenuh_gram = kalori_lemak_tidak_jenuh / 9;
-
-    // Karbohidrat (60% sisa dari Protein dan Lemak)
-    const karbohidrat_persen = 60;
-    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
-    const karbohidrat_gram = kalori_karbohidrat / 4;
 
     // =========================================================================
     // 7. MIKRONUTRIEN & CAIRAN (Spesifik Jantung - Buku Biru)
@@ -136,7 +168,7 @@ const hitungCHF = (data) => {
             koreksi_aktivitas: parseFloat(faktorAktivitas.toFixed(2)),
             koreksi_berat_badan: 0,
             stress_metabolik: parseFloat(faktorStres.toFixed(2)),
-            kehamilan: 0 // Dinolkan
+            kehamilan: 0 
         },
 
         perhitungan: {
@@ -179,7 +211,6 @@ const hitungCHF = (data) => {
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
             
-            // Siap jika nanti ingin dimasukkan ke database gizi RS
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_tidak_jenuh_gram: parseFloat(lemak_tidak_jenuh_gram.toFixed(2)),
             natrium_mg: natrium_mg,

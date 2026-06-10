@@ -2,6 +2,7 @@
 // UTILS/PENYAKIT: hitungCKD_Lambung.js
 // Komplikasi Ganda: Ginjal Kronik (CKD) + Saluran Cerna Atas (Lambung/Dispepsia)
 // Pendekatan: Titik Temu Paling Ketat (The Strictest Limit) dari Buku Biru Edisi 5
+// Fitur: Validasi Slider Lemak Dinamis (Protein Absolut Dikunci)
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -13,7 +14,9 @@ const hitungCKD_Lambung = (data) => {
         tinggi_badan, 
         umur, 
         status_hemodialisa,
-        volume_urine // Sangat krusial untuk elektrolit dan cairan
+        volume_urine, // Sangat krusial untuk elektrolit dan cairan
+        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
+        input_persen_lemak
     } = data;
 
     // 1. Dapatkan BBI dan IMT 
@@ -41,7 +44,8 @@ const hitungCKD_Lambung = (data) => {
     // 3. DISTRIBUSI MAKRONUTRIEN (Irisan Ketat CKD + Lambung)
     // =========================================================================
     
-    // PROTEIN: Mutlak mengikuti Ginjal (HD vs Pre-HD)
+    // 3a. PROTEIN: Mutlak mengikuti Ginjal (HD vs Pre-HD)
+    // Protein dikunci (lock), tidak ada slider untuk protein.
     let protein_gram = 0;
     if (isHD) {
         protein_gram = 1.2 * bbi; 
@@ -51,15 +55,33 @@ const hitungCKD_Lambung = (data) => {
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // LEMAK TOTAL: 15% (Batas paling aman untuk Lambung agar tidak mual)
-    const lemak_persen = 15;
+    // 3b. LEMAK TOTAL: 15% (Batas irisan tunggal paling aman untuk Lambung dan Ginjal)
+    let lemak_persen = 15;
+
+    // Validasi input slider lemak dari Frontend
+    if (input_persen_lemak !== undefined) {
+        const l = parseFloat(input_persen_lemak);
+        
+        // Pagar Aman Lemak (CKD 25-30% vs Lambung 10-15%. Titik temu paksa: 15%)
+        // Kita kunci ketat validasinya di angka 15 agar user tidak bisa input sembarangan
+        if (l !== 15) {
+            throw new Error(`Persentase Lemak CKD+Lambung mutlak harus 15% untuk mengakomodir kedua penyakit. Input ditolak: ${l}%`);
+        }
+        
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
+        }
+
+        lemak_persen = l;
+    }
+
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // KARBOHIDRAT: Sisa energi total (Otomatis melebar untuk menutupi defisit kalori lemak)
-    const kalori_karbohidrat = kebutuhan_energi_total - kalori_protein - kalori_lemak;
+    // 3c. KARBOHIDRAT: Sisa energi total (Otomatis melebar untuk menutupi defisit kalori lemak)
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
-    const karbohidrat_persen = (kalori_karbohidrat / kebutuhan_energi_total) * 100;
 
     // =========================================================================
     // 4. MIKRONUTRIEN, CAIRAN, & PEDOMAN KLINIS

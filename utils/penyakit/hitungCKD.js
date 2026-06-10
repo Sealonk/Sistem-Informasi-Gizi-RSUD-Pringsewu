@@ -1,6 +1,7 @@
 // ==========================================
 // UTILS/PENYAKIT: hitungCKD.js (Ginjal Kronik Murni Tanpa DM)
 // Berdasarkan: Penuntun Diet & Terapi Gizi Edisi 5 (PERSAGI)
+// Fitur: Validasi Slider Lemak Dinamis (Protein Absolut Dikunci)
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -12,7 +13,9 @@ const hitungCKD = (data) => {
         tinggi_badan, 
         umur, 
         status_hemodialisa,
-        volume_urine // Sangat krusial untuk Natrium, Kalium & Cairan
+        volume_urine, // Sangat krusial untuk Natrium, Kalium & Cairan
+        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
+        input_persen_lemak
     } = data;
 
     // 1. Dapatkan BBI dan IMT 
@@ -37,10 +40,10 @@ const hitungCKD = (data) => {
     const energiBasal = kebutuhan_energi_total;
 
     // =========================================================================
-    // 3. DISTRIBUSI MAKRONUTRIEN CKD
+    // 3. DISTRIBUSI MAKRONUTRIEN CKD (Dengan Validasi Slider Dinamis)
     // =========================================================================
     
-    // PROTEIN:
+    // 3a. PROTEIN: Dikunci Mutlak (Tidak ada slider untuk protein)
     let protein_gram = 0;
     if (isHD) {
         protein_gram = 1.2 * bbi; // HD: Protein Tinggi untuk mengganti asam amino yang hilang
@@ -50,15 +53,33 @@ const hitungCKD = (data) => {
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // LEMAK: 25% (Aman untuk rentang HD 15-30% maupun Pre-HD 25-30%)
-    const lemak_persen = 25;
+    // 3b. LEMAK: Default 25% (Aman untuk rentang HD 15-30% maupun Pre-HD 25-30%)
+    let lemak_persen = 25;
+
+    // Validasi input slider lemak dari Frontend
+    if (input_persen_lemak !== undefined) {
+        const l = parseFloat(input_persen_lemak);
+        
+        // Pagar Aman Lemak (Rentang paling lebar untuk ginjal murni adalah 15% - 30%)
+        if (l < 15 || l > 30) {
+            throw new Error(`Persentase Lemak CKD harus antara 15% - 30%. Input ditolak: ${l}%`);
+        }
+        
+        // Validasi Matematis Ekstra
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein mutlak (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%. Tidak ada ruang untuk karbohidrat.`);
+        }
+
+        lemak_persen = l;
+    }
+
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // KARBOHIDRAT: Sisa kalori (Sekitar 50-65% sesuai anjuran Buku Biru)
-    const kalori_karbohidrat = kebutuhan_energi_total - kalori_protein - kalori_lemak;
+    // 3c. KARBOHIDRAT: Sisa kalori agar total mutlak 100%
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
-    const karbohidrat_persen = (kalori_karbohidrat / kebutuhan_energi_total) * 100;
 
     // =========================================================================
     // 4. MIKRONUTRIEN & CAIRAN (Logika Ganda Sesuai Buku Biru)

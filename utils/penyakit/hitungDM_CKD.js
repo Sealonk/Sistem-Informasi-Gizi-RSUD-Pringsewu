@@ -1,6 +1,7 @@
 // ==========================================
 // UTILS/PENYAKIT: hitungDM_CKD.js (Nefropati Diabetik)
 // Pendekatan Hybrid: Energi (Cara Praktis DM) + Makro/Mikro (Buku Biru CKD)
+// Fitur: Faktor Stres Khusus DM (10,20,30) + Validasi Slider Lemak Dinamis
 // ==========================================
 
 const { hitungBeratBadanIdeal } = require('../sharedRumus');
@@ -14,7 +15,9 @@ const hitungDM_CKD = (data) => {
         faktor_stres, 
         kategori_penambahan_energi,
         status_hemodialisa,
-        volume_urine // Sangat krusial untuk Natrium, Kalium & Cairan
+        volume_urine, // Sangat krusial untuk Natrium, Kalium & Cairan
+        // Parameter Baru untuk Slider (Protein dikunci, jadi hanya Lemak yang dikontrol user)
+        input_persen_lemak 
     } = data;
 
     // 1. Hitung Berat Badan Ideal (BBI)
@@ -59,11 +62,18 @@ const hitungDM_CKD = (data) => {
     }
     const koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // D. Koreksi Stres
+    // =========================================================================
+    // D. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
+    // =========================================================================
     let persentaseStres = 0.10; 
+    
     const parsedStress = parseFloat(faktor_stres);
-    if (!isNaN(parsedStress) && parsedStress >= 1.1 && parsedStress <= 1.7) {
-        persentaseStres = parsedStress - 1.0; 
+    if (!isNaN(parsedStress)) {
+        if (parsedStress === 10 || parsedStress === 20 || parsedStress === 30) {
+            persentaseStres = parsedStress / 100;
+        } else if (parsedStress === 0.1 || parsedStress === 0.2 || parsedStress === 0.3) {
+            persentaseStres = parsedStress;
+        }
     } else {
         const stressNormal = faktor_stres?.toLowerCase();
         switch (stressNormal) {
@@ -90,10 +100,10 @@ const hitungDM_CKD = (data) => {
     const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
     // =========================================================================
-    // 3. DISTRIBUSI MAKRONUTRIEN (Nefropati Diabetik - Buku Biru)
+    // 3. DISTRIBUSI MAKRONUTRIEN (Nefropati Diabetik - Validasi Slider Lemak)
     // =========================================================================
     
-    // PROTEIN: HD = 1.2 g/kg, Pre-HD = 0.8 g/kg
+    // 3a. PROTEIN: Dikunci mutlak berdasarkan Ginjal (HD = 1.2 g/kg, Pre-HD = 0.8 g/kg)
     let protein_gram = 0;
     if (isHD) {
         protein_gram = 1.2 * bbi; 
@@ -103,25 +113,43 @@ const hitungDM_CKD = (data) => {
     const kalori_protein = protein_gram * 4;
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // LEMAK TOTAL: 30% dari Total Kalori
-    const lemak_persen = 30;
+    // 3b. LEMAK TOTAL: Default 25% (Kesepakatan dengan Ahli Gizi RS)
+    let lemak_persen = 25;
+
+    // Jika Frontend mengirim nilai slider lemak, lakukan validasi ketat
+    if (input_persen_lemak !== undefined) {
+        const l = parseFloat(input_persen_lemak);
+        
+        // Pagar Aman Lemak (Rentang diizinkan 20% - 30%)
+        if (l < 20 || l > 30) {
+            throw new Error(`Persentase Lemak komplikasi DM+CKD harus antara 20% - 30%. Input ditolak: ${l}%`);
+        }
+        
+        // Validasi: Pastikan sisa karbohidrat tidak negatif
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
+        }
+
+        lemak_persen = l;
+    }
+
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak Nefropati Diabetik: Jenuh 7%, PUFA 10%, MUFA 13%
-    const lemak_jenuh_persen = 7;
+    // Rincian Lemak Proporsional menyesuaikan tarikan slider (Standar 30% -> Jenuh 7%, PUFA 10%, MUFA 13%)
+    const lemak_jenuh_persen = Math.floor(lemak_persen * (7/30));
     const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
     
-    const lemak_pufa_persen = 10;
+    const lemak_pufa_persen = Math.floor(lemak_persen * (10/30));
     const lemak_pufa_gram = ((lemak_pufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    const lemak_mufa_persen = 13;
+    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen;
     const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    // KARBOHIDRAT: Sisa dari Total Kalori
-    const kalori_karbohidrat = kebutuhan_energi_total - kalori_protein - kalori_lemak;
+    // 3c. KARBOHIDRAT: Sisa dari Total Kalori agar persis 100%
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
-    const karbohidrat_persen = (kalori_karbohidrat / kebutuhan_energi_total) * 100;
 
     // =========================================================================
     // 4. MIKRONUTRIEN & CAIRAN (Logika Ganda Sesuai Buku Biru)
@@ -131,13 +159,11 @@ const hitungDM_CKD = (data) => {
     let kalsium_mg = 0;
     let fosfor_mg = 0;
 
-    // Mengolah input volume urine
     const volUrine = (volume_urine !== undefined && volume_urine !== null && volume_urine !== "") 
                         ? parseFloat(volume_urine) 
                         : null;
 
     if (isHD) {
-        // --- ATURAN HEMODIALISA ---
         if (volUrine !== null) {
             if (volUrine === 0) {
                 natrium_mg = 2000; 
@@ -153,16 +179,14 @@ const hitungDM_CKD = (data) => {
         kalsium_mg = 1000;    
         fosfor_mg = 17 * bbi; 
     } else {
-        // --- ATURAN PRE-DIALISIS (NEFROPATI DIABETIK) ---
-        natrium_mg = 2000;    // 2000 - 2300 mg
-        kalium_mg = 1600;     // 1600 - 2800 mg (Batas aman terendah)
+        natrium_mg = 2000;    
+        kalium_mg = 1600;     
         kalsium_mg = 1200;    
-        fosfor_mg = 10 * bbi; // 8 - 12 mg/kg BB
+        fosfor_mg = 10 * bbi; 
     }
 
-    const kolesterol_mg = 300; // < 300 mg
+    const kolesterol_mg = 300; 
 
-    // Perhitungan Cairan Dinamis
     let kebutuhan_cairan = "Sesuai volume urine 24 jam + 500 ml";
     if (volUrine !== null) {
         const totalCairan = volUrine + 500;

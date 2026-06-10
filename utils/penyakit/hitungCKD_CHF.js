@@ -2,6 +2,7 @@
 // UTILS/PENYAKIT: hitungCKD_CHF.js
 // Komplikasi Ganda: Ginjal Kronik (CKD) + Gagal Jantung (CHF)
 // Pendekatan: Titik Temu Paling Ketat (The Strictest Limit) dari Buku Biru Edisi 5
+// Fitur: Validasi Slider Lemak Dinamis (Protein Absolut Dikunci)
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -13,7 +14,9 @@ const hitungCKD_CHF = (data) => {
         tinggi_badan, 
         umur, 
         status_hemodialisa,
-        volume_urine // Sangat krusial untuk Natrium, Kalium & Cairan
+        volume_urine, // Sangat krusial untuk Natrium, Kalium & Cairan
+        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
+        input_persen_lemak
     } = data;
 
     // 1. Dapatkan BBI dan IMT 
@@ -38,10 +41,10 @@ const hitungCKD_CHF = (data) => {
     const energiBasal = kebutuhan_energi_total;
 
     // =========================================================================
-    // 3. DISTRIBUSI MAKRONUTRIEN (Irisan Ketat CKD + CHF)
+    // 3. DISTRIBUSI MAKRONUTRIEN (Validasi Slider & Irisan Ketat CKD + CHF)
     // =========================================================================
     
-    // PROTEIN: 
+    // 3a. PROTEIN: Dikunci Mutlak
     // Jika Pre-HD = 0.8 g/kg (Irisan dari CKD 0.6-0.8 dan CHF 0.8-1.5)
     // Jika HD = 1.2 g/kg (Syarat mutlak hemodialisis)
     let protein_gram = 0;
@@ -53,24 +56,43 @@ const hitungCKD_CHF = (data) => {
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // LEMAK TOTAL: 25% (Irisan dari CKD 25-30% dan CHF 20-25%)
-    const lemak_persen = 25;
+    // 3b. LEMAK TOTAL: Default 25% (Satu-satunya irisan aman dari CKD 25-30% dan CHF 20-25%)
+    let lemak_persen = 25;
+
+    // Validasi input slider lemak dari Frontend
+    if (input_persen_lemak !== undefined) {
+        const l = parseFloat(input_persen_lemak);
+        
+        // Pagar Aman Lemak (Mutlak di angka 25% agar memenuhi batas kedua organ)
+        if (l !== 25) {
+            throw new Error(`Persentase Lemak CKD+CHF mutlak harus 25% agar tidak memberatkan Jantung dan Ginjal. Input ditolak: ${l}%`);
+        }
+        
+        // Validasi Matematis Ekstra
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein mutlak (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
+        }
+
+        lemak_persen = l;
+    }
+
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak sesuai Buku Biru CHF
-    const lemak_jenuh_persen = 10;
+    // Rincian Lemak Proporsional sesuai Buku Biru CHF
+    // (Jenuh maksimal 10%, Tidak Jenuh 15%. Diatur fleksibel dengan rasio jika persen lemak diubah)
+    const lemak_jenuh_persen = Math.floor(lemak_persen * (10/25));
     const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
 
-    const lemak_tidak_jenuh_persen = 15;
+    const lemak_tidak_jenuh_persen = lemak_persen - lemak_jenuh_persen;
     const kalori_lemak_tidak_jenuh = (lemak_tidak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_tidak_jenuh_gram = kalori_lemak_tidak_jenuh / 9;
 
-    // KARBOHIDRAT: Sisa energi total
-    const kalori_karbohidrat = kebutuhan_energi_total - kalori_protein - kalori_lemak;
+    // 3c. KARBOHIDRAT: Sisa energi total
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
-    const karbohidrat_persen = (kalori_karbohidrat / kebutuhan_energi_total) * 100;
 
     // =========================================================================
     // 4. MIKRONUTRIEN & CAIRAN (Penggabungan Batas Paling Ketat)

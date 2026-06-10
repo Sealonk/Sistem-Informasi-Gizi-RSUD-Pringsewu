@@ -1,6 +1,7 @@
 // ==========================================
 // UTILS/PENYAKIT: hitungStroke.js
 // Berdasarkan: Penuntun Diet & Terapi Gizi Edisi 5 (PERSAGI)
+// Fitur: Validasi Slider Lemak Dinamis (Protein Absolut Dikunci)
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -9,7 +10,9 @@ const hitungStroke = (data) => {
     const { 
         jenis_kelamin, 
         berat_badan, 
-        tinggi_badan
+        tinggi_badan,
+        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
+        input_persen_lemak 
     } = data;
 
     // 1. Dapatkan BBI dan IMT 
@@ -21,7 +24,6 @@ const hitungStroke = (data) => {
     // 2. KEBUTUHAN ENERGI TOTAL (TEE) - Berdasarkan Status Gizi (Buku Biru)
     // Gizi Baik: 25-30 kkal/kg BB | Malnutrisi: 30-35 kkal/kg BB 
     // Obesitas: Penyesuaian khusus (Kita gunakan 25 kkal/kg BBI)
-    // Kondisi Akut (Fase awal masuk RS): 20-25 kkal/kg BB
     // =========================================================================
     let kebutuhan_energi_total = 0;
     
@@ -41,34 +43,53 @@ const hitungStroke = (data) => {
     const energiBasal = kebutuhan_energi_total;
 
     // =========================================================================
-    // 3. DISTRIBUSI MAKRONUTRIEN STROKE (Buku Biru Edisi 5)
+    // 3. DISTRIBUSI MAKRONUTRIEN STROKE (Validasi Slider & Batas Ketat)
     // =========================================================================
     
-    // PROTEIN: 1 - 1.5 g/kg BB/hari (Kita gunakan nilai tengah 1.2 g/kg)
+    // 3a. PROTEIN: Dikunci Mutlak (1 - 1.5 g/kg BB/hari) -> Kita patok presisi di 1.2 g/kg.
+    // Tidak ada slider untuk protein.
     const protein_gram = 1.2 * bbi;
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // LEMAK TOTAL: 25 - 35% (Kita gunakan batas bawah 25%)
-    const lemak_persen = 25;
+    // 3b. LEMAK TOTAL: Default 25% (Pagar aman Buku Biru 25% - 35%)
+    let lemak_persen = 25;
+
+    // Validasi input slider lemak dari Frontend
+    if (input_persen_lemak !== undefined) {
+        const l = parseFloat(input_persen_lemak);
+        
+        // Pagar Aman Lemak (Stroke Murni)
+        if (l < 25 || l > 35) {
+            throw new Error(`Persentase Lemak Stroke harus antara 25% - 35%. Input ditolak: ${l}%`);
+        }
+        
+        // Validasi Matematis Ekstra
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein mutlak (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%. Tidak ada ruang untuk karbohidrat.`);
+        }
+
+        lemak_persen = l;
+    }
+
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
+    // 3c. KARBOHIDRAT: Sisa energi total agar mutlak 100%
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total; 
+    const karbohidrat_gram = kalori_karbohidrat / 4;
+
     // Rincian Lemak Stroke (Buku Biru): Jenuh <7%, PUFA <10%, MUFA <20%
-    // Di sini kita memberikan batas maksimal yang diizinkan untuk UI Frontend
-    const lemak_jenuh_persen = 7;
+    // Diatur proporsional terhadap input lemak user agar selaras (maksimal Jenuh 7%)
+    const lemak_jenuh_persen = Math.floor(lemak_persen * (7/25));
     const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
     
-    const lemak_pufa_persen = 10;
+    const lemak_pufa_persen = Math.floor(lemak_persen * (10/25));
     const lemak_pufa_gram = ((lemak_pufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    const lemak_mufa_persen = 20;
+    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen;
     const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
-
-    // KARBOHIDRAT: Sisa energi total (Kisaran 50-60%)
-    const kalori_karbohidrat = kebutuhan_energi_total - kalori_protein - kalori_lemak;
-    const karbohidrat_gram = kalori_karbohidrat / 4; 
-    const karbohidrat_persen = (kalori_karbohidrat / kebutuhan_energi_total) * 100;
 
     // =========================================================================
     // 4. MIKRONUTRIEN & CAIRAN (Buku Biru Stroke)

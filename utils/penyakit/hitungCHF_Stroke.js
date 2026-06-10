@@ -2,6 +2,7 @@
 // UTILS/PENYAKIT: hitungCHF_Stroke.js
 // Komplikasi Ganda: Penyakit Jantung (CHF) + Stroke
 // Pendekatan Hybrid: Energi (Excel RS/Mifflin) + Makro/Mikro (Buku Biru)
+// Fitur: Validasi Slider Lemak (Titik Temu Paksa 25%) + Custom Stres Multiplier
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -13,7 +14,9 @@ const hitungCHF_Stroke = (data) => {
         tinggi_badan, 
         umur, 
         aktivitas_fisik, 
-        faktor_stres 
+        faktor_stres,
+        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
+        input_persen_lemak 
     } = data;
 
     // 1. Dapatkan BBI dan IMT
@@ -44,10 +47,11 @@ const hitungCHF_Stroke = (data) => {
     }
 
     // =========================================================================
-    // 4. FAKTOR STRES METABOLIK (Menggunakan sistem Pengali/Multiplier Excel)
+    // 4. FAKTOR STRES METABOLIK (Mendukung Custom Input Angka Desimal 1.1 - 1.7)
     // =========================================================================
     let faktorStres = 1.1; 
     const parsedStress = parseFloat(faktor_stres);
+    
     if (!isNaN(parsedStress) && parsedStress >= 1.1 && parsedStress <= 1.7) {
         faktorStres = parsedStress;
     } else {
@@ -68,34 +72,56 @@ const hitungCHF_Stroke = (data) => {
     const kebutuhan_energi_total = bmr * faktorAktivitas * faktorStres;
 
     // =========================================================================
-    // 6. DISTRIBUSI MAKRONUTRIEN CHF + STROKE (Batas Paling Ketat Buku Biru)
+    // 6. DISTRIBUSI MAKRONUTRIEN CHF + STROKE (Validasi Slider & Batas Ketat)
     // =========================================================================
     
-    // Protein: Mutlak 1.2 g/kg BBI (Syarat neurologis Stroke untuk cegah katabolisme)
-    // Nilai ini aman karena masuk dalam rentang CHF (0.8 - 1.5 g/kg)
+    // 6a. PROTEIN: Mutlak 1.2 g/kg BBI (Syarat neurologis Stroke untuk cegah katabolisme)
+    // Protein dikunci (lock), tidak ada slider untuk protein.
     const protein_gram = 1.2 * bbi;
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // Lemak: 25% (Irisan emas antara CHF 20-25% dan Stroke 25-35%)
-    const lemak_persen = 25;
+    // 6b. LEMAK: Default 25% (Irisan emas antara CHF 20-25% dan Stroke 25-35%)
+    let lemak_persen = 25;
+
+    // Validasi input slider lemak dari Frontend
+    if (input_persen_lemak !== undefined) {
+        const l = parseFloat(input_persen_lemak);
+        
+        // Pagar Aman Lemak (Satu-satunya titik temu CHF dan Stroke adalah 25%)
+        // Kita kunci ketat validasinya di angka 25 agar user tidak bisa input di luar irisan aman
+        if (l !== 25) {
+            throw new Error(`Persentase Lemak CHF+Stroke mutlak harus 25% untuk mengakomodir kedua penyakit. Input ditolak: ${l}%`);
+        }
+        
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
+        }
+
+        lemak_persen = l;
+    }
+
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak (Lemak Jenuh < 7% mengikuti aturan Stroke yang lebih ketat)
-    const lemak_jenuh_persen = 7;
-    const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
-
-    const lemak_pufa_persen = 10;
-    const lemak_pufa_gram = ((lemak_pufa_persen / 100) * kebutuhan_energi_total) / 9;
-
-    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen; // Sisa 8%
-    const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
-
-    // Karbohidrat: Sisa TEE dikurangi Protein dan Lemak
-    const kalori_karbohidrat = kebutuhan_energi_total - kalori_protein - kalori_lemak;
+    // 6c. KARBOHIDRAT: Sisa TEE agar persis 100%
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
-    const karbohidrat_persen = (kalori_karbohidrat / kebutuhan_energi_total) * 100;
+
+    // Rincian Lemak (Diatur proporsional terhadap persentase lemak)
+    // Lemak Jenuh < 7% mengikuti aturan Stroke yang lebih ketat
+    const lemak_jenuh_persen = Math.floor(lemak_persen * (7/25));
+    const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
+    const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
+
+    const lemak_pufa_persen = Math.floor(lemak_persen * (10/25));
+    const kalori_lemak_pufa = (lemak_pufa_persen / 100) * kebutuhan_energi_total;
+    const lemak_pufa_gram = kalori_lemak_pufa / 9;
+
+    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen; 
+    const kalori_lemak_mufa = (lemak_mufa_persen / 100) * kebutuhan_energi_total;
+    const lemak_mufa_gram = kalori_lemak_mufa / 9;
 
     // =========================================================================
     // 7. MIKRONUTRIEN, CAIRAN, DAN PEDOMAN KLINIS (Buku Biru)

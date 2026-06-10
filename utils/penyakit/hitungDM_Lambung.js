@@ -2,6 +2,7 @@
 // UTILS/PENYAKIT: hitungDM_Lambung.js
 // Komplikasi Ganda: Diabetes Melitus + Saluran Cerna Atas / Dispepsia
 // Pendekatan: Irisan Paling Ketat (The Strictest Limit) Buku Biru Edisi 5
+// Fitur: Faktor Stres Khusus DM (10, 20, 30) + Validasi Slider Dinamis
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -14,7 +15,11 @@ const hitungDM_Lambung = (data) => {
         umur, 
         aktivitas_fisik, 
         faktor_stres, 
-        kategori_penambahan_energi 
+        kategori_penambahan_energi,
+        // Parameter Baru untuk Slider Persentase Makronutrien (Opsional)
+        input_persen_protein,
+        input_persen_lemak,
+        input_persen_karbo 
     } = data;
 
     // 1. Dapatkan BBI dan IMT
@@ -56,13 +61,24 @@ const hitungDM_Lambung = (data) => {
     }
     koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // 5. STRES METABOLIK
+    // =========================================================================
+    // 5. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
+    // =========================================================================
     let koreksiStresNilai = 0;
-    let persentaseStres = 0.10; 
+    let persentaseStres = 0.10; // Default 10% 
+    
     const parsedStress = parseFloat(faktor_stres);
-    if (!isNaN(parsedStress) && parsedStress >= 1.1 && parsedStress <= 1.7) {
-        persentaseStres = parsedStress - 1.0; 
+    if (!isNaN(parsedStress)) {
+        // Jika frontend mengirim angka bulat (10, 20, 30)
+        if (parsedStress === 10 || parsedStress === 20 || parsedStress === 30) {
+            persentaseStres = parsedStress / 100;
+        } 
+        // Jika frontend mengirim format desimal (0.1, 0.2, 0.3)
+        else if (parsedStress === 0.1 || parsedStress === 0.2 || parsedStress === 0.3) {
+            persentaseStres = parsedStress;
+        }
     } else {
+        // Fallback jika Frontend mengirim teks
         const stressNormal = faktor_stres?.toLowerCase();
         switch (stressNormal) {
             case 'ringan': persentaseStres = 0.10; break;
@@ -81,6 +97,10 @@ const hitungDM_Lambung = (data) => {
             penambahanKaloriNilai = 180;
         } else if (kat.includes('TMSTR 2') || kat.includes('TMSTR 3') || kat.includes('TRIMESTER 2') || kat.includes('TRIMESTER 3') || kat.includes('2 & 3')) {
             penambahanKaloriNilai = 300;
+        } else if (kat.includes('LAKTASI 6 BLN PERTAMA') || kat.includes('MENYUSUI 0-6')) {
+            penambahanKaloriNilai = 330;
+        } else if (kat.includes('LAKTASI 6 BLN KEDUA') || kat.includes('MENYUSUI 7-12')) {
+            penambahanKaloriNilai = 400;
         }
     }
 
@@ -88,36 +108,62 @@ const hitungDM_Lambung = (data) => {
     const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
     // =========================================================================
-    // 8. DISTRIBUSI MAKRONUTRIEN (Irisan Penyakit DM + Lambung)
-    // Syarat DM: Karbohidrat max 65%, Protein 10-20%
-    // Syarat Lambung: Lemak max 15%
-    // Kombinasi Ideal: Protein 20%, Lemak 15%, Karbohidrat 65%
+    // 8. DISTRIBUSI MAKRONUTRIEN (Validasi Slider & Irisan DM + Lambung)
     // =========================================================================
     
-    // Hitung Protein (20% - Batas atas DM untuk menutupi sisa persentase)
-    const protein_persen = 20;
+    // Nilai Default Aman untuk DM + Lambung
+    let protein_persen = 20;
+    let lemak_persen = 15;
+    let karbohidrat_persen = 65;
+
+    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
+    if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {
+        const p = parseFloat(input_persen_protein);
+        const l = parseFloat(input_persen_lemak);
+        const k = parseFloat(input_persen_karbo);
+
+        // Validasi 1: Total harus tepat 100%
+        if (Math.round(p + l + k) !== 100) {
+            throw new Error(`Total persentase makronutrien harus 100%. Saat ini: ${p + l + k}%`);
+        }
+
+        // Validasi 2: Harus masuk Pagar Aman Buku Biru DM + Lambung
+        if (p < 10 || p > 20) {
+            throw new Error(`Persentase Protein DM+Lambung harus 10% - 20%. Input ditolak: ${p}%`);
+        }
+        if (l < 10 || l > 15) {
+            throw new Error(`Persentase Lemak mutlak ikut Lambung (10% - 15%). Input ditolak: ${l}%`);
+        }
+        if (k < 45 || k > 65) {
+            throw new Error(`Persentase Karbohidrat mutlak ikut DM (45% - 65%). Input ditolak: ${k}%`);
+        }
+
+        // Lolos validasi, timpa nilai default
+        protein_persen = p;
+        lemak_persen = l;
+        karbohidrat_persen = k;
+    }
+
+    // Eksekusi Perhitungan Kalori ke Gram
     const kalori_protein = (protein_persen / 100) * kebutuhan_energi_total;
     const protein_gram = kalori_protein / 4; 
 
-    // Hitung Lemak (15% - Batas wajib tertinggi Diet Lambung)
-    const lemak_persen = 15;
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak (DM) - Total 15%
-    const lemak_jenuh_persen = 5; // Aman (Syarat DM < 7%)
-    const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
-    
-    const lemak_pufa_persen = 5;  // Aman (Syarat DM < 10%)
-    const lemak_pufa_gram = ((lemak_pufa_persen / 100) * kebutuhan_energi_total) / 9;
-
-    const lemak_mufa_persen = 5;  // Sisa untuk mencapai 15%
-    const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
-
-    // Hitung Karbohidrat (65% - Batas atas DM)
-    const karbohidrat_persen = 65;
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4; 
+
+    // Rincian Proporsi Lemak (Dibuat Dinamis menyesuaikan slider Lemak 10-15%)
+    // Lemak Jenuh aman untuk DM < 7%. Kita buat sepertiganya agar proporsional.
+    const lemak_jenuh_persen = Math.floor(lemak_persen / 3); 
+    const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
+    
+    const lemak_pufa_persen = Math.floor(lemak_persen / 3); 
+    const lemak_pufa_gram = ((lemak_pufa_persen / 100) * kebutuhan_energi_total) / 9;
+
+    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen; // Sisa
+    const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
 
     // =========================================================================
     // 9. MIKRONUTRIEN, SERAT, DAN KETERANGAN KLINIS
@@ -174,7 +220,7 @@ const hitungDM_Lambung = (data) => {
             berat_badan_ideal: parseFloat(bbi.toFixed(2)),
             bmr: parseFloat(energiBasal.toFixed(2)),
             faktor_aktivitas_nilai: parseFloat(persentaseAktivitas.toFixed(2)), 
-            faktor_stres_nilai: parseFloat((persentaseStres + 1).toFixed(2)),
+            faktor_stres_nilai: parseFloat(persentaseStres.toFixed(2)),
             penambahan_kalori: penambahanKaloriNilai,
             kebutuhan_energi_total: parseFloat(kebutuhan_energi_total.toFixed(2)),
             protein_persen: parseFloat(protein_persen.toFixed(2)),

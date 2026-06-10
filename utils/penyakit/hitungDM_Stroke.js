@@ -2,6 +2,7 @@
 // UTILS/PENYAKIT: hitungDM_Stroke.js
 // Komplikasi Ganda: Diabetes Melitus + Stroke
 // Pendekatan: Menggunakan batas irisan paling ketat (The Strictest Limit) dari Buku Biru Edisi 5
+// Fitur: Faktor Stres Khusus DM (10,20,30) + Validasi Slider Lemak Dinamis
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -14,7 +15,9 @@ const hitungDM_Stroke = (data) => {
         umur, 
         aktivitas_fisik, 
         faktor_stres, 
-        kategori_penambahan_energi 
+        kategori_penambahan_energi,
+        // Parameter Baru untuk Slider (Protein dikunci, jadi hanya Lemak yang dikontrol user)
+        input_persen_lemak 
     } = data;
 
     // 1. Dapatkan BBI dan IMT
@@ -56,12 +59,19 @@ const hitungDM_Stroke = (data) => {
     }
     koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // 5. STRES METABOLIK
+    // =========================================================================
+    // 5. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
+    // =========================================================================
     let koreksiStresNilai = 0;
-    let persentaseStres = 0.10; 
+    let persentaseStres = 0.10; // Default 10% 
+    
     const parsedStress = parseFloat(faktor_stres);
-    if (!isNaN(parsedStress) && parsedStress >= 1.1 && parsedStress <= 1.7) {
-        persentaseStres = parsedStress - 1.0; 
+    if (!isNaN(parsedStress)) {
+        if (parsedStress === 10 || parsedStress === 20 || parsedStress === 30) {
+            persentaseStres = parsedStress / 100;
+        } else if (parsedStress === 0.1 || parsedStress === 0.2 || parsedStress === 0.3) {
+            persentaseStres = parsedStress;
+        }
     } else {
         const stressNormal = faktor_stres?.toLowerCase();
         switch (stressNormal) {
@@ -81,6 +91,10 @@ const hitungDM_Stroke = (data) => {
             penambahanKaloriNilai = 180;
         } else if (kat.includes('TMSTR 2') || kat.includes('TMSTR 3') || kat.includes('TRIMESTER 2') || kat.includes('TRIMESTER 3') || kat.includes('2 & 3')) {
             penambahanKaloriNilai = 300;
+        } else if (kat.includes('LAKTASI 6 BLN PERTAMA') || kat.includes('MENYUSUI 0-6')) {
+            penambahanKaloriNilai = 330;
+        } else if (kat.includes('LAKTASI 6 BLN KEDUA') || kat.includes('MENYUSUI 7-12')) {
+            penambahanKaloriNilai = 400;
         }
     }
 
@@ -88,18 +102,42 @@ const hitungDM_Stroke = (data) => {
     const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
     // =========================================================================
-    // 8. DISTRIBUSI MAKRONUTRIEN DM + STROKE (Batas Paling Ketat)
+    // 8. DISTRIBUSI MAKRONUTRIEN DM + STROKE (Validasi Slider Lemak)
     // =========================================================================
     
-    // Hitung Protein (Mutlak 1.2 g/kg BBI sesuai pedoman Stroke untuk cegah katabolisme)
+    // 8a. Hitung Protein (Mutlak 1.2 g/kg BBI sesuai pedoman Stroke untuk cegah katabolisme)
+    // Protein dikunci (lock), tidak ada slider untuk protein.
     const protein_gram = 1.2 * bbi;
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100; 
 
-    // Hitung Lemak Total (25% - Irisan antara DM (20-25%) dan Stroke (25-35%))
-    const lemak_persen = 25;
+    // 8b. Hitung Lemak Total (Default 25% - Irisan antara DM dan Stroke)
+    let lemak_persen = 25;
+
+    // Jika Frontend mengirim nilai slider lemak, lakukan validasi ketat
+    if (input_persen_lemak !== undefined) {
+        const l = parseFloat(input_persen_lemak);
+        
+        // Pagar Aman Lemak (DM: 20-25%. Stroke 25-35%. Kita batasi user geser di 20-25%)
+        if (l < 20 || l > 25) {
+            throw new Error(`Persentase Lemak komplikasi DM+Stroke harus antara 20% - 25%. Input ditolak: ${l}%`);
+        }
+        
+        // Validasi: Pastikan sisa karbohidrat tidak negatif (Keamanan tingkat lanjut)
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%. Tidak ada sisa untuk Karbohidrat.`);
+        }
+
+        lemak_persen = l;
+    }
+
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
+
+    // 8c. Hitung Karbohidrat (Sisa dari energi, dihitung otomatis agar total pasti 100%)
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
+    const karbohidrat_gram = kalori_karbohidrat / 4; 
 
     // Rincian Lemak (Keduanya sepakat di batas Jenuh dan PUFA ini)
     const lemak_jenuh_persen = 7; 
@@ -108,13 +146,8 @@ const hitungDM_Stroke = (data) => {
     const lemak_pufa_persen = 10; 
     const lemak_pufa_gram = ((lemak_pufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen; // Sisa 8%
+    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen; // Sisa
     const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
-
-    // Hitung Karbohidrat (Sisa dari energi, biasanya jatuh di 55-60%, memenuhi kedua penyakit)
-    const kalori_karbohidrat = kebutuhan_energi_total - kalori_protein - kalori_lemak;
-    const karbohidrat_gram = kalori_karbohidrat / 4; 
-    const karbohidrat_persen = (kalori_karbohidrat / kebutuhan_energi_total) * 100; 
 
     // =========================================================================
     // 9. MIKRONUTRIEN & CAIRAN (Penggabungan Batas Paling Ketat)
@@ -173,7 +206,7 @@ const hitungDM_Stroke = (data) => {
             berat_badan_ideal: parseFloat(bbi.toFixed(2)),
             bmr: parseFloat(energiBasal.toFixed(2)),
             faktor_aktivitas_nilai: parseFloat(persentaseAktivitas.toFixed(2)), 
-            faktor_stres_nilai: parseFloat((persentaseStres + 1).toFixed(2)),
+            faktor_stres_nilai: parseFloat(persentaseStres.toFixed(2)),
             penambahan_kalori: penambahanKaloriNilai,
             kebutuhan_energi_total: parseFloat(kebutuhan_energi_total.toFixed(2)),
             protein_persen: parseFloat(protein_persen.toFixed(2)),

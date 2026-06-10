@@ -1,14 +1,27 @@
 // ==========================================
 // UTILS/PENYAKIT: hitungDM.js
 // Berdasarkan: Penuntun Diet & Terapi Gizi Edisi 5 (PERSAGI)
+// Fitur: Dukungan Slider Makronutrien + Faktor Stres Khusus DM (10%, 20%, 30%)
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungDM = (data) => {
-    const { jenis_kelamin, berat_badan, tinggi_badan, umur, aktivitas_fisik, faktor_stres, kategori_penambahan_energi } = data;
+    const { 
+        jenis_kelamin, 
+        berat_badan, 
+        tinggi_badan, 
+        umur, 
+        aktivitas_fisik, 
+        faktor_stres, 
+        kategori_penambahan_energi,
+        // Parameter Baru untuk Slider Persentase Makronutrien (Opsional)
+        input_persen_protein,
+        input_persen_lemak,
+        input_persen_karbo 
+    } = data;
 
-    // 1. Dapatkan BBI dan IMT (Berlaku untuk penimbangan aktual maupun estimasi LILA/ULNA)
+    // 1. Dapatkan BBI dan IMT
     const bbi = hitungBeratBadanIdeal(jenis_kelamin, tinggi_badan);
     const dataIMT = hitungIMT(berat_badan, tinggi_badan);
     const kategoriIMT = dataIMT.statusGizi;
@@ -56,17 +69,24 @@ const hitungDM = (data) => {
     }
     koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // 5. STRES METABOLIK
+    // =========================================================================
+    // 5. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
+    // =========================================================================
     let koreksiStresNilai = 0;
     let persentaseStres = 0.10; // Default 10% 
     
-    // Skenario A: Jika Frontend mengirim angka dari dropdown (1.1, 1.2, 1.3, dst)
     const parsedStress = parseFloat(faktor_stres);
-    if (!isNaN(parsedStress) && parsedStress >= 1.1 && parsedStress <= 1.7) {
-        // Trik Matematika: 1.1 diubah jadi 0.10 (10%), 1.2 jadi 0.20 (20%), 1.3 jadi 0.30 (30%)
-        persentaseStres = parsedStress - 1.0; 
+    if (!isNaN(parsedStress)) {
+        // Jika frontend mengirim angka bulat (10, 20, 30)
+        if (parsedStress === 10 || parsedStress === 20 || parsedStress === 30) {
+            persentaseStres = parsedStress / 100;
+        } 
+        // Jika frontend mengirim format desimal (0.1, 0.2, 0.3)
+        else if (parsedStress === 0.1 || parsedStress === 0.2 || parsedStress === 0.3) {
+            persentaseStres = parsedStress;
+        }
     } else {
-        // Skenario B: Jika Frontend mengirim teks
+        // Fallback jika Frontend mengirim teks
         const stressNormal = faktor_stres?.toLowerCase();
         switch (stressNormal) {
             case 'ringan': 
@@ -91,19 +111,13 @@ const hitungDM = (data) => {
     if (kategori_penambahan_energi) {
         const kategoriUpper = kategori_penambahan_energi.toUpperCase();
         
-        // Trimester 1
         if (kategoriUpper.includes('TMSTR 1') || kategoriUpper.includes('TRIMESTER 1')) {
             penambahanKaloriNilai = 180;
-        } 
-        // Trimester 2 dan 3
-        else if (kategoriUpper.includes('TMSTR 2') || kategoriUpper.includes('TRIMESTER 2') || kategoriUpper.includes('TMSTR 3') || kategoriUpper.includes('TRIMESTER 3') || kategoriUpper.includes('2 & 3')) {
+        } else if (kategoriUpper.includes('TMSTR 2') || kategoriUpper.includes('TRIMESTER 2') || kategoriUpper.includes('TMSTR 3') || kategoriUpper.includes('TRIMESTER 3') || kategoriUpper.includes('2 & 3')) {
             penambahanKaloriNilai = 300;
-        }
-        // Laktasi / Menyusui (Fitur proteksi masa depan)
-        else if (kategoriUpper.includes('LAKTASI 6 BLN PERTAMA') || kategoriUpper.includes('MENYUSUI 0-6')) {
+        } else if (kategoriUpper.includes('LAKTASI 6 BLN PERTAMA') || kategoriUpper.includes('MENYUSUI 0-6')) {
             penambahanKaloriNilai = 330;
-        }
-        else if (kategoriUpper.includes('LAKTASI 6 BLN KEDUA') || kategoriUpper.includes('MENYUSUI 7-12')) {
+        } else if (kategoriUpper.includes('LAKTASI 6 BLN KEDUA') || kategoriUpper.includes('MENYUSUI 7-12')) {
             penambahanKaloriNilai = 400;
         }
     }
@@ -112,27 +126,53 @@ const hitungDM = (data) => {
     const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
     // =========================================================================
-    // 8. DISTRIBUSI MAKRONUTRIEN & ZAT GIZI LAIN (Sesuai Buku Biru PERSAGI)
+    // 8. DISTRIBUSI MAKRONUTRIEN (DENGAN VALIDASI SLIDER FRONTEND)
     // =========================================================================
     
-    // Hitung Protein (15%) - Memenuhi rentang DM 10-20% dan DM Gestasional 15-20%
-    const protein_persen = 15;
+    let protein_persen = 15; // Default
+    let lemak_persen = 20;   // Default
+    let karbohidrat_persen = 65; // Default
+
+    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
+    if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {
+        const p = parseFloat(input_persen_protein);
+        const l = parseFloat(input_persen_lemak);
+        const k = parseFloat(input_persen_karbo);
+
+        // Validasi 1: Total harus tepat 100%
+        if (Math.round(p + l + k) !== 100) {
+            throw new Error(`Total persentase makronutrien harus 100%. Saat ini: ${p + l + k}%`);
+        }
+
+        // Validasi 2: Harus masuk rentang ("Pagar Aman") Buku Biru untuk DM murni
+        if (p < 10 || p > 20) {
+            throw new Error(`Persentase Protein DM harus antara 10% - 20%. Input ditolak: ${p}%`);
+        }
+        if (l < 20 || l > 25) {
+            throw new Error(`Persentase Lemak DM harus antara 20% - 25%. Input ditolak: ${l}%`);
+        }
+        if (k < 45 || k > 65) {
+            throw new Error(`Persentase Karbohidrat DM harus antara 45% - 65%. Input ditolak: ${k}%`);
+        }
+
+        // Jika lolos validasi, timpa nilai default
+        protein_persen = p;
+        lemak_persen = l;
+        karbohidrat_persen = k;
+    }
+
+    // Eksekusi Perhitungan Kalori ke Gram
     const kalori_protein = (protein_persen / 100) * kebutuhan_energi_total;
     const protein_gram = kalori_protein / 4;
 
-    // Hitung Lemak (20%) - Memenuhi batas amannya 20-25%
-    const lemak_persen = 20;
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Hitung Karbohidrat (65%)
-    const karbohidrat_persen = 65;
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // Natrium & Serat
-    const natrium_mg = 2300; // < 2300 mg per hari
-    const serat_gram = 25;   // 20-25 gram per hari
+    const natrium_mg = 2300; 
+    const serat_gram = 25;   
 
     // 9. Return Format Data ke Controller
     return {
@@ -172,7 +212,7 @@ const hitungDM = (data) => {
             berat_badan_ideal: parseFloat(bbi.toFixed(2)),
             bmr: parseFloat(energiBasal.toFixed(2)),
             faktor_aktivitas_nilai: parseFloat(persentaseAktivitas.toFixed(2)), 
-            faktor_stres_nilai: parseFloat((persentaseStres + 1).toFixed(2)), 
+            faktor_stres_nilai: parseFloat(persentaseStres.toFixed(2)), 
             penambahan_kalori: penambahanKaloriNilai,
             kebutuhan_energi_total: parseFloat(kebutuhan_energi_total.toFixed(2)),
             protein_persen: parseFloat(protein_persen.toFixed(2)),

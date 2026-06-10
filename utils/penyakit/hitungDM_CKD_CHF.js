@@ -2,6 +2,7 @@
 // UTILS/PENYAKIT: hitungDM_CKD_CHF.js
 // Komplikasi Triple: Diabetes + Ginjal + Jantung
 // Pendekatan: Menggunakan batas paling ketat (The Strictest Limit) dari Buku Biru Edisi 5
+// Fitur: Faktor Stres Khusus DM (10,20,30) + Validasi Slider Lemak Dinamis
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -16,8 +17,9 @@ const hitungDM_CKD_CHF = (data) => {
         faktor_stres, 
         kategori_penambahan_energi,
         status_hemodialisa,
-        is_estimasi, // Deteksi penggunaan LILA/ULNA
-        volume_urine // Sangat krusial untuk cairan dan kalium
+        volume_urine, // Sangat krusial untuk cairan dan kalium
+        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
+        input_persen_lemak
     } = data;
 
     // 1. Dapatkan BBI dan IMT
@@ -63,11 +65,18 @@ const hitungDM_CKD_CHF = (data) => {
     }
     const koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // D. Koreksi Stres
+    // =========================================================================
+    // D. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
+    // =========================================================================
     let persentaseStres = 0.10; 
+    
     const parsedStress = parseFloat(faktor_stres);
-    if (!isNaN(parsedStress) && parsedStress >= 1.1 && parsedStress <= 1.7) {
-        persentaseStres = parsedStress - 1.0; 
+    if (!isNaN(parsedStress)) {
+        if (parsedStress === 10 || parsedStress === 20 || parsedStress === 30) {
+            persentaseStres = parsedStress / 100;
+        } else if (parsedStress === 0.1 || parsedStress === 0.2 || parsedStress === 0.3) {
+            persentaseStres = parsedStress;
+        }
     } else {
         const stressNormal = faktor_stres?.toLowerCase();
         switch (stressNormal) {
@@ -97,7 +106,7 @@ const hitungDM_CKD_CHF = (data) => {
     // 3. DISTRIBUSI MAKRONUTRIEN (Irisan Ketat DM + CKD + CHF)
     // =========================================================================
     
-    // PROTEIN: Mutlak bergantung pada Ginjal (HD vs Non-HD)
+    // 3a. PROTEIN: Mutlak bergantung pada Ginjal (HD vs Non-HD)
     let protein_gram = 0;
     if (isHD) {
         protein_gram = 1.2 * bbi; 
@@ -107,8 +116,25 @@ const hitungDM_CKD_CHF = (data) => {
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // LEMAK: Mutlak 25% (Aman untuk irisan DM, CKD, dan CHF)
-    const lemak_persen = 25; 
+    // 3b. LEMAK TOTAL: Default 25% (Irisan aman untuk ketiga organ)
+    let lemak_persen = 25; 
+
+    // Validasi input slider lemak dari Frontend
+    if (input_persen_lemak !== undefined) {
+        const l = parseFloat(input_persen_lemak);
+        
+        // Pagar Aman: DM (20-25%), CHF (20-25%). Irisan paling aman adalah 20-25%
+        if (l < 20 || l > 25) {
+            throw new Error(`Persentase Lemak komplikasi DM+CKD+CHF harus antara 20% - 25%. Input ditolak: ${l}%`);
+        }
+        
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
+        }
+
+        lemak_persen = l;
+    }
+
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total; 
     const lemak_gram = kalori_lemak / 9;
 
@@ -119,13 +145,13 @@ const hitungDM_CKD_CHF = (data) => {
     const lemak_pufa_persen = 10;
     const lemak_pufa_gram = ((lemak_pufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    const lemak_mufa_persen = persentaseLemak - lemak_jenuh_persen - lemak_pufa_persen;
+    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen;
     const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    // KARBOHIDRAT: Sisa kalori
-    const kalori_karbohidrat = kebutuhan_energi_total - kalori_protein - kalori_lemak; 
+    // 3c. KARBOHIDRAT: Dihitung otomatis sebagai sisa agar persis 100%
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total; 
     const karbohidrat_gram = kalori_karbohidrat / 4; 
-    const karbohidrat_persen = (kalori_karbohidrat / kebutuhan_energi_total) * 100;
 
     // =========================================================================
     // 4. MIKRONUTRIEN & CAIRAN (Penggabungan Batas Paling Ketat)
@@ -215,7 +241,7 @@ const hitungDM_CKD_CHF = (data) => {
             berat_badan_ideal: parseFloat(bbi.toFixed(2)),
             bmr: parseFloat(energiBasal.toFixed(2)),
             faktor_aktivitas_nilai: parseFloat(persentaseAktivitas.toFixed(2)), 
-            faktor_stres_nilai: parseFloat((persentaseStres + 1).toFixed(2)),
+            faktor_stres_nilai: parseFloat(persentaseStres.toFixed(2)),
             penambahan_kalori: penambahanKaloriNilai,
             kebutuhan_energi_total: parseFloat(kebutuhan_energi_total.toFixed(2)),
             protein_persen: parseFloat(protein_persen.toFixed(2)),

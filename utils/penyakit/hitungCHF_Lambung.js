@@ -2,6 +2,7 @@
 // UTILS/PENYAKIT: hitungCHF_Lambung.js
 // Komplikasi Ganda: Penyakit Jantung (CHF) + Lambung/Dispepsia
 // Pendekatan Hybrid: Energi (Excel RS/Mifflin) + Makro/Mikro (Buku Biru)
+// Fitur: Validasi Slider Makronutrien Dinamis + Custom Stres Multiplier
 // ==========================================
 
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
@@ -13,7 +14,11 @@ const hitungCHF_Lambung = (data) => {
         tinggi_badan, 
         umur, 
         aktivitas_fisik, 
-        faktor_stres 
+        faktor_stres,
+        // Parameter Baru untuk Slider Persentase Makronutrien
+        input_persen_protein,
+        input_persen_lemak,
+        input_persen_karbo 
     } = data;
 
     // 1. Dapatkan BBI dan IMT
@@ -44,10 +49,11 @@ const hitungCHF_Lambung = (data) => {
     }
 
     // =========================================================================
-    // 4. FAKTOR STRES METABOLIK (Menggunakan sistem Pengali/Multiplier Excel)
+    // 4. FAKTOR STRES METABOLIK (Mendukung Custom Input Angka Desimal 1.1 - 1.7)
     // =========================================================================
     let faktorStres = 1.1; 
     const parsedStress = parseFloat(faktor_stres);
+    
     if (!isNaN(parsedStress) && parsedStress >= 1.1 && parsedStress <= 1.7) {
         faktorStres = parsedStress;
     } else {
@@ -68,34 +74,64 @@ const hitungCHF_Lambung = (data) => {
     const kebutuhan_energi_total = bmr * faktorAktivitas * faktorStres;
 
     // =========================================================================
-    // 6. DISTRIBUSI MAKRONUTRIEN CHF + LAMBUNG (Buku Biru)
-    // Irisan: Protein 15%, Lemak 15%, Karbohidrat 70%
+    // 6. DISTRIBUSI MAKRONUTRIEN CHF + LAMBUNG (Validasi Slider Dinamis)
     // =========================================================================
     
-    // Protein (15% dari TEE)
-    const protein_persen = 15;
+    // Nilai Default Aman untuk Jantung yang dibatasi oleh Lambung
+    let protein_persen = 15;
+    let lemak_persen = 15;
+    let karbohidrat_persen = 70;
+
+    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
+    if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {
+        const p = parseFloat(input_persen_protein);
+        const l = parseFloat(input_persen_lemak);
+        const k = parseFloat(input_persen_karbo);
+
+        // Validasi 1: Total harus tepat 100%
+        if (Math.round(p + l + k) !== 100) {
+            throw new Error(`Total persentase makronutrien harus 100%. Saat ini: ${p + l + k}%`);
+        }
+
+        // Validasi 2: Pagar Aman (Jantung Mengalah pada Lambung)
+        if (p < 15 || p > 25) {
+            throw new Error(`Persentase Protein CHF+Lambung harus antara 15% - 25%. Input ditolak: ${p}%`);
+        }
+        if (l < 10 || l > 15) {
+            throw new Error(`Persentase Lemak mutlak harus mengikuti batas Lambung (10% - 15%) agar tidak dispepsia. Input ditolak: ${l}%`);
+        }
+        if (k < 60 || k > 75) {
+            throw new Error(`Persentase Karbohidrat CHF+Lambung menyesuaikan sisa kalori (60% - 75%). Input ditolak: ${k}%`);
+        }
+
+        // Lolos validasi, timpa nilai default
+        protein_persen = p;
+        lemak_persen = l;
+        karbohidrat_persen = k;
+    }
+
+    // Eksekusi Kalori ke Gram
     const kalori_protein = (protein_persen / 100) * kebutuhan_energi_total;
     const protein_gram = kalori_protein / 4;
 
-    // Lemak (15% - Batas mutlak teratas untuk Lambung agar tidak mual)
-    const lemak_persen = 15;
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak (Menyesuaikan batas Jantung <10% Jenuh, kita pakai 7% agar sangat aman)
-    const lemak_jenuh_persen = 7;
-    const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
-
-    const lemak_pufa_persen = 5;
-    const lemak_pufa_gram = ((lemak_pufa_persen / 100) * kebutuhan_energi_total) / 9;
-
-    const lemak_mufa_persen = 3; // Sisa dari 15%
-    const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
-
-    // Karbohidrat (70% - Sisa TEE)
-    const karbohidrat_persen = 70;
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
+
+    // Rincian Lemak (Menyesuaikan batas Jantung <10% Jenuh, kita pakai rasio dinamis agar sangat aman)
+    const lemak_jenuh_persen = Math.floor(lemak_persen * (7/15));
+    const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
+    const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
+
+    const lemak_pufa_persen = Math.floor(lemak_persen * (5/15));
+    const kalori_lemak_pufa = (lemak_pufa_persen / 100) * kebutuhan_energi_total;
+    const lemak_pufa_gram = kalori_lemak_pufa / 9;
+
+    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen; // Sisa
+    const kalori_lemak_mufa = (lemak_mufa_persen / 100) * kebutuhan_energi_total;
+    const lemak_mufa_gram = kalori_lemak_mufa / 9;
 
     // =========================================================================
     // 7. MIKRONUTRIEN, CAIRAN, DAN PEDOMAN KLINIS (Buku Biru)
