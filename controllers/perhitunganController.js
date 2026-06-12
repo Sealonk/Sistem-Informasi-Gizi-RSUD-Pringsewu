@@ -38,9 +38,11 @@ const previewPerhitungan = async (req, res, next) => {
             });
         }
 
-        // 2. VALIDASI DATABASE: Cek apakah no_rawat tersebut benar-benar ada di tabel pasien
-        const [cekPasien] = await db.execute('SELECT no_rawat FROM pasien WHERE no_rawat = ?', [dataInput.id_pasien]);
-        
+        // 2. VALIDASI DATABASE: Cek apakah no_rawat tersebut ada di tabel pasien
+        // Hapus LIMIT 1 agar semua baris penyakit untuk no_rawat tersebut terambil
+        const queryCekPasien = 'SELECT no_rawat, tgl_masuk, kd_penyakit FROM pasien WHERE no_rawat = ?';
+        const [cekPasien] = await db.execute(queryCekPasien, [dataInput.id_pasien]);
+
         if (cekPasien.length === 0) {
             return res.status(404).json({ 
                 status: 'error', 
@@ -48,12 +50,19 @@ const previewPerhitungan = async (req, res, next) => {
             });
         }
 
-        // 3. KALKULASI GIZI (Hanya berjalan jika pasien valid)
-        // SINKRONISASI UMUR: Konversi unit umur sebelum kalkulasi rumus gizi dilakukan
+        // Gabungkan semua kode penyakit yang ditemukan dengan koma
+        const gabunganKodePenyakit = cekPasien
+            .map(row => row.kd_penyakit)
+            .filter(Boolean) // Membuang nilai null/kosong jika ada
+            .join(', ');
+
+        // Ambil tanggal masuk dari baris pertama (karena tgl_masuk pasti sama untuk 1 no_rawat)
+        const dataPasienSIMRS = cekPasien[0]; 
+
+        // 3. KALKULASI GIZI
         if (dataInput.umur) {
             dataInput.umur = konversiUmurKeTahun(dataInput.umur);
             
-            // VALIDASI EKSTRA: Tolak jika umur yang diinput manual ternyata anak-anak (< 18 tahun)
             if (dataInput.umur < 18) {
                 return res.status(403).json({
                     status: 'error',
@@ -61,7 +70,6 @@ const previewPerhitungan = async (req, res, next) => {
                 });
             }
         } else {
-            // Validasi jika field umur sama sekali tidak diisi (kosong)
             return res.status(400).json({
                 status: 'error',
                 message: 'Umur pasien wajib diisi untuk melakukan perhitungan.'
@@ -70,9 +78,22 @@ const previewPerhitungan = async (req, res, next) => {
         
         const hasilKalkulasi = kalkulasiGiziTotal(dataInput);
 
-        // Sisipkan kembali keterangan penyakit lainnya agar tampil di response preview (opsional tapi disarankan)
+        // Sisipkan kembali keterangan penyakit lainnya agar tampil di response preview
         if (dataInput.diagnosa_penyakit && dataInput.diagnosa_penyakit.includes('Mifflin') && dataInput.penyakit_lainnya) {
             hasilKalkulasi.penyakit_lainnya = dataInput.penyakit_lainnya;
+        }
+
+        // =====================================================================
+        // 4. PENYISIPAN DATA TAMBAHAN UNTUK UI FRONTEND (HEADER KARTU PASIEN)
+        // =====================================================================
+        hasilKalkulasi.kode_penyakit = gabunganKodePenyakit || '-';
+
+        if (dataPasienSIMRS.tgl_masuk) {
+            const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
+            const tglMasukObj = new Date(dataPasienSIMRS.tgl_masuk);
+            hasilKalkulasi.tanggal_masuk_rapi = tglMasukObj.toLocaleDateString('id-ID', opsiTanggal);
+        } else {
+            hasilKalkulasi.tanggal_masuk_rapi = '-';
         }
 
         res.status(200).json({
@@ -80,14 +101,12 @@ const previewPerhitungan = async (req, res, next) => {
             message: 'Preview perhitungan berhasil di-generate',
             data: hasilKalkulasi
         });
+
     } catch (error) {
-        // PERBAIKAN DI SINI:
-        // Kirim pesan error yang dilempar dari hitungDM ke Postman
         console.error("Error pada perhitungan:", error.message);
-        
         return res.status(400).json({
             success: false,
-            message: "Gagal menghitung gizi: " + error.message // Pesan ini akan muncul di Postman
+            message: "Gagal menghitung gizi: " + error.message 
         });
     }
 };
@@ -112,9 +131,6 @@ const simpanPerhitungan = async (req, res, next) => {
             return res.status(400).json({ status: 'error', message: 'ID Pasien / No Rawat tidak ditemukan' });
         }
 
-        // =========================================================================
-        // VALIDASI DATABASE
-        // =========================================================================
         const [cekPasien] = await db.execute('SELECT no_rawat FROM pasien WHERE no_rawat = ?', [id_pasien]);
         
         if (cekPasien.length === 0) {
@@ -124,10 +140,8 @@ const simpanPerhitungan = async (req, res, next) => {
             });
         }
 
-        // SINKRONISASI UMUR
         const umurNumerikTahun = konversiUmurKeTahun(umur);
 
-        // VALIDASI EKSTRA UMUR ANAK
         if (umurNumerikTahun < 18) {
             return res.status(403).json({
                 status: 'error',
@@ -138,7 +152,6 @@ const simpanPerhitungan = async (req, res, next) => {
         const kelompok_umur = getKelompokUmur(umurNumerikTahun);
         const { nilaiIMT, statusGizi } = hitungIMT(berat_badan, tinggi_badan);
         
-        // PENGELOLAAN STRING DIAGNOSA (Menggabungkan Mifflin dengan Penyakit Asli)
         let diagnosa_string = Array.isArray(diagnosa_penyakit) ? diagnosa_penyakit.join(', ') : diagnosa_penyakit;
 
         if (diagnosa_string.includes('Mifflin') && penyakit_lainnya) {
@@ -164,7 +177,7 @@ const simpanPerhitungan = async (req, res, next) => {
             ulna_cm: ulna_cm || null,
             persen_lila: persen_lila || null,
             
-            diagnosa_penyakit_saat_dihitung: diagnosa_string, // String yang sudah dirapikan
+            diagnosa_penyakit_saat_dihitung: diagnosa_string,
             
             aktivitas_fisik: aktivitas_fisik || 'Bed rest',
             status_hemodialisa: status_hemodialisa || null,
@@ -204,9 +217,17 @@ const getRiwayat = async (req, res, next) => {
         const search = req.query.search || '';
         const penyakit = req.query.penyakit || '';
         const tanggal = req.query.tanggal || '';
+        
+        const filter_user = req.query.filter_user || 'all'; 
+        const id_user_login = req.user.id_user; 
 
         let whereClause = 'WHERE 1=1';
         const queryParams = [];
+
+        if (filter_user === 'me') {
+            whereClause += ` AND pg.id_user = ?`;
+            queryParams.push(id_user_login);
+        }
 
         if (search) {
             whereClause += ` AND (p.nm_pasien LIKE ? OR p.no_rkm_medis LIKE ?)`;
@@ -227,9 +248,10 @@ const getRiwayat = async (req, res, next) => {
         }
 
         const countQuery = `
-            SELECT COUNT(*) AS total
+            SELECT COUNT(DISTINCT pg.id_perhitungan) AS total
             FROM perhitungan_gizi pg
             JOIN pasien p ON pg.no_rawat = p.no_rawat
+            JOIN users u ON pg.id_user = u.id_user
             ${whereClause}
         `;
         const [[countResult]] = await db.execute(countQuery, queryParams);
@@ -238,15 +260,24 @@ const getRiwayat = async (req, res, next) => {
         const dataQuery = `
             SELECT 
                 pg.id_perhitungan,
-                p.nm_pasien AS nama_pasien,
-                p.no_rkm_medis AS no_rm,
+                pg.id_user,
+                MAX(p.nm_pasien) AS nama_pasien,
+                MAX(p.no_rkm_medis) AS no_rm,
+                MAX(p.jk) AS jenis_kelamin,
+                GROUP_CONCAT(DISTINCT p.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
                 pg.diagnosa_penyakit_saat_dihitung AS penyakit,
                 pg.kebutuhan_energi_total AS total_energi,
-                pg.tanggal_perhitungan 
+                pg.protein_persen, 
+                pg.lemak_persen, 
+                pg.karbohidrat_persen,
+                pg.tanggal_perhitungan,
+                MAX(u.nama_lengkap) AS created_by
             FROM perhitungan_gizi pg
             JOIN pasien p ON pg.no_rawat = p.no_rawat
+            JOIN users u ON pg.id_user = u.id_user
             ${whereClause}
-            ORDER BY pg.id_perhitungan DESC
+            GROUP BY pg.id_perhitungan
+            ORDER BY pg.tanggal_perhitungan DESC
             LIMIT ? OFFSET ?
         `;
 
@@ -262,10 +293,18 @@ const getRiwayat = async (req, res, next) => {
                 id_perhitungan: item.id_perhitungan,
                 nama_pasien: item.nama_pasien,
                 no_rm: item.no_rm, 
+                jenis_kelamin: item.jenis_kelamin, 
+                kode_penyakit: item.kode_penyakit || '-', 
                 penyakit: item.penyakit,
                 total_energi: Math.round(item.total_energi), 
+                makronutrien: { 
+                    protein: item.protein_persen,
+                    lemak: item.lemak_persen,
+                    karbohidrat: item.karbohidrat_persen
+                },
                 tanggal_perhitungan: tanggalRapi,
-                status: "Tersimpan" 
+                created_by: item.created_by, 
+                is_mine: item.id_user === id_user_login 
             };
         });
 
@@ -296,6 +335,18 @@ const getRiwayatDetail = async (req, res, next) => {
             return res.status(404).json({ status: 'error', message: 'Data riwayat tidak ditemukan' });
         }
 
+        const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
+
+        if (detail.tanggal_masuk) {
+            const tglMasukObj = new Date(detail.tanggal_masuk);
+            detail.tanggal_masuk_rapi = tglMasukObj.toLocaleDateString('id-ID', opsiTanggal);
+        }
+
+        if (detail.tanggal_perhitungan) {
+            const tglHitungObj = new Date(detail.tanggal_perhitungan);
+            detail.tanggal_perhitungan_rapi = tglHitungObj.toLocaleDateString('id-ID', opsiTanggal);
+        }
+
         res.status(200).json({
             status: 'success',
             data: detail
@@ -309,14 +360,20 @@ const updateRiwayat = async (req, res, next) => {
     try {
         const { id } = req.params;
         const dataInput = req.body;
+        const id_user_login = req.user.id_user; 
 
-        // 1. Cek apakah data riwayat yang akan di-update ada
         const detailLama = await PerhitunganModel.findDetailById(id);
         if (!detailLama) {
             return res.status(404).json({ status: 'error', message: 'Data riwayat tidak ditemukan' });
         }
 
-        // 2. Kalkulasi ulang dengan rumus
+        if (detailLama.id_user !== id_user_login) {
+            return res.status(403).json({ 
+                status: 'error', 
+                message: 'Akses Ditolak! Anda hanya dapat memperbarui perhitungan yang Anda buat sendiri.' 
+            });
+        }
+
         let hasilKalkulasi;
         try {
             if (dataInput.umur) {
@@ -327,12 +384,10 @@ const updateRiwayat = async (req, res, next) => {
             return res.status(400).json({ status: 'error', message: err.message });
         }
 
-        // 3. Validasi hasil kalkulasi
         if (!hasilKalkulasi || !hasilKalkulasi.data_simpan) {
             return res.status(500).json({ status: 'error', message: 'Hasil kalkulasi tidak valid' });
         }
 
-        // 4. Pemrosesan String Diagnosa (Sama dengan logika di simpanPerhitungan)
         let diagnosa_string = Array.isArray(dataInput.diagnosa_penyakit) 
             ? dataInput.diagnosa_penyakit.join(', ') 
             : dataInput.diagnosa_penyakit;
@@ -341,11 +396,10 @@ const updateRiwayat = async (req, res, next) => {
             diagnosa_string = diagnosa_string.replace('Mifflin', `Mifflin (${dataInput.penyakit_lainnya})`);
         }
 
-        // 5. Siapkan data update (Pastikan keys sesuai dengan kolom tabel perhitungan_gizi)
         const dataUpdate = {
             berat_badan_saat_dihitung: dataInput.berat_badan,
             tinggi_badan_saat_dihitung: dataInput.tinggi_badan,
-            diagnosa_penyakit_saat_dihitung: diagnosa_string, // Update diagnosa
+            diagnosa_penyakit_saat_dihitung: diagnosa_string, 
             berat_badan_ideal: hasilKalkulasi.data_simpan.berat_badan_ideal,
             kebutuhan_energi_total: hasilKalkulasi.data_simpan.kebutuhan_energi_total,
             protein_gram: hasilKalkulasi.data_simpan.protein_gram,
@@ -361,7 +415,6 @@ const updateRiwayat = async (req, res, next) => {
             faktor_stres_nilai: hasilKalkulasi.data_simpan.faktor_stres_nilai
         };
 
-        // 6. Update ke database
         const isUpdated = await PerhitunganModel.updateById(id, dataUpdate);
 
         if (!isUpdated) {
@@ -382,10 +435,24 @@ const updateRiwayat = async (req, res, next) => {
 const deleteRiwayat = async (req, res, next) => {
     try {
         const { id } = req.params;
+        const id_user_login = req.user.id_user; 
+
+        const detailLama = await PerhitunganModel.findDetailById(id);
+        if (!detailLama) {
+            return res.status(404).json({ status: 'error', message: 'Gagal menghapus, data tidak ditemukan' });
+        }
+
+        if (detailLama.id_user !== id_user_login) {
+            return res.status(403).json({ 
+                status: 'error', 
+                message: 'Akses Ditolak! Anda hanya dapat menghapus perhitungan yang Anda buat sendiri.' 
+            });
+        }
+
         const isDeleted = await PerhitunganModel.deleteById(id);
 
         if (!isDeleted) {
-            return res.status(404).json({ status: 'error', message: 'Gagal menghapus, data tidak ditemukan' });
+            return res.status(400).json({ status: 'error', message: 'Gagal menghapus data dari database' });
         }
 
         res.status(200).json({

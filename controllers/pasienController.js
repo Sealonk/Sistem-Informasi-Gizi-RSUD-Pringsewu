@@ -38,7 +38,6 @@ const getAllPasien = async (req, res, next) => {
 
         // =======================================================
         // 2. CTE (Common Table Expression) 
-        // Ditambahkan MAX(p.nm_penyakit) dan dihapus klausa HAVING (agar semua penyakit muncul)
         // =======================================================
         const cteQuery = `
             WITH LatestRawat AS (
@@ -74,7 +73,6 @@ const getAllPasien = async (req, res, next) => {
                 FROM pasien p
                 INNER JOIN LatestRawat lr ON p.no_rawat = lr.max_rawat
                 WHERE 1=1 ${whereClause} 
-                -- FILTER UMUR: Hanya Dewasa (Menyembunyikan pasien dengan unit Bulan/Hari, atau Tahun tapi < 18)
                 AND NOT (LOWER(p.sttsumur) LIKE '%bl%' OR LOWER(p.sttsumur) LIKE '%hr%' OR (LOWER(p.sttsumur) LIKE '%th%' AND p.umurdaftar < 18))
                 GROUP BY p.no_rawat, p.no_rkm_medis
             )
@@ -120,14 +118,11 @@ const getAllPasien = async (req, res, next) => {
             
             const [rawCheck] = await db.execute(checkQuery, [`%${search}%`, `%${search}%`]);
 
-            // Skenario 1: Pasien benar-benar tidak ada di database
             if (rawCheck.length === 0) {
                 return res.status(404).json({ status: 'error', message: 'Pasien yang dicari tidak ada' });
             }
 
             const suspect = rawCheck[0];
-            
-            // Skenario 2: Pasien ada, tapi Anak-anak
             const isBulanAtauHari = suspect.sttsumur.toLowerCase().includes('bl') || suspect.sttsumur.toLowerCase().includes('hr');
             const isAnakAnak = isBulanAtauHari || (suspect.sttsumur.toLowerCase().includes('th') && parseInt(suspect.umurdaftar) < 18);
 
@@ -146,7 +141,6 @@ const getAllPasien = async (req, res, next) => {
             if (item.has_stroke) penyakitArr.push('Stroke');
             if (item.has_lambung) penyakitArr.push('Lambung');
 
-            // DETEKSI PENYAKIT UMUM / MIFFLIN
             if (item.count_other > 0 || penyakitArr.length === 0) {
                 penyakitArr.push('Mifflin');
                 penyakitLainnya = item.nama_penyakit_asli || 'Penyakit Umum';
@@ -161,7 +155,8 @@ const getAllPasien = async (req, res, next) => {
                 tanggal_masuk: item.tanggal_masuk,
                 diagnosis: penyakitArr.join(' + '),
                 diagnosis_array: penyakitArr,
-                penyakit_lainnya: penyakitLainnya
+                penyakit_lainnya: penyakitLainnya,
+                nama_penyakit_asli: item.nama_penyakit_asli // <-- BARU: Nama penyakit murni dari kolom nm_penyakit database
             };
         });
 
@@ -191,7 +186,6 @@ const getPasienById = async (req, res, next) => {
     try {
         const { id } = req.params; 
 
-        // Query ditambahkan MAX(nm_penyakit)
         const queryPasien = `
             SELECT 
                 no_rawat AS id_pasien, 
@@ -228,7 +222,6 @@ const getPasienById = async (req, res, next) => {
 
         const pasien = rows[0];
 
-        // Validasi Ekstra untuk Get By ID (Hanya blokir anak-anak)
         const isBulanAtauHari = pasien.sttsumur.toLowerCase().includes('bl') || pasien.sttsumur.toLowerCase().includes('hr');
         const isAnakAnak = isBulanAtauHari || (pasien.sttsumur.toLowerCase().includes('th') && parseInt(pasien.umurdaftar) < 18);
 
@@ -245,7 +238,6 @@ const getPasienById = async (req, res, next) => {
         if (pasien.has_stroke) diagnosa_array.push('Stroke');
         if (pasien.has_lambung) diagnosa_array.push('Lambung');
 
-        // DETEKSI PENYAKIT UMUM / MIFFLIN
         if (pasien.count_other > 0 || diagnosa_array.length === 0) {
             diagnosa_array.push('Mifflin');
             penyakitLainnya = pasien.nama_penyakit_asli || 'Penyakit Umum';
@@ -273,7 +265,8 @@ const getPasienById = async (req, res, next) => {
                 status_gizi: dataIMT.statusGizi,
                 diagnosis: diagnosa_array.length > 0 ? diagnosa_array.join(' + ') : '-',
                 diagnosa_kategori: diagnosa_array,
-                penyakit_lainnya: penyakitLainnya // <- Frontend bisa mengambil informasi penyakit dari sini
+                penyakit_lainnya: penyakitLainnya,
+                nama_penyakit_asli: pasien.nama_penyakit_asli // <-- BARU: Nama penyakit murni dari kolom nm_penyakit database
             }
         });
     } catch (error) {

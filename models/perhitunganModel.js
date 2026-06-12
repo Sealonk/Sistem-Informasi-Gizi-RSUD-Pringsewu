@@ -97,12 +97,15 @@ const Perhitungan = {
     /**
      * Mengambil detail satu riwayat spesifik
      */
-    findDetailById: async (id_perhitungan) => {
+findDetailById: async (id_perhitungan) => {
         const query = `
-            SELECT pg.*, 
-                   MAX(p.nm_pasien) AS nama_pasien, 
-                   MAX(p.no_rkm_medis) AS no_rm, 
-                   MAX(p.jk) AS jenis_kelamin 
+            SELECT 
+                pg.*, 
+                MAX(p.nm_pasien) AS nama_pasien, 
+                MAX(p.no_rkm_medis) AS no_rm, 
+                MAX(p.jk) AS jenis_kelamin, 
+                GROUP_CONCAT(DISTINCT p.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
+                MAX(p.tgl_masuk) AS tanggal_masuk
             FROM perhitungan_gizi pg
             JOIN pasien p ON pg.no_rawat = p.no_rawat
             WHERE pg.id_perhitungan = ?
