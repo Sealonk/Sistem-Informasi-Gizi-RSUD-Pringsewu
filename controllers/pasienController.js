@@ -15,6 +15,9 @@ const getAllPasien = async (req, res, next) => {
         const periode = req.query.periode || ''; 
         const startDate = req.query.startDate || '';
         const endDate = req.query.endDate || '';
+        
+        // PARAMETER BARU: Filter Status Perhitungan
+        const status_perhitungan = req.query.status_perhitungan || ''; // 'sudah', 'belum', atau kosong (semua)
 
         // 1. Build Klausa WHERE Dinamis
         let whereClause = '';
@@ -36,6 +39,14 @@ const getAllPasien = async (req, res, next) => {
             queryParams.push(startDate, endDate);
         }
 
+        // Filter Tambahan untuk Status Perhitungan di level validasi akhir
+        let validPasienFilter = '';
+        if (status_perhitungan === 'sudah') {
+            validPasienFilter = 'WHERE id_perhitungan IS NOT NULL';
+        } else if (status_perhitungan === 'belum') {
+            validPasienFilter = 'WHERE id_perhitungan IS NULL';
+        }
+
         // =======================================================
         // 2. CTE (Common Table Expression) 
         // =======================================================
@@ -44,6 +55,12 @@ const getAllPasien = async (req, res, next) => {
                 SELECT no_rkm_medis, MAX(no_rawat) AS max_rawat
                 FROM pasien
                 GROUP BY no_rkm_medis
+            ),
+            StatusHitung AS (
+                -- CTE Baru: Mencari perhitungan terakhir untuk setiap pasien (no_rawat)
+                SELECT no_rawat, MAX(id_perhitungan) AS id_perhitungan, MAX(tanggal_perhitungan) AS waktu_pembaruan
+                FROM perhitungan_gizi
+                GROUP BY no_rawat
             ),
             ValidPasien AS (
                 SELECT 
@@ -55,6 +72,10 @@ const getAllPasien = async (req, res, next) => {
                     MAX(p.sttsumur) AS sttsumur,
                     MAX(p.tgl_masuk) AS tanggal_masuk,
                     MAX(p.nm_penyakit) AS nama_penyakit_asli,
+                    
+                    -- PENGAMBILAN STATUS PERHITUNGAN
+                    MAX(sh.id_perhitungan) AS id_perhitungan,
+                    MAX(sh.waktu_pembaruan) AS waktu_pembaruan,
                     
                     MAX(CASE WHEN p.kd_penyakit LIKE 'E10%' OR p.kd_penyakit LIKE 'E11%' OR p.kd_penyakit LIKE 'E12%' OR p.kd_penyakit LIKE 'E13%' OR p.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
                     MAX(CASE WHEN p.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
@@ -72,6 +93,7 @@ const getAllPasien = async (req, res, next) => {
                     THEN 1 ELSE 0 END) AS count_other
                 FROM pasien p
                 INNER JOIN LatestRawat lr ON p.no_rawat = lr.max_rawat
+                LEFT JOIN StatusHitung sh ON p.no_rawat = sh.no_rawat
                 WHERE 1=1 ${whereClause} 
                 AND NOT (LOWER(p.sttsumur) LIKE '%bl%' OR LOWER(p.sttsumur) LIKE '%hr%' OR (LOWER(p.sttsumur) LIKE '%th%' AND p.umurdaftar < 18))
                 GROUP BY p.no_rawat, p.no_rkm_medis
@@ -84,13 +106,15 @@ const getAllPasien = async (req, res, next) => {
                 SUM(CASE WHEN jenis_kelamin = 'L' THEN 1 ELSE 0 END) AS total_laki_laki,
                 SUM(CASE WHEN jenis_kelamin = 'P' THEN 1 ELSE 0 END) AS total_perempuan,
                 SUM(CASE WHEN DATE(tanggal_masuk) = CURDATE() THEN 1 ELSE 0 END) AS pasien_hari_ini
-            FROM ValidPasien;
+            FROM ValidPasien
+            ${validPasienFilter};
         `;
         
-        const queryCount = cteQuery + `SELECT COUNT(*) AS total FROM ValidPasien;`;
+        const queryCount = cteQuery + `SELECT COUNT(*) AS total FROM ValidPasien ${validPasienFilter};`;
         
         const queryList = cteQuery + `
             SELECT * FROM ValidPasien
+            ${validPasienFilter}
             ORDER BY tanggal_masuk DESC, id_pasien DESC
             LIMIT ? OFFSET ?;
         `;
@@ -101,9 +125,6 @@ const getAllPasien = async (req, res, next) => {
         const queryParamsList = [...queryParams, limit.toString(), offset.toString()];
         const [rowsPasien] = await db.execute(queryList, queryParamsList);
 
-        // =======================================================
-        // 3. INVESTIGASI PENCARIAN (FALLBACK VALIDATION)
-        // =======================================================
         if (search && rowsPasien.length === 0) {
             const checkQuery = `
                 SELECT 
@@ -146,6 +167,15 @@ const getAllPasien = async (req, res, next) => {
                 penyakitLainnya = item.nama_penyakit_asli || 'Penyakit Umum';
             }
 
+            // PEMFORMATAN WAKTU PEMBARUAN TERAKHIR
+            let waktu_pembaruan_rapi = null;
+            if (item.waktu_pembaruan) {
+                const tglObj = new Date(item.waktu_pembaruan);
+                const tgl = tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                const jam = tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                waktu_pembaruan_rapi = `${tgl}, ${jam}`;
+            }
+
             return {
                 id_pasien: item.id_pasien, 
                 nama_pasien: item.nama_pasien,
@@ -156,7 +186,12 @@ const getAllPasien = async (req, res, next) => {
                 diagnosis: penyakitArr.join(' + '),
                 diagnosis_array: penyakitArr,
                 penyakit_lainnya: penyakitLainnya,
-                nama_penyakit_asli: item.nama_penyakit_asli // <-- BARU: Nama penyakit murni dari kolom nm_penyakit database
+                nama_penyakit_asli: item.nama_penyakit_asli,
+                
+                // FIELD BARU UNTUK UI
+                status_perhitungan: item.id_perhitungan ? 'Sudah Dihitung' : 'Belum',
+                id_perhitungan: item.id_perhitungan || null, 
+                waktu_pembaruan: waktu_pembaruan_rapi
             };
         });
 
@@ -186,33 +221,44 @@ const getPasienById = async (req, res, next) => {
     try {
         const { id } = req.params; 
 
+        // Query ditambahkan LEFT JOIN ke tabel perhitungan gizi untuk mengecek status
         const queryPasien = `
             SELECT 
-                no_rawat AS id_pasien, 
-                MAX(nm_pasien) AS nama_pasien, 
-                MAX(no_rkm_medis) AS no_rm, 
-                MAX(umurdaftar) AS umurdaftar, 
-                MAX(sttsumur) AS sttsumur,
-                MAX(jk) AS jenis_kelamin, 
-                MAX(tinggi) AS tinggi_badan, 
-                MAX(berat) AS berat_badan,
-                MAX(nm_penyakit) AS nama_penyakit_asli,
-                MAX(CASE WHEN kd_penyakit LIKE 'E10%' OR kd_penyakit LIKE 'E11%' OR kd_penyakit LIKE 'E12%' OR kd_penyakit LIKE 'E13%' OR kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
-                MAX(CASE WHEN kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
-                MAX(CASE WHEN kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
-                MAX(CASE WHEN kd_penyakit LIKE 'I60%' OR kd_penyakit LIKE 'I61%' OR kd_penyakit LIKE 'I62%' OR kd_penyakit LIKE 'I63%' OR kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
-                MAX(CASE WHEN kd_penyakit LIKE 'K21%' OR kd_penyakit LIKE 'K25%' OR kd_penyakit LIKE 'K29%' OR kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
+                p.no_rawat AS id_pasien, 
+                MAX(p.nm_pasien) AS nama_pasien, 
+                MAX(p.no_rkm_medis) AS no_rm, 
+                MAX(p.umurdaftar) AS umurdaftar, 
+                MAX(p.sttsumur) AS sttsumur,
+                MAX(p.jk) AS jenis_kelamin, 
+                MAX(p.tinggi) AS tinggi_badan, 
+                MAX(p.berat) AS berat_badan,
+                MAX(p.nm_penyakit) AS nama_penyakit_asli,
+                
+                -- CEK STATUS
+                MAX(sh.id_perhitungan) AS id_perhitungan,
+                MAX(sh.waktu_pembaruan) AS waktu_pembaruan,
+
+                MAX(CASE WHEN p.kd_penyakit LIKE 'E10%' OR p.kd_penyakit LIKE 'E11%' OR p.kd_penyakit LIKE 'E12%' OR p.kd_penyakit LIKE 'E13%' OR p.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
+                MAX(CASE WHEN p.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
+                MAX(CASE WHEN p.kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
+                MAX(CASE WHEN p.kd_penyakit LIKE 'I60%' OR p.kd_penyakit LIKE 'I61%' OR p.kd_penyakit LIKE 'I62%' OR p.kd_penyakit LIKE 'I63%' OR p.kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
+                MAX(CASE WHEN p.kd_penyakit LIKE 'K21%' OR p.kd_penyakit LIKE 'K25%' OR p.kd_penyakit LIKE 'K29%' OR p.kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
                 SUM(CASE WHEN 
-                    (kd_penyakit NOT LIKE 'E10%' AND kd_penyakit NOT LIKE 'E11%' AND kd_penyakit NOT LIKE 'E12%' AND kd_penyakit NOT LIKE 'E13%' AND kd_penyakit NOT LIKE 'E14%') AND
-                    (kd_penyakit NOT LIKE 'N18%') AND
-                    (kd_penyakit NOT LIKE 'I50%') AND
-                    (kd_penyakit NOT LIKE 'I60%' AND kd_penyakit NOT LIKE 'I61%' AND kd_penyakit NOT LIKE 'I62%' AND kd_penyakit NOT LIKE 'I63%' AND kd_penyakit NOT LIKE 'I64%') AND
-                    (kd_penyakit NOT LIKE 'K21%' AND kd_penyakit NOT LIKE 'K25%' AND kd_penyakit NOT LIKE 'K29%' AND kd_penyakit NOT LIKE 'K30%') AND
-                    kd_penyakit IS NOT NULL AND kd_penyakit != ''
+                    (p.kd_penyakit NOT LIKE 'E10%' AND p.kd_penyakit NOT LIKE 'E11%' AND p.kd_penyakit NOT LIKE 'E12%' AND p.kd_penyakit NOT LIKE 'E13%' AND p.kd_penyakit NOT LIKE 'E14%') AND
+                    (p.kd_penyakit NOT LIKE 'N18%') AND
+                    (p.kd_penyakit NOT LIKE 'I50%') AND
+                    (p.kd_penyakit NOT LIKE 'I60%' AND p.kd_penyakit NOT LIKE 'I61%' AND p.kd_penyakit NOT LIKE 'I62%' AND p.kd_penyakit NOT LIKE 'I63%' AND p.kd_penyakit NOT LIKE 'I64%') AND
+                    (p.kd_penyakit NOT LIKE 'K21%' AND p.kd_penyakit NOT LIKE 'K25%' AND p.kd_penyakit NOT LIKE 'K29%' AND p.kd_penyakit NOT LIKE 'K30%') AND
+                    p.kd_penyakit IS NOT NULL AND p.kd_penyakit != ''
                 THEN 1 ELSE 0 END) AS count_other
-            FROM pasien 
-            WHERE no_rawat = ?
-            GROUP BY no_rawat
+            FROM pasien p
+            LEFT JOIN (
+                SELECT no_rawat, MAX(id_perhitungan) AS id_perhitungan, MAX(tanggal_perhitungan) AS waktu_pembaruan
+                FROM perhitungan_gizi
+                GROUP BY no_rawat
+            ) sh ON p.no_rawat = sh.no_rawat
+            WHERE p.no_rawat = ?
+            GROUP BY p.no_rawat
         `;
         const [rows] = await db.execute(queryPasien, [id]);
 
@@ -250,6 +296,15 @@ const getPasienById = async (req, res, next) => {
         let umurNumerik = parseFloat(pasien.umurdaftar) || 0;
         const kelompokUmur = getKelompokUmur(umurNumerik);
 
+        // Waktu Pembaruan Detail
+        let waktu_pembaruan_rapi = null;
+        if (pasien.waktu_pembaruan) {
+            const tglObj = new Date(pasien.waktu_pembaruan);
+            const tgl = tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            const jam = tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            waktu_pembaruan_rapi = `${tgl}, ${jam}`;
+        }
+
         res.status(200).json({
             status: 'success',
             data: {
@@ -266,7 +321,12 @@ const getPasienById = async (req, res, next) => {
                 diagnosis: diagnosa_array.length > 0 ? diagnosa_array.join(' + ') : '-',
                 diagnosa_kategori: diagnosa_array,
                 penyakit_lainnya: penyakitLainnya,
-                nama_penyakit_asli: pasien.nama_penyakit_asli // <-- BARU: Nama penyakit murni dari kolom nm_penyakit database
+                nama_penyakit_asli: pasien.nama_penyakit_asli,
+                
+                // FIELD BARU
+                status_perhitungan: pasien.id_perhitungan ? 'Sudah Dihitung' : 'Belum',
+                id_perhitungan: pasien.id_perhitungan || null,
+                waktu_pembaruan: waktu_pembaruan_rapi
             }
         });
     } catch (error) {

@@ -136,6 +136,12 @@ const hitungDM_Stroke = (data) => {
 
     // 8c. Hitung Karbohidrat (Sisa dari energi, dihitung otomatis agar total pasti 100%)
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+
+    // Memastikan sisa karbohidrat tidak menyalahi aturan DM
+    if (karbohidrat_persen < 45 || karbohidrat_persen > 65) {
+        throw new Error(`Kalkulasi gagal: Sisa Karbohidrat (${karbohidrat_persen.toFixed(1)}%) berada di luar batas aman DM (45-65%). Silakan sesuaikan persentase lemak atau cek data berat/tinggi badan pasien.`);
+    }
+    
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4; 
 

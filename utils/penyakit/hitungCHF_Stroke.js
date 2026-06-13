@@ -88,10 +88,9 @@ const hitungCHF_Stroke = (data) => {
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
         
-        // Pagar Aman Lemak (Satu-satunya titik temu CHF dan Stroke adalah 25%)
-        // Kita kunci ketat validasinya di angka 25 agar user tidak bisa input di luar irisan aman
-        if (l !== 25) {
-            throw new Error(`Persentase Lemak CHF+Stroke mutlak harus 25% untuk mengakomodir kedua penyakit. Input ditolak: ${l}%`);
+        // Pagar Aman Lemak (Diizinkan hingga 30% dari pedoman Stroke, agar karbohidrat bisa ditekan)
+        if (l < 25 || l > 30) {
+            throw new Error(`Persentase Lemak CHF+Stroke harus antara 25% - 30%. Input ditolak: ${l}%`);
         }
         
         if ((protein_persen + l) >= 100) {
@@ -104,13 +103,8 @@ const hitungCHF_Stroke = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // 6c. KARBOHIDRAT: Sisa TEE agar persis 100%
-    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
-    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
-    const karbohidrat_gram = kalori_karbohidrat / 4;
-
-    // Rincian Lemak (Diatur proporsional terhadap persentase lemak)
-    // Lemak Jenuh < 7% mengikuti aturan Stroke yang lebih ketat
+    // Rincian Lemak (Proporsional dari input)
+    // Jenuh dipatok ketat 7% sesuai Stroke
     const lemak_jenuh_persen = Math.floor(lemak_persen * (7/25));
     const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
@@ -122,6 +116,17 @@ const hitungCHF_Stroke = (data) => {
     const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen; 
     const kalori_lemak_mufa = (lemak_mufa_persen / 100) * kebutuhan_energi_total;
     const lemak_mufa_gram = kalori_lemak_mufa / 9;
+
+    // 6c. KARBOHIDRAT: Sisa TEE agar persis 100%
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+
+    // Memastikan Pasien Aman dari Sesak Napas
+    if (karbohidrat_persen > 60) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Hal ini melebihi batas maksimal CHF & Stroke (60%) dan dapat memicu sesak napas. Silakan naikkan slider persentase Lemak untuk menurunkan Karbohidrat.`);
+    }
+
+    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
+    const karbohidrat_gram = kalori_karbohidrat / 4;
 
     // =========================================================================
     // 7. MIKRONUTRIEN, CAIRAN, DAN PEDOMAN KLINIS (Buku Biru)

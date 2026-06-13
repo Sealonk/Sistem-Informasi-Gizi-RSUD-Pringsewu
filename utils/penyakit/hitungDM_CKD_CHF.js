@@ -150,6 +150,13 @@ const hitungDM_CKD_CHF = (data) => {
 
     // 3c. KARBOHIDRAT: Dihitung otomatis sebagai sisa agar persis 100%
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+
+    // Melindungi Jantung (CHF) dan Gula Darah (DM)
+    // Toleransi klinis maksimal diberikan di angka 65% (Batas atas DM)
+    if (karbohidrat_persen < 45 || karbohidrat_persen > 65) {
+        throw new Error(`Kalkulasi gagal: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Hal ini membahayakan kondisi Jantung (CHF) dan Gula Darah (DM) pasien. Silakan naikkan persentase Lemak di dalam rentang 20-25% agar Karbohidrat turun.`);
+    }
+    
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total; 
     const karbohidrat_gram = kalori_karbohidrat / 4; 
 

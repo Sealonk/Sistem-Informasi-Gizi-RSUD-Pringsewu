@@ -94,6 +94,12 @@ const hitungCKD_Stroke = (data) => {
 
     // 3c. KARBOHIDRAT: Sisa energi total agar mutlak 100%
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+
+    // Memastikan Karbohidrat tidak melanggar batas Stroke (Maks 60%)
+    if (karbohidrat_persen > 60) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Hal ini melebihi batas maksimal penyakit Stroke (60%). Silakan naikkan persentase Lemak di dalam rentang 25-30% agar persentase Karbohidrat turun.`);
+    }
+
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 

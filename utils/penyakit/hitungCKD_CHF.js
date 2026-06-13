@@ -57,20 +57,20 @@ const hitungCKD_CHF = (data) => {
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
     // 3b. LEMAK TOTAL: Default 25% (Satu-satunya irisan aman dari CKD 25-30% dan CHF 20-25%)
-    let lemak_persen = 25;
+    let lemak_persen = 25; // Default
 
     // Validasi input slider lemak dari Frontend
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
         
-        // Pagar Aman Lemak (Mutlak di angka 25% agar memenuhi batas kedua organ)
-        if (l !== 25) {
-            throw new Error(`Persentase Lemak CKD+CHF mutlak harus 25% agar tidak memberatkan Jantung dan Ginjal. Input ditolak: ${l}%`);
+        // Pagar Aman Lemak (Memberikan ruang hingga 30% agar karbohidrat bisa ditekan turun)
+        if (l < 20 || l > 30) {
+            throw new Error(`Persentase Lemak harus antara 20% - 30%. Input ditolak: ${l}%`);
         }
         
         // Validasi Matematis Ekstra
         if ((protein_persen + l) >= 100) {
-            throw new Error(`Total Protein mutlak (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
+            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
         lemak_persen = l;
@@ -79,8 +79,7 @@ const hitungCKD_CHF = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak Proporsional sesuai Buku Biru CHF
-    // (Jenuh maksimal 10%, Tidak Jenuh 15%. Diatur fleksibel dengan rasio jika persen lemak diubah)
+    // Rincian Lemak Proporsional (Jenuh dipatok tetap aman < 10%)
     const lemak_jenuh_persen = Math.floor(lemak_persen * (10/25));
     const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
@@ -91,6 +90,12 @@ const hitungCKD_CHF = (data) => {
 
     // 3c. KARBOHIDRAT: Sisa energi total
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+
+    // TAMBAHAN VALIDASI: Memastikan Jantung Aman dari Sesak Napas
+    if (karbohidrat_persen > 60) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Hal ini melebihi batas maksimal CHF (60%) dan dapat memicu sesak napas. Silakan naikkan slider persentase Lemak untuk menurunkan Karbohidrat.`);
+    }
+
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 

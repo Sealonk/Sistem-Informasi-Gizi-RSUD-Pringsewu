@@ -60,9 +60,17 @@ const hitungCKD = (data) => {
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
         
-        // Pagar Aman Lemak (Rentang paling lebar untuk ginjal murni adalah 15% - 30%)
-        if (l < 15 || l > 30) {
-            throw new Error(`Persentase Lemak CKD harus antara 15% - 30%. Input ditolak: ${l}%`);
+        // Validasi Dinamis berdasarkan status Hemodialisa
+        if (isHD) {
+            // Pagar HD: 15% - 30%
+            if (l < 15 || l > 30) {
+                throw new Error(`Persentase Lemak pasien HD harus antara 15% - 30%. Input ditolak: ${l}%`);
+            }
+        } else {
+            // Pagar Pre-HD: 25% - 30%
+            if (l < 25 || l > 30) {
+                throw new Error(`Persentase Lemak pasien Pre-Dialisis harus antara 25% - 30%. Input ditolak: ${l}%`);
+            }
         }
         
         // Validasi Matematis Ekstra
