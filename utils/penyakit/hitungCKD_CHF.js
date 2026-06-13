@@ -91,7 +91,7 @@ const hitungCKD_CHF = (data) => {
     // 3c. KARBOHIDRAT: Sisa energi total
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
 
-    // TAMBAHAN VALIDASI: Memastikan Jantung Aman dari Sesak Napas
+    // Memastikan Jantung Aman dari Sesak Napas
     if (karbohidrat_persen > 60) {
         throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Hal ini melebihi batas maksimal CHF (60%) dan dapat memicu sesak napas. Silakan naikkan slider persentase Lemak untuk menurunkan Karbohidrat.`);
     }
