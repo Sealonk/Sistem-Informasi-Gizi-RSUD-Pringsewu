@@ -124,8 +124,8 @@ const hitungDM_CHF = (data) => {
         }
 
         // Validasi 2: Pagar Aman Irisan DM + CHF
-        if (p < 10 || p > 30) {
-            throw new Error(`Persentase Protein DM + CHF harus antara 10% - 30%. Input ditolak: ${p}%`);
+        if (p < 10 || p > 25) {
+            throw new Error(`Persentase Protein DM + CHF harus antara 10% - 25%. Input ditolak: ${p}%`);
         }
         if (l < 20 || l > 25) {
             throw new Error(`Persentase Lemak DM + CHF harus antara 20% - 25%. Input ditolak: ${l}%`);
