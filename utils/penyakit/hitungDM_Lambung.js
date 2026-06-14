@@ -112,8 +112,8 @@ const hitungDM_Lambung = (data) => {
     // =========================================================================
     
     // Nilai Default Aman untuk DM + Lambung
-    let protein_persen = 20;
-    let lemak_persen = 15;
+    let protein_persen = 10;
+    let lemak_persen = 25;
     let karbohidrat_persen = 65;
 
     // Jika Frontend mengirim nilai slider, lakukan validasi ketat
@@ -129,13 +129,13 @@ const hitungDM_Lambung = (data) => {
 
         // Validasi 2: Harus masuk Pagar Aman Buku Biru DM + Lambung
         if (p < 10 || p > 20) {
-            throw new Error(`Persentase Protein DM+Lambung harus 10% - 20%. Input ditolak: ${p}%`);
+            throw new Error(`Persentase Protein DM + Lambung harus antara 10% - 20%. Input ditolak: ${p}%`);
         }
-        if (l < 10 || l > 15) {
-            throw new Error(`Persentase Lemak mutlak ikut Lambung (10% - 15%). Input ditolak: ${l}%`);
+        if (l < 10 || l > 25) {
+            throw new Error(`Persentase Lemak DM + Lambung harus antara 10% - 25%. Input ditolak: ${l}%`);
         }
         if (k < 45 || k > 65) {
-            throw new Error(`Persentase Karbohidrat mutlak ikut DM (45% - 65%). Input ditolak: ${k}%`);
+            throw new Error(`Persentase Karbohidrat DM + Lambung harus antara 45% - 65%. Input ditolak: ${k}%`);
         }
 
         // Lolos validasi, timpa nilai default

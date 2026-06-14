@@ -77,9 +77,8 @@ const hitungCHF_Lambung = (data) => {
     // 6. DISTRIBUSI MAKRONUTRIEN CHF + LAMBUNG (Validasi Slider Dinamis)
     // =========================================================================
     
-// Nilai Default Aman: Lemak ditekan (Lambung), Karbohidrat ditahan (CHF), Protein naik menutupi sisa
-    let protein_persen = 25;
-    let lemak_persen = 15;
+    let protein_persen = 15;
+    let lemak_persen = 25;
     let karbohidrat_persen = 60;
 
     // Jika Frontend mengirim nilai slider, lakukan validasi ketat
@@ -88,23 +87,23 @@ const hitungCHF_Lambung = (data) => {
         const l = parseFloat(input_persen_lemak);
         const k = parseFloat(input_persen_karbo);
 
+        // Validasi 1: Total harus tepat 100%
         if (Math.round(p + l + k) !== 100) {
-            throw new Error(`Total persentase harus 100%. Saat ini: ${p + l + k}%`);
+            throw new Error(`Total persentase makronutrien harus 100%. Saat ini: ${p + l + k}%`);
         }
 
-        // Lemak dikunci mutlak 10-15% (Syarat Lambung)
-        if (l < 10 || l > 15) {
-            throw new Error(`Persentase Lemak mutlak harus mengikuti batas Lambung (10% - 15%) agar tidak dispepsia.`);
+        // Validasi 2: Pagar Aman Buku Biru CHF
+        if (p < 15 || p > 25) {
+            throw new Error(`Persentase Protein CHF + Lambung harus antara 15% - 25%. Input ditolak: ${p}%`);
         }
-        
-        // Karbohidrat dikunci maksimal 60% (Syarat mutlak Jantung cegah sesak)
-        if (k > 60) {
-            throw new Error(`Persentase Karbohidrat tidak boleh lebih dari 60% untuk mencegah sesak napas pada pasien CHF.`);
+        if (l < 10 || l > 25) {
+            throw new Error(`Persentase Lemak CHF + Lambung harus antara 10% - 25%. Input ditolak: ${l}%`);
+        }
+        if (k < 50 || k > 60) {
+            throw new Error(`Persentase Karbohidrat CHF + Lambung harus antara 50% - 60%. Input ditolak: ${k}%`);
         }
 
-        // Protein fleksibel menutupi sisa (bisa mencapai 30% jika lemak 10% dan karbo 60%)
-        // Ini lebih aman daripada membiarkan pasien jantung sesak karena karbohidrat berlebih
-        
+        // Lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
         karbohidrat_persen = k;

@@ -64,8 +64,8 @@ const hitungCKD_CHF = (data) => {
         const l = parseFloat(input_persen_lemak);
         
         // Pagar Aman Lemak (Memberikan ruang hingga 30% agar karbohidrat bisa ditekan turun)
-        if (l < 20 || l > 30) {
-            throw new Error(`Persentase Lemak harus antara 20% - 30%. Input ditolak: ${l}%`);
+        if (l < 15 || l > 30) {
+            throw new Error(`Persentase Lemak CKD + CHF harus antara 15% - 30%. Input ditolak: ${l}%`);
         }
         
         // Validasi Matematis Ekstra
@@ -90,12 +90,6 @@ const hitungCKD_CHF = (data) => {
 
     // 3c. KARBOHIDRAT: Sisa energi total
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
-
-    // Memastikan Jantung Aman dari Sesak Napas
-    if (karbohidrat_persen > 60) {
-        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Hal ini melebihi batas maksimal CHF (60%) dan dapat memicu sesak napas. Silakan naikkan slider persentase Lemak untuk menurunkan Karbohidrat.`);
-    }
-
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 

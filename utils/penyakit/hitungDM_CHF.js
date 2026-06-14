@@ -108,9 +108,9 @@ const hitungDM_CHF = (data) => {
     // =========================================================================
     
     // Nilai Default (Irisan Paling Aman)
-    let protein_persen = 15;
+    let protein_persen = 10;
     let lemak_persen = 25;
-    let karbohidrat_persen = 60;
+    let karbohidrat_persen = 65;
 
     // Jika Frontend mengirim nilai slider, lakukan validasi ketat
     if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {
@@ -124,14 +124,14 @@ const hitungDM_CHF = (data) => {
         }
 
         // Validasi 2: Pagar Aman Irisan DM + CHF
-        if (p < 15 || p > 20) {
-            throw new Error(`Persentase Protein DM+CHF harus antara 15% - 20%. Input ditolak: ${p}%`);
+        if (p < 10 || p > 30) {
+            throw new Error(`Persentase Protein DM + CHF harus antara 10% - 30%. Input ditolak: ${p}%`);
         }
         if (l < 20 || l > 25) {
-            throw new Error(`Persentase Lemak DM+CHF harus antara 20% - 25%. Input ditolak: ${l}%`);
+            throw new Error(`Persentase Lemak DM + CHF harus antara 20% - 25%. Input ditolak: ${l}%`);
         }
-        if (k < 50 || k > 60) {
-            throw new Error(`Persentase Karbohidrat DM+CHF harus antara 50% - 60%. Input ditolak: ${k}%`);
+        if (k < 45 || k > 65) {
+            throw new Error(`Persentase Karbohidrat DM + CHF harus antara 45% - 65%. Input ditolak: ${k}%`);
         }
 
         // Lolos validasi, timpa nilai default

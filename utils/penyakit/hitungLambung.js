@@ -99,9 +99,9 @@ const hitungLambung = (data) => {
     // =========================================================================
     
     // Nilai Default Buku Biru (Kondisi Stabil Nyaman)
-    let protein_persen = 15;
+    let protein_persen = 10;
     let lemak_persen = 15;
-    let karbohidrat_persen = 70;
+    let karbohidrat_persen = 75;
 
     // Jika Frontend mengirim nilai slider, lakukan validasi ketat
     if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {

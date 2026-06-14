@@ -123,9 +123,8 @@ const hitungDM_CKD_CHF = (data) => {
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
         
-        // Pagar Aman: DM (20-25%), CHF (20-25%). Irisan paling aman adalah 20-25%
-        if (l < 20 || l > 25) {
-            throw new Error(`Persentase Lemak komplikasi DM+CKD+CHF harus antara 20% - 25%. Input ditolak: ${l}%`);
+        if (l < 15 || l > 30) {
+            throw new Error(`Persentase Lemak DM + CKD +CHF harus antara 15% - 30%. Input ditolak: ${l}%`);
         }
         
         if ((protein_persen + l) >= 100) {
@@ -150,13 +149,6 @@ const hitungDM_CKD_CHF = (data) => {
 
     // 3c. KARBOHIDRAT: Dihitung otomatis sebagai sisa agar persis 100%
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
-
-    // Melindungi Jantung (CHF) dan Gula Darah (DM)
-    // Toleransi klinis maksimal diberikan di angka 65% (Batas atas DM)
-    if (karbohidrat_persen < 45 || karbohidrat_persen > 65) {
-        throw new Error(`Kalkulasi gagal: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Hal ini membahayakan kondisi Jantung (CHF) dan Gula Darah (DM) pasien. Silakan naikkan persentase Lemak di dalam rentang 20-25% agar Karbohidrat turun.`);
-    }
-    
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total; 
     const karbohidrat_gram = kalori_karbohidrat / 4; 
 

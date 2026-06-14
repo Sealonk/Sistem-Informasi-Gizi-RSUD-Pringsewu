@@ -121,8 +121,8 @@ const hitungDM_CKD = (data) => {
         const l = parseFloat(input_persen_lemak);
         
         // Pagar Aman Lemak (Rentang diizinkan 20% - 30%)
-        if (l < 20 || l > 30) {
-            throw new Error(`Persentase Lemak komplikasi DM+CKD harus antara 20% - 30%. Input ditolak: ${l}%`);
+        if (l < 15 || l > 30) {
+            throw new Error(`Persentase Lemak DM + CKD harus antara 15% - 30%. Input ditolak: ${l}%`);
         }
         
         // Validasi: Pastikan sisa karbohidrat tidak negatif

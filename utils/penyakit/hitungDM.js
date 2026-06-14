@@ -129,8 +129,8 @@ const hitungDM = (data) => {
     // 8. DISTRIBUSI MAKRONUTRIEN (DENGAN VALIDASI SLIDER FRONTEND)
     // =========================================================================
     
-    let protein_persen = 15; // Default
-    let lemak_persen = 20;   // Default
+    let protein_persen = 10; // Default
+    let lemak_persen = 25;   // Default
     let karbohidrat_persen = 65; // Default
 
     // Jika Frontend mengirim nilai slider, lakukan validasi ketat

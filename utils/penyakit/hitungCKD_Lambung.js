@@ -55,21 +55,21 @@ const hitungCKD_Lambung = (data) => {
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // 3b. LEMAK TOTAL: 15% (Batas irisan tunggal paling aman untuk Lambung dan Ginjal)
-    let lemak_persen = 15;
+    // 3b. LEMAK TOTAL: Default 25%
+    let lemak_persen = 25;
 
     // Validasi input slider lemak dari Frontend
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
         
-        // Pagar Aman Lemak (CKD 25-30% vs Lambung 10-15%. Titik temu paksa: 15%)
-        // Kita kunci ketat validasinya di angka 15 agar user tidak bisa input sembarangan
-        if (l !== 15) {
-            throw new Error(`Persentase Lemak CKD+Lambung mutlak harus 15% untuk mengakomodir kedua penyakit. Input ditolak: ${l}%`);
+        // Pagar Aman Lemak (Rentang 10% - 30%)
+        if (l < 10 || l > 30) {
+            throw new Error(`Persentase Lemak CKD + Lambung harus antara 10% - 30%. Input ditolak: ${l}%`);
         }
         
+        // Validasi Matematis Ekstra
         if ((protein_persen + l) >= 100) {
-            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
+            throw new Error(`Total Protein mutlak (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
         lemak_persen = l;

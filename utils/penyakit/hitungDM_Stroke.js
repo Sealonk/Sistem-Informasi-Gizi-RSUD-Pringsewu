@@ -105,45 +105,47 @@ const hitungDM_Stroke = (data) => {
     // 8. DISTRIBUSI MAKRONUTRIEN DM + STROKE (Validasi Slider Lemak)
     // =========================================================================
     
-    // 8a. Hitung Protein (Mutlak 1.2 g/kg BBI sesuai pedoman Stroke untuk cegah katabolisme)
-    // Protein dikunci (lock), tidak ada slider untuk protein.
-    const protein_gram = 1.2 * bbi;
-    const kalori_protein = protein_gram * 4; 
-    const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100; 
+    let protein_persen = 10; // Default
+    let lemak_persen = 25;   // Default
+    let karbohidrat_persen = 65; // Default
 
-    // 8b. Hitung Lemak Total (Default 25% - Irisan antara DM dan Stroke)
-    let lemak_persen = 25;
-
-    // Jika Frontend mengirim nilai slider lemak, lakukan validasi ketat
-    if (input_persen_lemak !== undefined) {
+    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
+    if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {
+        const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
-        
-        // Pagar Aman Lemak (DM: 20-25%. Stroke 25-35%. Kita batasi user geser di 20-25%)
-        if (l < 20 || l > 25) {
-            throw new Error(`Persentase Lemak komplikasi DM+Stroke harus antara 20% - 25%. Input ditolak: ${l}%`);
-        }
-        
-        // Validasi: Pastikan sisa karbohidrat tidak negatif (Keamanan tingkat lanjut)
-        if ((protein_persen + l) >= 100) {
-            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%. Tidak ada sisa untuk Karbohidrat.`);
+        const k = parseFloat(input_persen_karbo);
+
+        // Validasi 1: Total harus tepat 100%
+        if (Math.round(p + l + k) !== 100) {
+            throw new Error(`Total persentase makronutrien harus 100%. Saat ini: ${p + l + k}%`);
         }
 
+        // Validasi 2: Harus masuk rentang ("Pagar Aman") Buku Biru untuk DM murni
+        if (p < 10 || p > 30) {
+            throw new Error(`Persentase Protein DM + Stroke harus antara 10% - 30%. Input ditolak: ${p}%`);
+        }
+        if (l < 20 || l > 35) {
+            throw new Error(`Persentase Lemak DM + Stroke harus antara 20% - 35%. Input ditolak: ${l}%`);
+        }
+        if (k < 45 || k > 65) {
+            throw new Error(`Persentase Karbohidrat DM + Stroke harus antara 45% - 65%. Input ditolak: ${k}%`);
+        }
+
+        // Jika lolos validasi, timpa nilai default
+        protein_persen = p;
         lemak_persen = l;
+        karbohidrat_persen = k;
     }
+
+    // Eksekusi Perhitungan Kalori ke Gram
+    const kalori_protein = (protein_persen / 100) * kebutuhan_energi_total;
+    const protein_gram = kalori_protein / 4;
 
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // 8c. Hitung Karbohidrat (Sisa dari energi, dihitung otomatis agar total pasti 100%)
-    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
-
-    // Memastikan sisa karbohidrat tidak menyalahi aturan DM
-    if (karbohidrat_persen < 45 || karbohidrat_persen > 65) {
-        throw new Error(`Kalkulasi gagal: Sisa Karbohidrat (${karbohidrat_persen.toFixed(1)}%) berada di luar batas aman DM (45-65%). Silakan sesuaikan persentase lemak atau cek data berat/tinggi badan pasien.`);
-    }
-    
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
-    const karbohidrat_gram = kalori_karbohidrat / 4; 
+    const karbohidrat_gram = kalori_karbohidrat / 4;
 
     // Rincian Lemak (Keduanya sepakat di batas Jenuh dan PUFA ini)
     const lemak_jenuh_persen = 7; 
