@@ -121,7 +121,7 @@ const hitungDM_Stroke = (data) => {
         }
 
         // Validasi 2: Harus masuk rentang ("Pagar Aman") Buku Biru untuk DM murni
-        if (p < 10 || p > 30) {
+        if (p < 10 || p > 25) {
             throw new Error(`Persentase Protein DM + Stroke harus antara 10% - 30%. Input ditolak: ${p}%`);
         }
         if (l < 20 || l > 35) {
