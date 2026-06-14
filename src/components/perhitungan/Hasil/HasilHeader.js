@@ -6,6 +6,24 @@ import {
 export default function HasilHeader({
   data,
 }) {
+  const isChanged = (field, currentValue) => {
+    if (!data.originalValues) return false;
+    const originalValue = data.originalValues[field];
+    const cleanCurrent = String(currentValue ?? "").trim().toLowerCase();
+    const cleanOriginal = String(originalValue ?? "").trim().toLowerCase();
+    return cleanCurrent !== cleanOriginal;
+  };
+
+  const renderChangedBadge = (field, currentValue) => {
+    if (isChanged(field, currentValue)) {
+      return (
+        <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-amber-50 text-amber-700 border border-amber-250">
+          Diubah
+        </span>
+      );
+    }
+    return null;
+  };
 
   /* TANGGAL */
   const tanggal =
@@ -19,277 +37,214 @@ export default function HasilHeader({
       }
     );
 
-  return (
+  // Helper to format or display date
+  const renderTanggalMasuk = () => {
+    if (!data.tanggal_masuk || data.tanggal_masuk === "-") return "-";
+    const dateStr = String(data.tanggal_masuk);
+    if (/[a-zA-Z]/.test(dateStr) || dateStr.includes(" ")) {
+      return dateStr;
+    }
+    try {
+      const parsedDate = new Date(dateStr);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate.toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+      }
+    } catch (e) {
+      // ignore
+    }
+    return dateStr;
+  };
 
+  return (
     <div
       className="
+        relative
+        overflow-hidden
         rounded-[32px]
         border
         border-slate-200/80
         bg-white/75
         backdrop-blur-md
-        px-8
-        py-8
+        p-8
         shadow-sm
         hover:shadow-md
         transition-all
         duration-300
+        ease-out
       "
     >
+      {/* Decorative Accent Bar */}
+      <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-t-[32px]" />
+
+      {/* Decorative Glow Circle */}
+      <div className="absolute -right-12 -top-12 w-28 h-28 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 opacity-[0.03] blur-xl" />
 
       <div
         className="
           flex
           flex-col
-          md:flex-row
-          items-start
-          md:justify-between
           gap-6
+          relative
+          z-10
         "
       >
-
-        {/* LEFT */}
-        <div
-          className="
-            flex
-            items-center
-            gap-6
-            flex-1
-            min-w-0
-          "
-        >
-
-          {/* AVATAR */}
-          <div
-            className="
-              w-20
-              h-20
-              rounded-full
-              bg-slate-100
-              text-blue-600
-              flex
-              items-center
-              justify-center
-              shrink-0
-            "
-          >
-
-            <UserRound
-              size={38}
-              strokeWidth={2.2}
-            />
-
-          </div>
-
-          {/* CONTENT */}
-          <div className="flex-1">
-
-            {/* NAMA */}
-            <h1
-              className="
-                text-2xl
-                md:text-[26px]
-                font-semibold
-                text-slate-900
-                mb-4
-                leading-tight
-                truncate
-              "
-            >
-              {data.nama ||
-                "Nama Pasien"}
-            </h1>
-
-            {/* INFO */}
+        {/* TOP ROW: AVATAR, NAME, VALIDATION BADGE */}
+        <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-5 border-b border-slate-100/80 pb-5">
+          <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+            {/* AVATAR */}
             <div
               className="
-                grid
-                grid-cols-2
-                md:grid-cols-5
-                gap-x-10
-                gap-y-4
+                w-16
+                h-16
+                rounded-2xl
+                bg-gradient-to-br
+                from-blue-500
+                to-indigo-600
+                text-white
+                flex
+                items-center
+                justify-center
+                shrink-0
+                shadow-lg
+                shadow-blue-200/50
               "
             >
-
-              {/* RM */}
-              <div>
-
-                <p
-                  className="
-                    text-[11px]
-                    tracking-[0.24em]
-                    uppercase
-                    text-slate-400
-                    mb-2
-                  "
-                >
-                  No. RM
-                </p>
-
-                <h4
-                  className="
-                    text-sm
-                    font-semibold
-                    text-slate-900
-                    leading-tight
-                  "
-                >
-                  {data.noRM ||
-                    "RM00123456"}
-                </h4>
-
-              </div>
-
-              {/* UMUR */}
-              <div>
-
-                <p
-                  className="
-                    text-[11px]
-                    tracking-[0.24em]
-                    uppercase
-                    text-slate-400
-                    mb-2
-                  "
-                >
-                  Umur
-                </p>
-
-                <h4
-                  className="
-                    text-sm
-                    font-semibold
-                    text-slate-900
-                    leading-tight
-                  "
-                >
-                  {data.umur ||
-                    "45"}
-                  {" "}
-                  Tahun
-                </h4>
-
-              </div>
-
-              {/* JK */}
-              <div>
-
-                <p
-                  className="
-                    text-[11px]
-                    tracking-[0.24em]
-                    uppercase
-                    text-slate-400
-                    mb-2
-                  "
-                >
-                  Jenis Kelamin
-                </p>
-
-                <h4
-                  className="
-                    text-sm
-                    font-semibold
-                    text-slate-900
-                    leading-tight
-                  "
-                >
-                  {data.jenisKelamin ||
-                    "Laki-laki"}
-                </h4>
-
-              </div>
-
-              {/* TANGGAL */}
-              <div>
-
-                <p
-                  className="
-                    text-[11px]
-                    tracking-[0.24em]
-                    uppercase
-                    text-slate-400
-                    mb-2
-                  "
-                >
-                  Tanggal Perhitungan
-                </p>
-
-                <h4
-                  className="
-                    text-sm
-                    font-semibold
-                    text-slate-900
-                    leading-tight
-                  "
-                >
-                  {tanggal}
-                </h4>
-
-              </div>
-
-              {/* RUANG */}
-              <div>
-
-                <p
-                  className="
-                    text-[11px]
-                    tracking-[0.24em]
-                    uppercase
-                    text-slate-400
-                    mb-2
-                  "
-                >
-                  Ruang / Bangsal
-                </p>
-
-                <h4
-                  className="
-                    text-sm
-                    font-semibold
-                    text-slate-900
-                    leading-tight
-                  "
-                >
-                  {data.ruangan ||
-                    "Bangsal Penyakit Dalam"}
-                </h4>
-
-              </div>
-
+              <UserRound size={28} strokeWidth={2} />
             </div>
 
+            {/* NAME */}
+            <div>
+              <h1
+                className="
+                  text-2xl
+                  font-extrabold
+                  tracking-tight
+                  text-slate-800
+                  mb-1
+                  leading-tight
+                "
+              >
+                {data.nama || "Nama Pasien"}
+              </h1>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Rincian Informasi Medis Pasien
+              </p>
+            </div>
           </div>
 
+          {/* STATUS */}
+          <div
+            className="
+              inline-flex
+              items-center
+              gap-1.5
+              px-4
+              py-2
+              rounded-xl
+              bg-emerald-50
+              text-emerald-700
+              border
+              border-emerald-100/60
+              text-xs
+              font-extrabold
+              shrink-0
+              shadow-sm
+              shadow-emerald-50/50
+            "
+          >
+            <ShieldCheck size={14} className="text-emerald-600" />
+            Data Valid
+          </div>
         </div>
 
-        {/* STATUS */}
+        {/* DETAILS GRID */}
         <div
           className="
-            inline-flex
-            items-center
-            gap-2
-            px-4
-            py-2
-            rounded-full
-            bg-emerald-50
-            text-emerald-700
-            text-sm
-            font-semibold
-            shrink-0
+            grid
+            grid-cols-2
+            md:grid-cols-3
+            lg:grid-cols-4
+            xl:grid-cols-7
+            gap-4
           "
         >
+          {/* RM */}
+          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+              No. RM
+            </p>
+            <h4 className="text-sm font-bold text-slate-800 leading-tight">
+              {data.noRM || "RM-0000"}
+            </h4>
+          </div>
 
-          <ShieldCheck
-            size={16}
-          />
+          {/* KODE PENYAKIT */}
+          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+              Kode Penyakit
+            </p>
+            <h4 className="text-sm font-bold text-slate-800 leading-tight">
+              {data.diagnosis || "-"}
+            </h4>
+          </div>
 
-          Data Valid
+          {/* UMUR */}
+          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+              Umur
+            </p>
+            <h4 className="text-sm font-bold text-slate-800 leading-tight flex items-center flex-wrap">
+              {data.umur || "0"} Tahun
+              {renderChangedBadge("umur", data.umur)}
+            </h4>
+          </div>
 
+          {/* JK */}
+          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+              Jenis Kelamin
+            </p>
+            <h4 className="text-sm font-bold text-slate-800 leading-tight flex items-center flex-wrap">
+              {data.jenisKelamin === "P" || data.jenisKelamin === "Perempuan" ? "Perempuan" : "Laki-laki"}
+              {renderChangedBadge("jenisKelamin", data.jenisKelamin)}
+            </h4>
+          </div>
+
+          {/* TANGGAL MASUK */}
+          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+              Tanggal Masuk
+            </p>
+            <h4 className="text-sm font-bold text-slate-800 leading-tight">
+              {renderTanggalMasuk()}
+            </h4>
+          </div>
+
+          {/* TANGGAL PERHITUNGAN */}
+          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+              Tanggal Perhitungan
+            </p>
+            <h4 className="text-sm font-bold text-slate-800 leading-tight">
+              {tanggal}
+            </h4>
+          </div>
+
+          {/* RUANG */}
+          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50 col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-1">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+              Ruang / Bangsal
+            </p>
+            <h4 className="text-sm font-bold text-slate-800 leading-tight truncate">
+              {data.ruangan || "-"}
+            </h4>
+          </div>
         </div>
-
       </div>
-
     </div>
   );
 }

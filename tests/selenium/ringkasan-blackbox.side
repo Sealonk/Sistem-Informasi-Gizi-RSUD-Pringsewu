@@ -1,0 +1,205 @@
+{
+  "id": "f5d76c3a-8b9a-4c91-b3b4-ee1a5c6e8e89",
+  "version": "2.0",
+  "name": "Blackbox Testing - Ringkasan Sistem",
+  "url": "http://localhost:3000",
+  "tests": [
+    {
+      "id": "tc-rs-001",
+      "name": "TC-RS-001 - Menampilkan Halaman Ringkasan Sistem",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/ringkasan-sistem",
+          "value": ""
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//h1[text()='Ringkasan Sistem']",
+          "value": ""
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Aksi Cepat Pelayanan']",
+          "value": ""
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Riwayat Perhitungan Terakhir']",
+          "value": ""
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-rs-002",
+      "name": "TC-RS-002 - Tombol Kembali ke Portal dari Ringkasan Sistem",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/ringkasan-sistem",
+          "value": ""
+        },
+        {
+          "command": "click",
+          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/portal",
+          "value": "10000"
+        }
+      ]
+    },
+    {
+      "id": "tc-rs-003",
+      "name": "TC-RS-003 - Aksi Cepat: Mulai Perhitungan Gizi",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/ringkasan-sistem",
+          "value": ""
+        },
+        {
+          "command": "click",
+          "target": "xpath=//h3[text()='Mulai Perhitungan Gizi']",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/perhitungan",
+          "value": "10000"
+        }
+      ]
+    },
+    {
+      "id": "tc-rs-004",
+      "name": "TC-RS-004 - Aksi Cepat: Lihat Riwayat Asuhan",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/ringkasan-sistem",
+          "value": ""
+        },
+        {
+          "command": "click",
+          "target": "xpath=//h3[text()='Lihat Riwayat Asuhan']",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/riwayat",
+          "value": "10000"
+        }
+      ]
+    },
+    {
+      "id": "tc-rs-005",
+      "name": "TC-RS-005 - Navigasi ke Detail Riwayat Terakhir",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/ringkasan-sistem",
+          "value": ""
+        },
+        {
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]//button",
+          "value": "10000"
+        },
+        {
+          "command": "click",
+          "target": "xpath=//table//tbody//tr[1]//button",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/riwayat/*",
+          "value": "10000"
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//div[contains(., 'Data Valid')]",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-rs-006",
+      "name": "TC-RS-006 - Navigasi ke Semua Riwayat",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/ringkasan-sistem",
+          "value": ""
+        },
+        {
+          "command": "click",
+          "target": "xpath=//button[text()='Lihat Semua']",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/riwayat",
+          "value": "10000"
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "suite-ringkasan",
+      "name": "Suite Ringkasan Sistem",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "tc-rs-001",
+        "tc-rs-002",
+        "tc-rs-003",
+        "tc-rs-004",
+        "tc-rs-005",
+        "tc-rs-006"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:3000"
+  ],
+  "plugins": []
+}

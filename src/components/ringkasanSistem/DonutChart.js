@@ -1,7 +1,15 @@
+import { useState, useEffect } from "react";
+
 export default function DonutChart({
   items = [],
   centerLabel = "Total",
 }) {
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setMounted(true), 50);
+  }, []);
 
   const total =
     items.reduce(
@@ -36,24 +44,33 @@ export default function DonutChart({
       className="
         relative
         flex
-        h-36
-        w-36
+        h-40
+        w-40
         shrink-0
         items-center
         justify-center
         rounded-full
+        shadow-lg
+        shadow-blue-100/50
+        ring-4
+        ring-white
       "
       style={{
         background:
           `conic-gradient(${gradient})`,
+        transform: mounted
+          ? "rotate(0deg)"
+          : "rotate(-90deg)",
+        transition:
+          "transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
       }}
     >
 
       <div
         className="
           flex
-          h-24
-          w-24
+          h-[104px]
+          w-[104px]
           flex-col
           items-center
           justify-center
@@ -61,6 +78,13 @@ export default function DonutChart({
           bg-white
           shadow-inner
         "
+        style={{
+          transform: mounted
+            ? "rotate(0deg)"
+            : "rotate(90deg)",
+          transition:
+            "transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        }}
       >
 
         <span

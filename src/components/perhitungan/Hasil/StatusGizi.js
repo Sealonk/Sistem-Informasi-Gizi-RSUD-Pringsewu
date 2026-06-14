@@ -9,6 +9,25 @@ export default function StatusGizi({
   data,
 }) {
 
+  const isChanged = (field, currentValue) => {
+    if (!data.originalValues) return false;
+    const originalValue = data.originalValues[field];
+    const cleanCurrent = String(currentValue ?? "").trim().toLowerCase();
+    const cleanOriginal = String(originalValue ?? "").trim().toLowerCase();
+    return cleanCurrent !== cleanOriginal;
+  };
+
+  const renderChangedBadge = (field, currentValue) => {
+    if (isChanged(field, currentValue)) {
+      return (
+        <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          Diubah
+        </span>
+      );
+    }
+    return null;
+  };
+
   /* BB & TB */
   const bb = Number(data.bb || 0);
 
@@ -71,6 +90,7 @@ if (bb && tb) {
       ),
       color:
         "bg-blue-50 text-blue-600",
+      badge: renderChangedBadge("bb", data.bb),
     },
     {
       label: "Tinggi Badan",
@@ -80,6 +100,7 @@ if (bb && tb) {
       ),
       color:
         "bg-emerald-50 text-emerald-600",
+      badge: renderChangedBadge("tb", data.tb),
     },
     {
       label: "IMT",
@@ -204,9 +225,13 @@ if (bb && tb) {
                   text-sm
                   font-semibold
                   text-slate-900
+                  flex
+                  items-center
+                  flex-wrap
                 "
               >
                 {item.value}
+                {item.badge}
               </h4>
 
             </div>

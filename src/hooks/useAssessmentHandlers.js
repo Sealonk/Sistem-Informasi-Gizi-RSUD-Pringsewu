@@ -6,6 +6,10 @@ import {
 import {
   getDiseaseValues,
 } from "../components/perhitungan/assessment/JenisPenyakit";
+import {
+  MACRO_CONFIGS,
+  isExcludedCombination,
+} from "../components/perhitungan/assessment/PersentaseMakro";
 
 export function useAssessmentHandlers(
   data,
@@ -18,7 +22,11 @@ export function useAssessmentHandlers(
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleBack = () => {
-    navigate("/perhitungan");
+    if (data.isEditMode) {
+      navigate("/riwayat");
+    } else {
+      navigate("/perhitungan");
+    }
   };
 
   const handleContinue = () => {
@@ -60,23 +68,15 @@ export function useAssessmentHandlers(
     return nonDmMap[aktivitas] || aktivitas;
   };
 
-  const mapFaktorStressToBackend = (stress, isDM) => {
+  const mapFaktorStressToBackend = (stress, sliderVal, isDM) => {
     if (!stress) return "Normal";
 
     if (isDM) {
-      // DM: Frontend mengirim "Ringan", "Sedang", "Berat" — sesuai backend
       return stress;
     }
 
-    // Non-DM (CHF, Stroke, Lambung, dll): Frontend mengirim "Stress Ringan", dll.
-    const nonDmMap = {
-      "Tidak ada stress": "tidak ada",
-      "Stress Ringan": "ringan",
-      "Stress Ringan Sepsis": "ringan sepsis",
-      "Stress Berat": "berat",
-      "Stress Sangat Berat": "sangat berat",
-    };
-    return nonDmMap[stress] || "Normal";
+    const num = parseFloat(sliderVal || 1.1);
+    return `${num.toFixed(2)} (${stress})`;
   };
 
   const executeContinue = async () => {
@@ -94,10 +94,28 @@ export function useAssessmentHandlers(
         : mapAktivitasFisikToBackend(data.aktivitasFisik, isDM);
       const mappedStress = isStrokeOnly
         ? null
-        : mapFaktorStressToBackend(data.faktorStress, isDM);
+        : mapFaktorStressToBackend(data.faktorStress, data.faktorStressSlider, isDM);
+
+      const sorted = [...penyakitOnly].sort().join(",");
+      const config = MACRO_CONFIGS[sorted];
+      const isExcluded = isExcludedCombination(data.penyakit);
+
+      let persen_protein = undefined;
+      let persen_lemak = undefined;
+      let persen_karbohidrat = undefined;
+
+      if (config && !isExcluded) {
+        if (config.type === "three-sliders") {
+          persen_protein = data.persen_protein ?? config.protein.defaultVal;
+          persen_lemak = data.persen_lemak ?? config.lemak.defaultVal;
+          persen_karbohidrat = data.persen_karbohidrat ?? config.karbo.defaultVal;
+        } else if (config.type === "one-slider") {
+          persen_lemak = data.persen_lemak ?? config.lemak.defaultVal;
+        }
+      }
 
       const payload = {
-        id_pasien: patient?.id_pasien || patient?.id,
+        id_pasien: data.id_pasien || patient?.id_pasien || patient?.id,
         diagnosa_penyakit:
           data.penyakit?.map((item) => {
             if (item === "dm") return "DM";
@@ -129,6 +147,12 @@ export function useAssessmentHandlers(
           : "Tidak ada",
         status_hemodialisa: data.hemodialisa || "Tidak",
         metode_perhitungan: "Mifflin St Jeor",
+        persen_protein: persen_protein !== undefined ? String(persen_protein) : undefined,
+        persen_lemak: persen_lemak !== undefined ? String(persen_lemak) : undefined,
+        persen_karbohidrat: persen_karbohidrat !== undefined ? String(persen_karbohidrat) : undefined,
+        input_persen_protein: persen_protein,
+        input_persen_lemak: persen_lemak,
+        input_persen_karbo: persen_karbohidrat,
       };
 
       console.log("PAYLOAD PREVIEW:", payload);
@@ -140,7 +164,7 @@ export function useAssessmentHandlers(
         state: {
           data: {
             ...data,
-            id_pasien: patient?.id_pasien || patient?.id,
+            id_pasien: data.id_pasien || patient?.id_pasien || patient?.id,
           },
           hasil,
         },

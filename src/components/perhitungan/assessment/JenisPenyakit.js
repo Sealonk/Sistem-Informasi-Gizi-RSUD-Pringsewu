@@ -124,6 +124,7 @@ export default function JenisPenyakit({
       title="Jenis Perhitungan"
       subtitle="Pilih jenis penyakit utama pasien yang mempengaruhi kebutuhan gizi dan perhitungan nutrisi"
       icon={<Stethoscope size={26} />}
+      theme="emerald"
     >
 
       {/* GRID */}
@@ -166,19 +167,19 @@ export default function JenisPenyakit({
                 ${
                   active
                     ? `
-                      border-blue-500
+                      border-emerald-500
                       bg-gradient-to-br
-                      from-blue-50
+                      from-emerald-50
                       to-white
                       shadow-lg
-                      shadow-blue-100
+                      shadow-emerald-100
                       -translate-y-1
                     `
                     : `
-                      border-blue-100
+                      border-slate-200
                       bg-white/80
-                      hover:border-blue-200
-                      hover:bg-blue-50/40
+                      hover:border-emerald-300
+                      hover:bg-emerald-50/20
                       hover:-translate-y-1
                     `
                 }
@@ -199,8 +200,8 @@ export default function JenisPenyakit({
 
                   ${
                     active
-                      ? "bg-blue-200/50"
-                      : "bg-blue-100/20"
+                      ? "bg-emerald-250/50"
+                      : "bg-emerald-100/20"
                   }
                 `}
               />
@@ -234,14 +235,14 @@ export default function JenisPenyakit({
                       ${
                         active
                           ? `
-                            bg-blue-600
+                            bg-emerald-600
                             text-white
                             shadow-lg
-                            shadow-blue-100
+                            shadow-emerald-100
                           `
                           : `
-                            bg-blue-50
-                            text-blue-600
+                            bg-emerald-50
+                            text-emerald-600
                           `
                       }
                     `}
@@ -264,8 +265,8 @@ export default function JenisPenyakit({
                       ${
                         active
                           ? `
-                            border-blue-600
-                            bg-blue-600
+                            border-emerald-600
+                            bg-emerald-600
                           `
                           : `
                             border-slate-300
@@ -311,7 +312,7 @@ export default function JenisPenyakit({
 
                     ${
                       active
-                        ? "text-blue-600"
+                        ? "text-emerald-600"
                         : "text-slate-500"
                     }
                   `}

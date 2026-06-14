@@ -177,6 +177,7 @@ export default function AktivitasFisik({
       title="Aktivitas Fisik"
       subtitle="Pilih tingkat aktivitas pasien"
       icon={<Activity size={17} />}
+      theme="emerald"
     >
 
       <SelectField

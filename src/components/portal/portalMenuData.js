@@ -2,6 +2,7 @@ import {
   Calculator,
   History,
   LayoutDashboard,
+  TrendingUp,
 } from "lucide-react";
 
 export const portalMenus = [
@@ -18,6 +19,12 @@ export const portalMenus = [
       "Lakukan perhitungan kebutuhan gizi pasien berdasarkan asesmen dan kondisi klinis.",
     icon: Calculator,
     path: "/perhitungan",
+  },
+  {
+    title: "Prediksi Pasien",
+    description: "Prediksi jumlah pasien per hari berdasarkan data historis dan model AI.",
+    icon: TrendingUp,
+    path: "/prediksi-pasien",
   },
   {
     title: "Riwayat",

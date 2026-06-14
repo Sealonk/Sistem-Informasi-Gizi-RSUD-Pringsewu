@@ -1,10 +1,28 @@
 import { ChevronDown, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getUser } from "../../services/authService";
 
 export default function PortalUserMenu({
   showUserMenu,
   onToggleUserMenu,
   onLogout,
 }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = getUser();
+    if (userData) {
+      setUser(userData);
+    }
+  }, []);
+
+  const getInitial = () => {
+    if (user?.nama_lengkap) {
+      return user.nama_lengkap.trim().charAt(0).toUpperCase();
+    }
+    return "P";
+  };
+
   return (
     <div className="relative">
       <button
@@ -13,9 +31,11 @@ export default function PortalUserMenu({
         className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors"
       >
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">
-          P
+          {getInitial()}
         </div>
-        <span className="text-sm font-medium text-slate-700">Petugas Gizi</span>
+        <span className="text-sm font-medium text-slate-700">
+          {user?.nama_lengkap || "Petugas Gizi"}
+        </span>
         <ChevronDown
           size={18}
           className={`text-slate-400 transition-transform ${

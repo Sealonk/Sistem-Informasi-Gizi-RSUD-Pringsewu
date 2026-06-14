@@ -9,6 +9,7 @@ export const getRiwayat = async ({
   search = "",
   penyakit = "",
   tanggal = "",
+  filter_user = "all",
 }) => {
 
   try {
@@ -26,6 +27,7 @@ export const getRiwayat = async ({
                 ? ""
                 : penyakit,
             tanggal,
+            filter_user,
           },
         }
       );
@@ -83,6 +85,24 @@ export const deleteRiwayat = async (id) => {
     throw new Error(
       error.response?.data?.message ||
       "Gagal menghapus riwayat"
+    );
+  }
+};
+
+/* ========================================
+   UPDATE RIWAYAT
+======================================== */
+export const updateRiwayat = async (id, payload) => {
+  try {
+    const response = await axiosInstance.put(
+      `/api/perhitungan/riwayat/${id}`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message ||
+      "Gagal memperbarui riwayat perhitungan"
     );
   }
 };

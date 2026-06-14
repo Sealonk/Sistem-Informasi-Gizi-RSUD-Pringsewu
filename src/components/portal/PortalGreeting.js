@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { Clock, Sparkles } from "lucide-react";
+import { getUser } from "../../services/authService";
 
 export default function PortalGreeting() {
   const [time, setTime] = useState(new Date());
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
+    const userData = getUser();
+    if (userData) {
+      setUser(userData);
+    }
     return () => clearInterval(timer);
   }, []);
 
@@ -46,7 +52,7 @@ export default function PortalGreeting() {
         <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
           {getGreeting()},{" "}
           <span className="bg-gradient-to-r from-blue-600 via-sky-600 to-indigo-600 bg-clip-text text-transparent">
-            Petugas Gizi
+            {user?.nama_lengkap || "Petugas Gizi"}
           </span>
         </h2>
         

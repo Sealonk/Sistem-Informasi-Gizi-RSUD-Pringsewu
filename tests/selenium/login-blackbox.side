@@ -1,0 +1,666 @@
+{
+  "id": "d7d8b582-22f8-4c9e-b868-6fdf1dca0f01",
+  "version": "2.0",
+  "name": "Blackbox Testing - Login",
+  "url": "http://localhost:3000",
+  "tests": [
+    {
+      "id": "4fc1be48-5f53-4e7c-a29e-f08ae49852b8",
+      "name": "TC-LG-001 - Menampilkan halaman login",
+      "commands": [
+        {
+          "id": "4f181111-112d-4201-b326-7b4b56937ff0",
+          "comment": "Bersihkan session sebelum pengujian",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "529fdd67-e42c-4bd5-9196-f47d3d546450",
+          "comment": "Buka route login",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "2ec12a21-1614-4e51-9f33-371945776f89",
+          "comment": "Pastikan judul form tampil",
+          "command": "assertText",
+          "target": "css=h2",
+          "targets": [
+            [
+              "css=h2",
+              "css:finder"
+            ],
+            [
+              "xpath=//h2",
+              "xpath:position"
+            ]
+          ],
+          "value": "Login"
+        },
+        {
+          "id": "da3c2b42-cd16-41ac-9be6-06c55f009a23",
+          "comment": "Pastikan field username tersedia",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan username']",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan username']",
+              "css:finder"
+            ],
+            [
+              "xpath=//input[@placeholder='Masukkan username']",
+              "xpath:attributes"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "778af4a8-ea4f-4348-83ea-b2049b78bf32",
+          "comment": "Pastikan field password tersedia",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan password']",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan password']",
+              "css:finder"
+            ],
+            [
+              "xpath=//input[@placeholder='Masukkan password']",
+              "xpath:attributes"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "14bc0809-43d5-4d93-b8eb-a1b6e9cf1c42",
+          "comment": "Pastikan tombol login tersedia",
+          "command": "assertElementPresent",
+          "target": "css=button[type='submit']",
+          "targets": [
+            [
+              "css=button[type='submit']",
+              "css:finder"
+            ],
+            [
+              "xpath=//button[@type='submit']",
+              "xpath:attributes"
+            ]
+          ],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "512549ee-7233-44a9-8940-bb655e8ca623",
+      "name": "TC-LG-002 - Login ditolak ketika username dan password kosong",
+      "commands": [
+        {
+          "id": "8617a8b9-5678-4516-94b9-f12c631917a0",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "323f2672-d8e6-45e4-996d-a40d29a2dcb",
+          "comment": "Buka halaman login",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "900a17ec-3c71-4a37-a19f-c2eb2574db08",
+          "comment": "Klik login tanpa mengisi data",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [
+            [
+              "css=button[type='submit']",
+              "css:finder"
+            ],
+            [
+              "xpath=//button[@type='submit']",
+              "xpath:attributes"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "7f15e2e7-2889-486c-ad95-08cd41064cd1",
+          "comment": "Validasi required HTML5 aktif",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan username']:invalid",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan username']:invalid",
+              "css:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "584eb10f-3304-4c98-a5c2-04835dd49488",
+          "comment": "Tetap berada di halaman login",
+          "command": "assertLocation",
+          "target": "glob:*/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "dfc8776f-f0b3-4b42-94da-a1665382301d",
+          "comment": "Token tidak boleh dibuat",
+          "command": "executeScript",
+          "target": "return window.localStorage.getItem('token') === null;",
+          "targets": [],
+          "value": "isTokenEmpty"
+        },
+        {
+          "id": "88bb6131-fe87-4624-966c-806540e316f1",
+          "comment": "Pastikan tidak ada token",
+          "command": "assert",
+          "target": "${isTokenEmpty}",
+          "targets": [],
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "id": "5d1999da-e00e-47a1-a915-6ffc51b2f6f9",
+      "name": "TC-LG-003 - Login ditolak ketika username kosong",
+      "commands": [
+        {
+          "id": "f7de6176-bb34-4f8d-a041-96c9e6a123ff",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "5c1150cf-71fa-43e6-9ad9-3a6dd19c2964",
+          "comment": "Buka halaman login",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "61262fcf-8a58-4898-b2ca-9ad7d060a0d0",
+          "comment": "Isi password saja",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password']",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan password']",
+              "css:finder"
+            ],
+            [
+              "xpath=//input[@placeholder='Masukkan password']",
+              "xpath:attributes"
+            ]
+          ],
+          "value": "password123"
+        },
+        {
+          "id": "5bd35deb-1d60-4915-9bb3-5fdb48c43c98",
+          "comment": "Klik login",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [
+            [
+              "css=button[type='submit']",
+              "css:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "4e8f32bf-c548-4857-8f98-5661ddb2825f",
+          "comment": "Username wajib diisi",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan username']:invalid",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan username']:invalid",
+              "css:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "989e561d-6215-4615-8980-4d3bca8ce747",
+          "comment": "Tetap berada di halaman login",
+          "command": "assertLocation",
+          "target": "glob:*/",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "7d96b1f6-12a7-4c74-a4c7-23468a534459",
+      "name": "TC-LG-004 - Login ditolak ketika password kosong",
+      "commands": [
+        {
+          "id": "97e38640-5f71-4f98-ac37-8618ac6e5dd7",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "81558c84-ed40-493b-8fa2-00e0619fb0e5",
+          "comment": "Buka halaman login",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "a43ee4cc-9996-4047-8674-2bfd38386882",
+          "comment": "Isi username saja",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan username']",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan username']",
+              "css:finder"
+            ],
+            [
+              "xpath=//input[@placeholder='Masukkan username']",
+              "xpath:attributes"
+            ]
+          ],
+          "value": "petugas_gizi"
+        },
+        {
+          "id": "1977863c-c303-412f-8635-141d4c92e328",
+          "comment": "Klik login",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [
+            [
+              "css=button[type='submit']",
+              "css:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "03c80963-493a-43bf-a5ba-dce2b9c3c479",
+          "comment": "Password wajib diisi",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan password']:invalid",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan password']:invalid",
+              "css:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "926e8aa9-f8c3-451d-aefd-d60a2a2c706c",
+          "comment": "Tetap berada di halaman login",
+          "command": "assertLocation",
+          "target": "glob:*/",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "0a5a5518-3211-4f78-b82e-aab8f5e0ddd7",
+      "name": "TC-LG-005 - Toggle tampil/sembunyikan password",
+      "commands": [
+        {
+          "id": "80d8e1ab-b154-4e1c-96d6-b35bd04bd1f6",
+          "comment": "Buka halaman login",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "7f46dc39-11e9-4ad1-902d-c78f29b201e5",
+          "comment": "Isi password",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password']",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan password']",
+              "css:finder"
+            ]
+          ],
+          "value": "password123"
+        },
+        {
+          "id": "5d6f970c-528b-45e4-bfc4-9603b63fbcb0",
+          "comment": "Default field password harus bertipe password",
+          "command": "assertAttribute",
+          "target": "css=input[placeholder='Masukkan password']@type",
+          "targets": [],
+          "value": "password"
+        },
+        {
+          "id": "35d06303-315e-438e-b59e-c34ba9c175d1",
+          "comment": "Klik ikon mata",
+          "command": "click",
+          "target": "css=button[type='button']",
+          "targets": [
+            [
+              "css=button[type='button']",
+              "css:finder"
+            ],
+            [
+              "xpath=//button[@type='button']",
+              "xpath:attributes"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "5e66f980-3a43-490c-a28c-7e1da023c1c2",
+          "comment": "Password tampil sebagai text",
+          "command": "assertAttribute",
+          "target": "css=input[placeholder='Masukkan password']@type",
+          "targets": [],
+          "value": "text"
+        },
+        {
+          "id": "71d55921-e5cf-4a4a-a3a1-19f98f43ccdf",
+          "comment": "Klik ikon mata lagi",
+          "command": "click",
+          "target": "css=button[type='button']",
+          "targets": [
+            [
+              "css=button[type='button']",
+              "css:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "a7609e3c-71f8-40c6-a1e9-cfd15a8ea71d",
+          "comment": "Password kembali tersembunyi",
+          "command": "assertAttribute",
+          "target": "css=input[placeholder='Masukkan password']@type",
+          "targets": [],
+          "value": "password"
+        }
+      ]
+    },
+    {
+      "id": "85e1a789-01a8-4cf2-bb1e-47ef448753d8",
+      "name": "TC-LG-006 - Login ditolak ketika kredensial salah",
+      "commands": [
+        {
+          "id": "a877523d-146e-4e43-a7b1-3ccba39b33e4",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "072af076-1a1d-4ff8-ab56-1563dc061eca",
+          "comment": "Buka halaman login",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "798118a1-841b-4ceb-b0d6-89367b536154",
+          "comment": "Isi username salah",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan username']",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan username']",
+              "css:finder"
+            ]
+          ],
+          "value": "username_salah"
+        },
+        {
+          "id": "c6ea446d-65cb-4486-afbf-28c3983ecf7d",
+          "comment": "Isi password salah",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password']",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan password']",
+              "css:finder"
+            ]
+          ],
+          "value": "password_salah"
+        },
+        {
+          "id": "0bef83da-c425-4c7f-8615-f28f50780cc4a",
+          "comment": "Klik login",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [
+            [
+              "css=button[type='submit']",
+              "css:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "7416f80f-f9f5-46fd-a5ba-66ee4ac94fb7",
+          "comment": "Tunggu pesan error dari aplikasi",
+          "command": "waitForElementPresent",
+          "target": "css=.bg-red-50.text-red-600",
+          "targets": [
+            [
+              "css=.bg-red-50.text-red-600",
+              "css:finder"
+            ]
+          ],
+          "value": "10000"
+        },
+        {
+          "id": "b1bb42db-e0ca-4f6f-b768-ff2b3785d423",
+          "comment": "Tetap berada di halaman login",
+          "command": "assertLocation",
+          "target": "glob:*/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "3858ff53-76f3-4a8d-9db6-34cc6d12c560",
+          "comment": "Token tidak boleh dibuat",
+          "command": "executeScript",
+          "target": "return window.localStorage.getItem('token') === null;",
+          "targets": [],
+          "value": "isTokenEmpty"
+        },
+        {
+          "id": "4a6f4e95-a4c8-4cae-a032-f1b65e92105a",
+          "comment": "Pastikan tidak ada token",
+          "command": "assert",
+          "target": "${isTokenEmpty}",
+          "targets": [],
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "id": "818ec4b4-38bf-4c22-94eb-7a7f93641ed76",
+      "name": "TC-LG-007 - Login berhasil dengan kredensial valid",
+      "commands": [
+        {
+          "id": "c430b58e-4aa6-4e7d-814d-24f8f5a0f215",
+          "comment": "Ubah value ini sesuai akun valid di database/backend",
+          "command": "store",
+          "target": "admin",
+          "targets": [],
+          "value": "validUsername"
+        },
+        {
+          "id": "ee56dfb6-7e31-4111-997f-3909a3baf542",
+          "comment": "Ubah value ini sesuai akun valid di database/backend",
+          "command": "store",
+          "target": "admin123",
+          "targets": [],
+          "value": "validPassword"
+        },
+        {
+          "id": "e3433174-0d45-4b59-88fe-ec97b87bf430",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "7f141fd4-9f6d-439b-a4f7-a1671c50e9da",
+          "comment": "Buka halaman login",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "ff9c95d6-48c3-431d-bc39-d78185bff459",
+          "comment": "Isi username valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan username']",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan username']",
+              "css:finder"
+            ]
+          ],
+          "value": "${validUsername}"
+        },
+        {
+          "id": "98829460-c923-45fc-a66f-8ef64e2fcf03",
+          "comment": "Isi password valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password']",
+          "targets": [
+            [
+              "css=input[placeholder='Masukkan password']",
+              "css:finder"
+            ]
+          ],
+          "value": "${validPassword}"
+        },
+        {
+          "id": "98b88068-b640-4769-a8e5-72433e9bd335",
+          "comment": "Klik login",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [
+            [
+              "css=button[type='submit']",
+              "css:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "531b7d36-ec55-48e8-a40c-0daf20f44222",
+          "comment": "Setelah sukses, diarahkan ke portal",
+          "command": "waitForLocation",
+          "target": "glob:*/portal",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "0c8091f6-8311-4670-979d-28a2aa1a2939",
+          "comment": "Token harus tersimpan",
+          "command": "executeScript",
+          "target": "return window.localStorage.getItem('token') !== null;",
+          "targets": [],
+          "value": "hasToken"
+        },
+        {
+          "id": "a0aebf5a-3ab2-4798-8df5-c57f41a7f35e",
+          "comment": "Pastikan token ada",
+          "command": "assert",
+          "target": "${hasToken}",
+          "targets": [],
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "id": "02a75e22-b613-40d0-839d-b68e836e2858",
+      "name": "TC-LG-008 - Akses portal ditolak ketika belum login",
+      "commands": [
+        {
+          "id": "de57bd68-e0e7-4463-b615-fc2a77632b6e",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "cf3baedb-e956-436b-bf05-5108547f3738",
+          "comment": "Coba buka portal tanpa token",
+          "command": "open",
+          "target": "/portal",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "7bc53e9d-e111-455a-92cf-8a901533bfc1",
+          "comment": "Sistem mengarahkan kembali ke login",
+          "command": "waitForLocation",
+          "target": "glob:*/",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "b9b53927-1175-467b-9ebd-531c2abef433",
+          "comment": "Form login tampil lagi",
+          "command": "assertText",
+          "target": "css=h2",
+          "targets": [
+            [
+              "css=h2",
+              "css:finder"
+            ]
+          ],
+          "value": "Login"
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "b693f317-c813-4926-ae50-d638bc01ddba",
+      "name": "Kategori Login",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "4fc1be48-5f53-4e7c-a29e-f08ae49852b8",
+        "512549ee-7233-44a9-8940-bb655e8ca623",
+        "5d1999da-e00e-47a1-a915-6ffc51b2f6f9",
+        "7d96b1f6-12a7-4c74-a4c7-23468a534459",
+        "0a5a5518-3211-4f78-b82e-aab8f5e0ddd7",
+        "85e1a789-01a8-4cf2-bb1e-47ef448753d8",
+        "818ec4b4-38bf-4c22-94eb-7a7f93641ed76",
+        "02a75e22-b613-40d0-839d-b68e836e2858"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:3000"
+  ],
+  "plugins": []
+}

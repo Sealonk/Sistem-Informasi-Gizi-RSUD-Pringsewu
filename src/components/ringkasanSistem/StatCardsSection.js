@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Calculator,
   ClipboardList,
@@ -30,6 +31,43 @@ const toneClass = {
     glow: "hover:shadow-purple-500/8 hover:border-purple-200/80"
   },
 };
+
+function useAnimatedCounter(target, duration = 1000) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (target === 0) {
+      setCount(0);
+      return;
+    }
+
+    let start = 0;
+    const step = Math.max(1, Math.ceil(target / (duration / 16)));
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(start);
+      }
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [target, duration]);
+
+  return count;
+}
+
+function AnimatedValue({ value, className }) {
+  const animatedValue = useAnimatedCounter(value);
+
+  return (
+    <p className={className}>
+      {animatedValue.toLocaleString("id-ID")}
+    </p>
+  );
+}
 
 export default function StatCardsSection({
   data,
@@ -126,9 +164,10 @@ export default function StatCardsSection({
                   {item.title}
                 </p>
 
-                <p className={`mt-1 text-3xl font-extrabold leading-none py-1 ${tone.value}`}>
-                  {item.value}
-                </p>
+                <AnimatedValue
+                  value={item.value}
+                  className={`mt-1 text-3xl font-extrabold leading-none py-1 ${tone.value}`}
+                />
 
                 <p className="mt-2 text-xs font-medium text-slate-400">
                   {item.caption}

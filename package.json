@@ -21,6 +21,21 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:selenium:login": "node scripts/run-selenium-side.cjs -c \"browserName=chrome\" tests/selenium/login-blackbox.side",
+    "test:selenium:login:preview": "node scripts/run-selenium-side.cjs -c \"browserName=chrome goog:chromeOptions.detach=true goog:chromeOptions.args=[start-maximized,disable-gpu]\" tests/selenium/login-blackbox.side",
+    "test:selenium:login:visual": "node scripts/run-login-visual.cjs --delay=1200 --hold=20000",
+    "test:selenium:portal": "node scripts/run-selenium-side.cjs -c \"browserName=chrome\" tests/selenium/portal-blackbox.side",
+    "test:selenium:portal:preview": "node scripts/run-selenium-side.cjs -c \"browserName=chrome goog:chromeOptions.detach=true goog:chromeOptions.args=[start-maximized,disable-gpu]\" tests/selenium/portal-blackbox.side",
+    "test:selenium:portal:visual": "node scripts/run-portal-visual.cjs --delay=1200 --hold=20000",
+    "test:selenium:perhitungan": "node scripts/run-selenium-side.cjs -c \"browserName=chrome\" tests/selenium/perhitungan-blackbox.side",
+    "test:selenium:perhitungan:preview": "node scripts/run-selenium-side.cjs -c \"browserName=chrome goog:chromeOptions.detach=true goog:chromeOptions.args=[start-maximized,disable-gpu]\" tests/selenium/perhitungan-blackbox.side",
+    "test:selenium:perhitungan:visual": "node scripts/run-perhitungan-visual.cjs --delay=1200 --hold=20000",
+    "test:selenium:riwayat": "node scripts/run-selenium-side.cjs -c \"browserName=chrome\" tests/selenium/riwayat-blackbox.side",
+    "test:selenium:riwayat:preview": "node scripts/run-selenium-side.cjs -c \"browserName=chrome goog:chromeOptions.detach=true goog:chromeOptions.args=[start-maximized,disable-gpu]\" tests/selenium/riwayat-blackbox.side",
+    "test:selenium:riwayat:visual": "node scripts/run-riwayat-visual.cjs --delay=1200 --hold=20000",
+    "test:selenium:ringkasan": "node scripts/run-selenium-side.cjs -c \"browserName=chrome\" tests/selenium/ringkasan-blackbox.side",
+    "test:selenium:ringkasan:preview": "node scripts/run-selenium-side.cjs -c \"browserName=chrome goog:chromeOptions.detach=true goog:chromeOptions.args=[start-maximized,disable-gpu]\" tests/selenium/ringkasan-blackbox.side",
+    "test:selenium:ringkasan:visual": "node scripts/run-ringkasan-visual.cjs --delay=1200 --hold=20000",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -43,7 +58,9 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.5.0",
+    "chromedriver": "^148.0.0",
     "postcss": "^8.5.14",
+    "selenium-side-runner": "^4.0.13",
     "tailwindcss": "^3.4.17"
   }
 }

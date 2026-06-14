@@ -4,7 +4,7 @@ import FaktorStress from "./FaktorStress";
 import Hemodialisa from "./Hemodialisa";
 import IdentitasPasien from "./IdentitasPasien";
 import JenisPenyakit, { getDiseaseValues } from "./JenisPenyakit";
-import MetodePerhitungan from "./MetodePerhitungan";
+import MetodePerhitungan from "./PersentaseMakro";
 import PenambahanKalori from "./PenambahanKalori";
 
 export default function AssessmentFormSections({

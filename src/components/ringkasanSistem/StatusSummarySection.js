@@ -31,6 +31,13 @@ export default function StatusSummarySection({
       0
     );
 
+  const maxValue =
+    statusItems.length > 0
+      ? Math.max(
+          ...statusItems.map((s) => s.value)
+        )
+      : 0;
+
   return (
 
     <SummaryPanel title="Ringkasan Status Gizi">
@@ -41,38 +48,51 @@ export default function StatusSummarySection({
           items={statusItems}
         />
 
-        <div className="w-full space-y-3">
+        <div className="w-full space-y-1.5">
 
           {statusItems.map((item) => (
 
             <div
               key={item.label}
-              className="grid grid-cols-[1fr_auto_auto] items-center gap-4 text-xs font-bold text-slate-700"
+              className="group relative rounded-xl px-3 py-2.5 hover:bg-slate-50/80 transition-all duration-200"
             >
 
-              <div className="flex items-center gap-2">
+              {/* Background progress bar */}
+              <div
+                className="absolute inset-y-0 left-0 rounded-xl opacity-[0.08] transition-all duration-500"
+                style={{
+                  width: `${maxValue > 0 ? (item.value / maxValue) * 100 : 0}%`,
+                  backgroundColor: item.color,
+                }}
+              />
 
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{
-                    backgroundColor:
-                      item.color,
-                  }}
-                />
+              <div className="relative grid grid-cols-[1fr_auto_auto] items-center gap-4 text-xs font-bold text-slate-700">
+
+                <div className="flex items-center gap-2">
+
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{
+                      backgroundColor:
+                        item.color,
+                    }}
+                  />
+
+                  <span>
+                    {item.label}
+                  </span>
+
+                </div>
 
                 <span>
-                  {item.label}
+                  {item.value}
+                </span>
+
+                <span className="min-w-[54px] text-right text-slate-500">
+                  ({item.percent})
                 </span>
 
               </div>
-
-              <span>
-                {item.value}
-              </span>
-
-              <span className="min-w-[54px] text-right text-slate-500">
-                ({item.percent})
-              </span>
 
             </div>
           ))}

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-export default function SuccessModal({ isOpen }) {
+export default function SuccessModal({ isOpen, isEdit }) {
   const navigate = useNavigate();
 
   if (!isOpen) return null;
@@ -38,7 +38,7 @@ export default function SuccessModal({ isOpen }) {
             mb-3
           "
         >
-          Riwayat Berhasil Disimpan
+          {isEdit ? "Riwayat Berhasil Diperbarui" : "Riwayat Berhasil Disimpan"}
         </h3>
 
         {/* DESC */}
@@ -50,7 +50,9 @@ export default function SuccessModal({ isOpen }) {
             mb-7
           "
         >
-          Data hasil perhitungan pasien telah berhasil disimpan ke riwayat perhitungan gizi.
+          {isEdit 
+            ? "Data hasil perhitungan pasien telah berhasil diperbarui ke riwayat perhitungan gizi."
+            : "Data hasil perhitungan pasien telah berhasil disimpan ke riwayat perhitungan gizi."}
         </p>
 
         {/* ACTION */}

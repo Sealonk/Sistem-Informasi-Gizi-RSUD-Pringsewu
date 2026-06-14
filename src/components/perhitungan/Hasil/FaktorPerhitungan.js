@@ -9,6 +9,34 @@ export default function FaktorPerhitungan({
   data,
 }) {
 
+  const isChanged = (field, currentValue) => {
+    if (!data.originalValues) return false;
+    const originalValue = data.originalValues[field];
+
+    if (Array.isArray(currentValue)) {
+      const origArray = Array.isArray(originalValue) ? originalValue : [];
+      if (currentValue.length !== origArray.length) return true;
+      const sortedCurrent = [...currentValue].sort();
+      const sortedOrig = [...origArray].sort();
+      return sortedCurrent.some((val, idx) => val !== sortedOrig[idx]);
+    }
+
+    const cleanCurrent = String(currentValue ?? "").trim().toLowerCase();
+    const cleanOriginal = String(originalValue ?? "").trim().toLowerCase();
+    return cleanCurrent !== cleanOriginal;
+  };
+
+  const renderChangedBadge = (field, currentValue) => {
+    if (isChanged(field, currentValue)) {
+      return (
+        <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          Diubah
+        </span>
+      );
+    }
+    return null;
+  };
+
   /* AKTIVITAS */
   const getAktivitas = () => {
     const val = data.aktivitasFisikLabel || data.aktivitasFisik;
@@ -67,6 +95,7 @@ export default function FaktorPerhitungan({
     ),
     color:
       "bg-blue-50 text-blue-600",
+    badge: renderChangedBadge("aktivitasFisik", data.aktivitasFisik),
   },
   {
     label: "Stress",
@@ -76,6 +105,7 @@ export default function FaktorPerhitungan({
     ),
     color:
       "bg-violet-50 text-violet-600",
+    badge: renderChangedBadge("faktorStress", data.faktorStress),
   },
   {
     label: "Metode",
@@ -87,9 +117,10 @@ export default function FaktorPerhitungan({
     ),
     color:
       "bg-emerald-50 text-emerald-600",
+    badge: renderChangedBadge("metodePerhitungan", data.metodePerhitungan),
   },
   {
-    label: "Penyakit",
+    label: "Jenis Perhitungan",
     value: getPenyakit(),
     icon: (
       <ClipboardList
@@ -98,6 +129,7 @@ export default function FaktorPerhitungan({
     ),
     color:
       "bg-amber-50 text-amber-600",
+    badge: renderChangedBadge("penyakit", data.penyakit),
   },
 
   // =========================
@@ -152,6 +184,7 @@ export default function FaktorPerhitungan({
     ),
     color:
       "bg-orange-50 text-orange-600",
+    badge: renderChangedBadge("penambahanKalori", data.penambahanKalori),
   },
 ];
 
@@ -254,9 +287,13 @@ export default function FaktorPerhitungan({
                   text-sm
                   font-semibold
                   text-slate-900
+                  flex
+                  items-center
+                  flex-wrap
                 "
               >
                 {item.value}
+                {item.badge}
               </h4>
 
             </div>

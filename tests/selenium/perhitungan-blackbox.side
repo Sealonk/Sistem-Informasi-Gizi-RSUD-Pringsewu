@@ -1,0 +1,955 @@
+{
+  "id": "b7c3f821-1d45-4e9b-a234-e5f8c2a9b016",
+  "version": "2.0",
+  "name": "Blackbox Testing - Perhitungan",
+  "url": "http://localhost:3000",
+  "tests": [
+    {
+      "id": "aa01f001-0001-4001-8001-000000000001",
+      "name": "TC-PH-001 - Menampilkan Halaman Pilih Pasien",
+      "commands": [
+        {
+          "id": "aa01c001-0001-4001-8001-100000000001",
+          "comment": "Suntikkan token dummy agar lolos ProtectedRoute",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000002",
+          "comment": "Buka halaman pilih pasien",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000003",
+          "comment": "Verifikasi judul Perhitungan Gizi tampil",
+          "command": "assertText",
+          "target": "css=h1",
+          "targets": [["css=h1", "css:finder"]],
+          "value": "Perhitungan Gizi"
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000004",
+          "comment": "Verifikasi tombol filter Semua tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Semua']",
+          "targets": [["xpath=//button[text()='Semua']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000005",
+          "comment": "Verifikasi tombol filter Hari Ini tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Hari Ini']",
+          "targets": [["xpath=//button[text()='Hari Ini']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000006",
+          "comment": "Verifikasi tombol filter Custom tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Custom']",
+          "targets": [["xpath=//button[text()='Custom']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000007",
+          "comment": "Verifikasi field pencarian tampil",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Cari berdasarkan Nama / No. RM']",
+          "targets": [["css=input[placeholder='Cari berdasarkan Nama / No. RM']", "css:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000008",
+          "comment": "Verifikasi tombol Cari tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Cari']",
+          "targets": [["xpath=//button[text()='Cari']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000009",
+          "comment": "Verifikasi tombol Reset Filter tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Reset Filter']",
+          "targets": [["xpath=//button[text()='Reset Filter']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000010",
+          "comment": "Verifikasi header kolom Nama Pasien di tabel",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[contains(text(),'Nama Pasien')]",
+          "targets": [["xpath=//th[contains(text(),'Nama Pasien')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa01c001-0001-4001-8001-100000000011",
+          "comment": "Verifikasi tombol Kembali ke Portal tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(text(),'Kembali ke Portal')]",
+          "targets": [["xpath=//button[contains(text(),'Kembali ke Portal')]", "xpath:finder"]],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "aa02f001-0002-4002-8002-000000000002",
+      "name": "TC-PH-002 - Filter Periode Data Pasien",
+      "commands": [
+        {
+          "id": "aa02c001-0002-4002-8002-200000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa02c001-0002-4002-8002-200000000002",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa02c001-0002-4002-8002-200000000003",
+          "comment": "Klik tombol filter Hari Ini",
+          "command": "click",
+          "target": "xpath=//button[text()='Hari Ini']",
+          "targets": [["xpath=//button[text()='Hari Ini']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa02c001-0002-4002-8002-200000000004",
+          "comment": "Verifikasi tombol Hari Ini sekarang aktif (class bg-blue-600)",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Hari Ini' and contains(@class,'bg-blue-600')]",
+          "targets": [["xpath=//button[text()='Hari Ini' and contains(@class,'bg-blue-600')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa02c001-0002-4002-8002-200000000005",
+          "comment": "Klik tombol filter Minggu Ini",
+          "command": "click",
+          "target": "xpath=//button[text()='Minggu Ini']",
+          "targets": [["xpath=//button[text()='Minggu Ini']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa02c001-0002-4002-8002-200000000006",
+          "comment": "Verifikasi tombol Minggu Ini sekarang aktif",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Minggu Ini' and contains(@class,'bg-blue-600')]",
+          "targets": [["xpath=//button[text()='Minggu Ini' and contains(@class,'bg-blue-600')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa02c001-0002-4002-8002-200000000007",
+          "comment": "Klik Reset Filter",
+          "command": "click",
+          "target": "xpath=//button[text()='Reset Filter']",
+          "targets": [["xpath=//button[text()='Reset Filter']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa02c001-0002-4002-8002-200000000008",
+          "comment": "Verifikasi tombol Semua kembali aktif setelah reset",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Semua' and contains(@class,'bg-blue-600')]",
+          "targets": [["xpath=//button[text()='Semua' and contains(@class,'bg-blue-600')]", "xpath:finder"]],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "aa03f001-0003-4003-8003-000000000003",
+      "name": "TC-PH-003 - Filter Custom Tanpa Tanggal Menampilkan Pesan Error",
+      "commands": [
+        {
+          "id": "aa03c001-0003-4003-8003-300000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa03c001-0003-4003-8003-300000000002",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa03c001-0003-4003-8003-300000000003",
+          "comment": "Klik filter Custom",
+          "command": "click",
+          "target": "xpath=//button[text()='Custom']",
+          "targets": [["xpath=//button[text()='Custom']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa03c001-0003-4003-8003-300000000004",
+          "comment": "Klik Cari tanpa isi tanggal",
+          "command": "click",
+          "target": "xpath=//button[text()='Cari']",
+          "targets": [["xpath=//button[text()='Cari']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa03c001-0003-4003-8003-300000000005",
+          "comment": "Verifikasi pesan error tanggal muncul",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[contains(text(),'Pilih tanggal untuk filter custom')]",
+          "targets": [["xpath=//p[contains(text(),'Pilih tanggal untuk filter custom')]", "xpath:finder"]],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "aa04f001-0004-4004-8004-000000000004",
+      "name": "TC-PH-004 - Pencarian Pasien Berdasarkan Nama",
+      "commands": [
+        {
+          "id": "aa04c001-0004-4004-8004-400000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa04c001-0004-4004-8004-400000000002",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa04c001-0004-4004-8004-400000000003",
+          "comment": "Ketik kata kunci pencarian",
+          "command": "type",
+          "target": "css=input[placeholder='Cari berdasarkan Nama / No. RM']",
+          "targets": [["css=input[placeholder='Cari berdasarkan Nama / No. RM']", "css:finder"]],
+          "value": "Ahmad"
+        },
+        {
+          "id": "aa04c001-0004-4004-8004-400000000004",
+          "comment": "Klik tombol Cari",
+          "command": "click",
+          "target": "xpath=//button[text()='Cari']",
+          "targets": [["xpath=//button[text()='Cari']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa04c001-0004-4004-8004-400000000005",
+          "comment": "Verifikasi tabel masih tampil (tidak error)",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[contains(text(),'Nama Pasien')]",
+          "targets": [["xpath=//th[contains(text(),'Nama Pasien')]", "xpath:finder"]],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "aa05f001-0005-4005-8005-000000000005",
+      "name": "TC-PH-005 - Tombol Kembali ke Portal dari Halaman Perhitungan",
+      "commands": [
+        {
+          "id": "aa05c001-0005-4005-8005-500000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa05c001-0005-4005-8005-500000000002",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa05c001-0005-4005-8005-500000000003",
+          "comment": "Klik Kembali ke Portal",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Kembali ke Portal')]",
+          "targets": [["xpath=//button[contains(text(),'Kembali ke Portal')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa05c001-0005-4005-8005-500000000004",
+          "comment": "Verifikasi URL berpindah ke /portal",
+          "command": "waitForLocation",
+          "target": "glob:*/portal",
+          "targets": [],
+          "value": "5000"
+        }
+      ]
+    },
+    {
+      "id": "aa06f001-0006-4006-8006-000000000006",
+      "name": "TC-PH-006 - Menampilkan Modal Konfirmasi saat Memilih Pasien",
+      "commands": [
+        {
+          "id": "aa06c001-0006-4006-8006-600000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa06c001-0006-4006-8006-600000000002",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa06c001-0006-4006-8006-600000000003",
+          "comment": "Tunggu baris pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": "10000"
+        },
+        {
+          "id": "aa06c001-0006-4006-8006-600000000004",
+          "comment": "Klik tombol Pilih pada baris pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa06c001-0006-4006-8006-600000000005",
+          "comment": "Verifikasi modal muncul dengan judul Pilih Pasien",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[text()='Pilih Pasien']",
+          "targets": [["xpath=//h3[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa06c001-0006-4006-8006-600000000006",
+          "comment": "Verifikasi tombol Batal ada di modal",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Batal']",
+          "targets": [["xpath=//button[text()='Batal']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa06c001-0006-4006-8006-600000000007",
+          "comment": "Verifikasi tombol Pilih Pasien (konfirmasi) ada di modal",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [["xpath=//button[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "aa07f001-0007-4007-8007-000000000007",
+      "name": "TC-PH-007 - Membatalkan Pemilihan Pasien dari Modal",
+      "commands": [
+        {
+          "id": "aa07c001-0007-4007-8007-700000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa07c001-0007-4007-8007-700000000002",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa07c001-0007-4007-8007-700000000003",
+          "comment": "Tunggu tombol Pilih pasien muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": "10000"
+        },
+        {
+          "id": "aa07c001-0007-4007-8007-700000000004",
+          "comment": "Klik Pilih pada baris pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa07c001-0007-4007-8007-700000000005",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Pilih Pasien']",
+          "targets": [["xpath=//h3[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": "5000"
+        },
+        {
+          "id": "aa07c001-0007-4007-8007-700000000006",
+          "comment": "Klik tombol Batal",
+          "command": "click",
+          "target": "xpath=//button[text()='Batal']",
+          "targets": [["xpath=//button[text()='Batal']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa07c001-0007-4007-8007-700000000007",
+          "comment": "Verifikasi modal tertutup",
+          "command": "assertElementNotPresent",
+          "target": "xpath=//h3[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa07c001-0007-4007-8007-700000000008",
+          "comment": "Verifikasi URL tetap di /perhitungan",
+          "command": "assertLocation",
+          "target": "glob:*/perhitungan",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "aa08f001-0008-4008-8008-000000000008",
+      "name": "TC-PH-008 - Navigasi ke Assessment setelah Konfirmasi Pilih Pasien",
+      "commands": [
+        {
+          "id": "aa08c001-0008-4008-8008-800000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa08c001-0008-4008-8008-800000000002",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa08c001-0008-4008-8008-800000000003",
+          "comment": "Tunggu tombol Pilih pasien muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": "10000"
+        },
+        {
+          "id": "aa08c001-0008-4008-8008-800000000004",
+          "comment": "Klik Pilih pada baris pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa08c001-0008-4008-8008-800000000005",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Pilih Pasien']",
+          "targets": [["xpath=//h3[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": "5000"
+        },
+        {
+          "id": "aa08c001-0008-4008-8008-800000000006",
+          "comment": "Klik tombol konfirmasi Pilih Pasien di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [["xpath=//button[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa08c001-0008-4008-8008-800000000007",
+          "comment": "Verifikasi URL berpindah ke /assessment",
+          "command": "waitForLocation",
+          "target": "glob:*/assessment",
+          "targets": [],
+          "value": "8000"
+        }
+      ]
+    },
+    {
+      "id": "aa09f001-0009-4009-8009-000000000009",
+      "name": "TC-PH-009 - Menampilkan Halaman Assessment Gizi",
+      "commands": [
+        {
+          "id": "aa09c001-0009-4009-8009-900000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000002",
+          "comment": "Buka perhitungan, pilih pasien, konfirmasi",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000003",
+          "comment": "Tunggu tombol Pilih pasien muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": "10000"
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000004",
+          "comment": "Klik Pilih baris pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000005",
+          "comment": "Tunggu dan konfirmasi modal",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [["xpath=//button[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": "5000"
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000006",
+          "comment": "Klik konfirmasi",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [["xpath=//button[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000007",
+          "comment": "Tunggu halaman assessment",
+          "command": "waitForLocation",
+          "target": "glob:*/assessment",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000008",
+          "comment": "Verifikasi judul Assessment Gizi tampil",
+          "command": "assertText",
+          "target": "css=h1",
+          "targets": [["css=h1", "css:finder"]],
+          "value": "Assessment Gizi"
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000009",
+          "comment": "Verifikasi section Identitas Pasien tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[contains(text(),'Identitas Pasien')]",
+          "targets": [["xpath=//h2[contains(text(),'Identitas Pasien')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000010",
+          "comment": "Verifikasi section Jenis Perhitungan tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[contains(text(),'Jenis Perhitungan')]",
+          "targets": [["xpath=//h2[contains(text(),'Jenis Perhitungan')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000011",
+          "comment": "Verifikasi tombol Simpan & Lanjut tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [["xpath=//button[contains(text(),'Simpan')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa09c001-0009-4009-8009-900000000012",
+          "comment": "Verifikasi tombol Kembali ke Pilih Pasien tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(text(),'Kembali ke Pilih Pasien')]",
+          "targets": [["xpath=//button[contains(text(),'Kembali ke Pilih Pasien')]", "xpath:finder"]],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "aa10f001-0010-4010-8010-000000000010",
+      "name": "TC-PH-010 - Validasi Form Assessment: Field Wajib Diisi",
+      "commands": [
+        {
+          "id": "aa10c001-0010-4010-8010-010000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa10c001-0010-4010-8010-010000000002",
+          "comment": "Suntikkan data pasien dummy agar halaman assessment bisa diakses",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('selectedAssessmentPatient', JSON.stringify({id:1, nama:'Pasien Uji', rm:'RM001', umur:30, jk:'Laki-laki'}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa10c001-0010-4010-8010-010000000003",
+          "comment": "Buka halaman assessment langsung",
+          "command": "open",
+          "target": "/assessment",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa10c001-0010-4010-8010-010000000004",
+          "comment": "Klik tombol Simpan & Lanjut tanpa mengisi field wajib",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [["xpath=//button[contains(text(),'Simpan')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa10c001-0010-4010-8010-010000000005",
+          "comment": "Verifikasi halaman tidak berpindah ke /hasil",
+          "command": "assertLocation",
+          "target": "glob:*/assessment",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "aa11f001-0011-4011-8011-000000000011",
+      "name": "TC-PH-011 - Tombol Kembali dari Assessment ke Pilih Pasien",
+      "commands": [
+        {
+          "id": "aa11c001-0011-4011-8011-110000000001",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa11c001-0011-4011-8011-110000000002",
+          "comment": "Buka perhitungan, pilih pasien, konfirmasi",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa11c001-0011-4011-8011-110000000003",
+          "comment": "Tunggu tombol Pilih pasien muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": "10000"
+        },
+        {
+          "id": "aa11c001-0011-4011-8011-110000000004",
+          "comment": "Klik Pilih baris pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa11c001-0011-4011-8011-110000000005",
+          "comment": "Tunggu dan klik konfirmasi modal",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [["xpath=//button[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": "5000"
+        },
+        {
+          "id": "aa11c001-0011-4011-8011-110000000006",
+          "comment": "Klik konfirmasi",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [["xpath=//button[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa11c001-0011-4011-8011-110000000007",
+          "comment": "Tunggu halaman assessment",
+          "command": "waitForLocation",
+          "target": "glob:*/assessment",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "aa11c001-0011-4011-8011-110000000008",
+          "comment": "Klik Kembali ke Pilih Pasien",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Kembali ke Pilih Pasien')]",
+          "targets": [["xpath=//button[contains(text(),'Kembali ke Pilih Pasien')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa11c001-0011-4011-8011-110000000009",
+          "comment": "Verifikasi URL kembali ke /perhitungan",
+          "command": "waitForLocation",
+          "target": "glob:*/perhitungan",
+          "targets": [],
+          "value": "5000"
+        }
+      ]
+    },
+    {
+      "id": "aa12f001-0012-4012-8012-000000000012",
+      "name": "TC-PH-012 - END-TO-END WORKFLOW: Pilih Pasien → Assessment → Hasil → Simpan",
+      "commands": [
+        {
+          "id": "aa12c001-0012-4012-8012-120000000001",
+          "comment": "Suntikkan token dummy",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000002",
+          "comment": "Step 2: Buka halaman pilih pasien",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000003",
+          "comment": "Step 2: Verifikasi judul Perhitungan Gizi tampil",
+          "command": "assertText",
+          "target": "css=h1",
+          "targets": [["css=h1", "css:finder"]],
+          "value": "Perhitungan Gizi"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000004",
+          "comment": "Step 3: Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": "10000"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000005",
+          "comment": "Step 3: Klik Pilih pada pasien pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [["xpath=(//button[text()='Pilih'])[1]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000006",
+          "comment": "Step 3: Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [["xpath=//button[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": "5000"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000007",
+          "comment": "Step 4: Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [["xpath=//button[text()='Pilih Pasien']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000008",
+          "comment": "Step 5: Tunggu navigasi ke halaman assessment",
+          "command": "waitForLocation",
+          "target": "glob:*/assessment",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000009",
+          "comment": "Step 6: Verifikasi judul Assessment Gizi tampil",
+          "command": "assertText",
+          "target": "css=h1",
+          "targets": [["css=h1", "css:finder"]],
+          "value": "Assessment Gizi"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000010",
+          "comment": "Step 6: Verifikasi form sections ada",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[contains(text(),'Identitas Pasien')]",
+          "targets": [["xpath=//h2[contains(text(),'Identitas Pasien')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000011",
+          "comment": "Step 7: Isi data assessment - cari dropdown pertama",
+          "command": "waitForElementPresent",
+          "target": "css=select",
+          "targets": [["css=select", "css:finder"]],
+          "value": "5000"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000012",
+          "comment": "Step 7: Click dropdown pertama untuk populate form",
+          "command": "click",
+          "target": "css=select",
+          "targets": [["css=select", "css:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000013",
+          "comment": "Step 7: Pilih option pertama (index 1)",
+          "command": "click",
+          "target": "css=select > option:nth-child(2)",
+          "targets": [["css=select > option:nth-child(2)", "css:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000014",
+          "comment": "Step 8: Tunggu tombol Simpan & Lanjut",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [["xpath=//button[contains(text(),'Simpan')]", "xpath:finder"]],
+          "value": "5000"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000015",
+          "comment": "Step 8: Klik tombol Simpan & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [["xpath=//button[contains(text(),'Simpan')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000016",
+          "comment": "Step 9: Tunggu modal Hitung & Lanjut muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [["xpath=//button[text()='Hitung & Lanjut']", "xpath:finder"]],
+          "value": "5000"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000017",
+          "comment": "Step 9: Klik 'Hitung & Lanjut' untuk proses perhitungan",
+          "command": "click",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [["xpath=//button[text()='Hitung & Lanjut']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000018",
+          "comment": "Step 10: Tunggu navigasi ke halaman hasil",
+          "command": "waitForLocation",
+          "target": "glob:*/hasil",
+          "targets": [],
+          "value": "12000"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000019",
+          "comment": "Step 11: Verifikasi halaman hasil tampil",
+          "command": "assertElementPresent",
+          "target": "css=h1",
+          "targets": [["css=h1", "css:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000020",
+          "comment": "Step 11: Verifikasi summary cards tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//div[contains(@class,'card')]",
+          "targets": [["xpath=//div[contains(@class,'card')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000021",
+          "comment": "Step 12: Tunggu tombol Simpan di halaman hasil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [["xpath=//button[contains(text(),'Simpan')]", "xpath:finder"]],
+          "value": "5000"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000022",
+          "comment": "Step 12: Klik Simpan untuk simpan perhitungan",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [["xpath=//button[contains(text(),'Simpan')]", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000023",
+          "comment": "Step 12: Tunggu modal konfirmasi simpan (jika ada)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Simpan']",
+          "targets": [["xpath=//button[text()='Simpan']", "xpath:finder"]],
+          "value": "3000"
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000024",
+          "comment": "Step 12: Klik konfirmasi simpan",
+          "command": "click",
+          "target": "xpath=//button[text()='Simpan']",
+          "targets": [["xpath=//button[text()='Simpan']", "xpath:finder"]],
+          "value": ""
+        },
+        {
+          "id": "aa12c001-0012-4012-8012-120000000025",
+          "comment": "Step 13: Tunggu dan verifikasi halaman masih responsive",
+          "command": "waitForElementPresent",
+          "target": "css=body",
+          "targets": [["css=body", "css:finder"]],
+          "value": "5000"
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "bb01s001-0001-4001-8001-000000000001",
+      "name": "Kategori Perhitungan",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "aa01f001-0001-4001-8001-000000000001",
+        "aa02f001-0002-4002-8002-000000000002",
+        "aa03f001-0003-4003-8003-000000000003",
+        "aa04f001-0004-4004-8004-000000000004",
+        "aa05f001-0005-4005-8005-000000000005",
+        "aa06f001-0006-4006-8006-000000000006",
+        "aa07f001-0007-4007-8007-000000000007",
+        "aa08f001-0008-4008-8008-000000000008",
+        "aa09f001-0009-4009-8009-000000000009",
+        "aa10f001-0010-4010-8010-000000000010",
+        "aa11f001-0011-4011-8011-000000000011",
+        "aa12f001-0012-4012-8012-000000000012"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:3000"
+  ],
+  "plugins": []
+}

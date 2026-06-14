@@ -1,0 +1,368 @@
+{
+  "id": "e2a7b82f-da56-4c33-a3d8-e3db982b6b23",
+  "version": "2.0",
+  "name": "Blackbox Testing - Riwayat",
+  "url": "http://localhost:3000",
+  "tests": [
+    {
+      "id": "tc-rw-001",
+      "name": "TC-RW-001 - Menampilkan Halaman Riwayat Perhitungan",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "value": ""
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "value": ""
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//input[@placeholder='Cari nama pasien atau No. RM...']",
+          "value": ""
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//select",
+          "value": ""
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//input[@type='date']",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-002",
+      "name": "TC-RW-002 - Pencarian Riwayat Berdasarkan Nama",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "type",
+          "target": "xpath=//input[@placeholder='Cari nama pasien atau No. RM...']",
+          "value": "Pasien"
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-003",
+      "name": "TC-RW-003 - Filter Riwayat Berdasarkan Penyakit",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "click",
+          "target": "xpath=//select",
+          "value": ""
+        },
+        {
+          "command": "click",
+          "target": "xpath=//option[@value='DM']",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-004",
+      "name": "TC-RW-004 - Filter Riwayat Berdasarkan Tanggal",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "type",
+          "target": "xpath=//input[@type='date']",
+          "value": "2026-06-08"
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-005",
+      "name": "TC-RW-005 - Navigasi ke Detail Riwayat",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "waitForElementPresent",
+          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
+          "value": "10000"
+        },
+        {
+          "command": "click",
+          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/riwayat/*",
+          "value": "10000"
+        },
+        {
+          "command": "assertElementPresent",
+          "target": "xpath=//div[contains(., 'Data Valid')]",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-006",
+      "name": "TC-RW-006 - Tombol Kembali ke Riwayat dari Halaman Detail",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "waitForElementPresent",
+          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
+          "value": "10000"
+        },
+        {
+          "command": "click",
+          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/riwayat/*",
+          "value": "10000"
+        },
+        {
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[contains(text(), 'Kembali ke Riwayat')]",
+          "value": "10000"
+        },
+        {
+          "command": "click",
+          "target": "xpath=//button[contains(text(), 'Kembali ke Riwayat')]",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/riwayat",
+          "value": "10000"
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-007",
+      "name": "TC-RW-007 - Tombol Kembali ke Portal dari Halaman Detail",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "waitForElementPresent",
+          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
+          "value": "10000"
+        },
+        {
+          "command": "click",
+          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/riwayat/*",
+          "value": "10000"
+        },
+        {
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "value": "10000"
+        },
+        {
+          "command": "click",
+          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/portal",
+          "value": "10000"
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-008",
+      "name": "TC-RW-008 - Tombol Kembali ke Portal dari Halaman Riwayat",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "click",
+          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "value": ""
+        },
+        {
+          "command": "waitForLocation",
+          "target": "glob:*/portal",
+          "value": "10000"
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-009",
+      "name": "TC-RW-009 - Membatalkan Penghapusan Riwayat",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "waitForElementPresent",
+          "target": "xpath=(//table//tbody//tr[1]//button)[2]",
+          "value": "10000"
+        },
+        {
+          "command": "chooseCancelOnNextConfirmation",
+          "target": "",
+          "value": ""
+        },
+        {
+          "command": "click",
+          "target": "xpath=(//table//tbody//tr[1]//button)[2]",
+          "value": ""
+        },
+        {
+          "command": "assertConfirmation",
+          "target": "Apakah Anda yakin ingin menghapus data riwayat perhitungan ini?",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-010",
+      "name": "TC-RW-010 - Menghapus Riwayat",
+      "commands": [
+        {
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "value": ""
+        },
+        {
+          "command": "open",
+          "target": "/riwayat",
+          "value": ""
+        },
+        {
+          "command": "waitForElementPresent",
+          "target": "xpath=(//table//tbody//tr[1]//button)[2]",
+          "value": "10000"
+        },
+        {
+          "command": "chooseOkOnNextConfirmation",
+          "target": "",
+          "value": ""
+        },
+        {
+          "command": "click",
+          "target": "xpath=(//table//tbody//tr[1]//button)[2]",
+          "value": ""
+        },
+        {
+          "command": "assertConfirmation",
+          "target": "Apakah Anda yakin ingin menghapus data riwayat perhitungan ini?",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "suite-riwayat",
+      "name": "Suite Riwayat",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "tc-rw-001",
+        "tc-rw-002",
+        "tc-rw-003",
+        "tc-rw-004",
+        "tc-rw-005",
+        "tc-rw-006",
+        "tc-rw-007",
+        "tc-rw-008",
+        "tc-rw-009",
+        "tc-rw-010"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:3000"
+  ],
+  "plugins": []
+}

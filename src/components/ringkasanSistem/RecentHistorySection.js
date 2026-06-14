@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
+  CalendarDays,
   ClipboardList,
   UserRound,
 } from "lucide-react";
@@ -9,6 +10,16 @@ import { useNavigate } from "react-router-dom";
 import { getRiwayat } from "../../services/PasienServices/riwayatApi";
 
 import SummaryPanel from "./SummaryPanel";
+
+const getStatusGiziStyle = (status) => {
+  if (!status) return 'bg-slate-100 text-slate-600';
+  const s = status.toLowerCase();
+  if (s.includes('normal')) return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+  if (s.includes('kurus') || s.includes('kekurangan')) return 'bg-amber-50 text-amber-700 border border-amber-200';
+  if (s.includes('kelebihan') || s.includes('overweight')) return 'bg-orange-50 text-orange-700 border border-orange-200';
+  if (s.includes('obesitas')) return 'bg-red-50 text-red-700 border border-red-200';
+  return 'bg-slate-100 text-slate-600 border border-slate-200';
+};
 
 export default function RecentHistorySection({
   data = [],
@@ -109,17 +120,15 @@ export default function RecentHistorySection({
           <table
             className="
               w-full
-              min-w-[760px]
+              min-w-[1060px]
               text-left
             "
           >
 
-            <thead>
+            <thead className="border-b-2 border-slate-200/80">
 
               <tr
                 className="
-                  border-b
-                  border-slate-100
                   text-xs
                   font-extrabold
                   uppercase
@@ -132,11 +141,19 @@ export default function RecentHistorySection({
                 </th>
 
                 <th className="pb-3 pr-4">
-                  Penyakit
+                  Tgl Masuk
+                </th>
+
+                <th className="pb-3 pr-4">
+                  Kode Penyakit
                 </th>
 
                 <th className="pb-3 pr-4">
                   Energi
+                </th>
+
+                <th className="pb-3 pr-4">
+                  Makronutrien
                 </th>
 
                 <th className="pb-3 pr-4">
@@ -162,13 +179,15 @@ export default function RecentHistorySection({
 
                   <tr
                     key={`${item.nama_pasien}-${index}`}
-                    className="
+                    className={`
                       text-sm
                       text-slate-700
-                      hover:bg-slate-50/50
-                      transition-colors
+                      hover:bg-blue-50/40
+                      hover:shadow-sm
+                      transition-all
                       duration-200
-                    "
+                      ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/40'}
+                    `}
                   >
 
                     {/* PASIEN */}
@@ -220,7 +239,24 @@ export default function RecentHistorySection({
 
                     </td>
 
-                    {/* PENYAKIT */}
+                    {/* TGL MASUK */}
+                    <td className="py-4 pr-4">
+                      <div
+                        className="
+                          flex
+                          items-center
+                          gap-1.5
+                          text-xs
+                          font-bold
+                          text-slate-500
+                        "
+                      >
+                        <CalendarDays size={13} className="text-blue-500" />
+                        <span>{item.tanggal_masuk || "-"}</span>
+                      </div>
+                    </td>
+
+                    {/* KODE PENYAKIT */}
                     <td className="py-4 pr-4">
 
                       <span
@@ -235,7 +271,7 @@ export default function RecentHistorySection({
                           text-amber-700
                         "
                       >
-                        {item.penyakit || "-"}
+                        {item.kode_penyakit || "-"}
                       </span>
 
                     </td>
@@ -252,20 +288,26 @@ export default function RecentHistorySection({
                       {item.energi || 0} kkal
                     </td>
 
+                    {/* MAKRONUTRIEN */}
+                    <td className="py-4 pr-4">
+                      <div className="flex flex-col gap-1 text-xs">
+                        <span className="font-semibold text-blue-600">
+                          P: {item.makronutrien?.protein ?? "-"}%
+                        </span>
+                        <span className="font-semibold text-yellow-600">
+                          L: {item.makronutrien?.lemak ?? "-"}%
+                        </span>
+                        <span className="font-semibold text-emerald-600">
+                          K: {item.makronutrien?.karbohidrat ?? "-"}%
+                        </span>
+                      </div>
+                    </td>
+
                     {/* STATUS */}
                     <td className="py-4 pr-4">
 
                       <span
-                        className="
-                          inline-flex
-                          rounded-xl
-                          bg-emerald-50
-                          px-3
-                          py-1
-                          text-xs
-                          font-bold
-                          text-emerald-700
-                        "
+                        className={`inline-flex rounded-xl px-3 py-1 text-xs font-bold ${getStatusGiziStyle(item.status_gizi)}`}
                       >
                         {item.status_gizi || "-"}
                       </span>

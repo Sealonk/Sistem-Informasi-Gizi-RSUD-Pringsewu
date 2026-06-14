@@ -28,6 +28,7 @@ export default function Hemodialisa({
       title="Hemodialisa"
       subtitle="Pilihan hemodialisa hanya aktif untuk pasien dengan CKD karena mempengaruhi kebutuhan protein"
       icon={<Droplets size={26} />}
+      theme="emerald"
     >
 
       {!isCKD && (
@@ -89,15 +90,15 @@ export default function Hemodialisa({
               data.hemodialisa ===
                 "Ya" && isCKD
                 ? `
-                  border-blue-500
+                  border-emerald-500
                   bg-gradient-to-br
-                  from-blue-50
+                  from-emerald-50
                   to-white
                   shadow-lg
-                  shadow-blue-100
+                  shadow-emerald-100
                 `
                 : `
-                  border-blue-100
+                  border-slate-200
                   bg-white/80
                 `
             }
@@ -109,8 +110,8 @@ export default function Hemodialisa({
                   cursor-not-allowed
                 `
                 : `
-                  hover:border-blue-200
-                  hover:bg-blue-50/40
+                  hover:border-emerald-250
+                  hover:bg-emerald-50/20
                   hover:-translate-y-1
                 `
             }
@@ -162,15 +163,15 @@ export default function Hemodialisa({
               data.hemodialisa ===
                 "Tidak" && isCKD
                 ? `
-                  border-blue-500
+                  border-emerald-500
                   bg-gradient-to-br
-                  from-blue-50
+                  from-emerald-50
                   to-white
                   shadow-lg
-                  shadow-blue-100
+                  shadow-emerald-100
                 `
                 : `
-                  border-blue-100
+                  border-slate-200
                   bg-white/80
                 `
             }
@@ -182,8 +183,8 @@ export default function Hemodialisa({
                   cursor-not-allowed
                 `
                 : `
-                  hover:border-blue-200
-                  hover:bg-blue-50/40
+                  hover:border-emerald-250
+                  hover:bg-emerald-50/20
                   hover:-translate-y-1
                 `
             }

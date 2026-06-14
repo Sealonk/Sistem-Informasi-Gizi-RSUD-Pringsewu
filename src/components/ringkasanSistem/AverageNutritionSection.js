@@ -16,28 +16,36 @@ export default function AverageNutritionSection({
       label: "Energi",
       value: `${data?.energi_kkal || 0} kkal`,
       icon: Flame,
-      background: "bg-orange-50",
+      cardBg: "bg-orange-50/50",
+      cardBorder: "border-orange-100",
+      iconBg: "bg-orange-100",
       color: "text-orange-600",
     },
     {
       label: "Protein",
       value: `${data?.protein_gram || 0} g`,
       icon: Beef,
-      background: "bg-blue-50",
+      cardBg: "bg-blue-50/50",
+      cardBorder: "border-blue-100",
+      iconBg: "bg-blue-100",
       color: "text-blue-600",
     },
     {
       label: "Lemak",
       value: `${data?.lemak_gram || 0} g`,
       icon: Droplets,
-      background: "bg-yellow-50",
+      cardBg: "bg-yellow-50/50",
+      cardBorder: "border-yellow-100",
+      iconBg: "bg-yellow-100",
       color: "text-yellow-600",
     },
     {
       label: "Karbohidrat",
       value: `${data?.karbohidrat_gram || 0} g`,
       icon: Wheat,
-      background: "bg-emerald-50",
+      cardBg: "bg-emerald-50/50",
+      cardBorder: "border-emerald-100",
+      iconBg: "bg-emerald-100",
       color: "text-emerald-600",
     },
   ];
@@ -46,7 +54,7 @@ export default function AverageNutritionSection({
 
     <SummaryPanel title="Rata-rata Hasil Perhitungan">
 
-      <div className="mt-5 divide-y divide-slate-100">
+      <div className="mt-5 grid grid-cols-2 gap-3">
 
         {averageNutrition.map((item) => {
 
@@ -57,26 +65,22 @@ export default function AverageNutritionSection({
 
             <div
               key={item.label}
-              className="flex items-center justify-between gap-4 py-4"
+              className={`rounded-2xl border p-4 ${item.cardBg} ${item.cardBorder}`}
             >
 
-              <div className="flex items-center gap-3">
-
-                <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-full ${item.background} ${item.color}`}
-                >
-                  <Icon size={18} />
-                </div>
-
-                <span className="text-sm font-extrabold text-slate-800">
-                  {item.label}
-                </span>
-
+              <div
+                className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${item.iconBg} ${item.color}`}
+              >
+                <Icon size={22} />
               </div>
 
-              <span className={`text-sm font-extrabold ${item.color}`}>
+              <span className={`text-lg font-extrabold ${item.color}`}>
                 {item.value}
               </span>
+
+              <p className="mt-0.5 text-xs text-slate-500">
+                {item.label}
+              </p>
 
             </div>
           );

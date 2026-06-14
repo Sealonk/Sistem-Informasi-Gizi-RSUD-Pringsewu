@@ -1,102 +1,75 @@
-import {
-  Calculator,
-} from "lucide-react";
+import { Calculator } from "lucide-react";
 
-export default function RiwayatTabs({
-  activeTab,
-  setActiveTab,
-}) {
-
+export default function RiwayatTabs({ activeTab, setActiveTab }) {
   const tabs = [
     {
       id: "gizi",
-      label:
-        "Perhitungan Gizi",
-      icon: (
-        <Calculator
-          size={18}
-        />
-      ),
+      label: "Perhitungan Gizi",
+      icon: <Calculator size={18} />,
     },
   ];
 
   return (
-
     <div
       className="
         rounded-[24px]
         border
-        border-blue-100
-        bg-white
-        p-3
+        border-slate-200/80
+        bg-white/75
+        backdrop-blur-md
+        p-2
         shadow-sm
+        hover:shadow-md
+        transition-all
+        duration-300
+        w-fit
       "
     >
-
-      <div
-        className="
-          flex
-          items-center
-          gap-2
-          flex-wrap
-        "
-      >
-
+      <div className="flex items-center gap-2 flex-wrap">
         {tabs.map((tab) => {
-
-          const isActive =
-            activeTab ===
-            tab.id;
+          const isActive = activeTab === tab.id;
 
           return (
-
             <button
               key={tab.id}
-              onClick={() =>
-                setActiveTab(
-                  tab.id
-                )
-              }
+              onClick={() => setActiveTab(tab.id)}
               className={`
-                h-12
+                h-10
                 px-5
-                rounded-2xl
+                rounded-[18px]
                 text-sm
-                font-semibold
+                font-bold
                 flex
                 items-center
                 gap-2
                 transition-all
+                duration-200
 
                 ${
                   isActive
                     ? `
-                      bg-blue-600
+                      bg-gradient-to-r
+                      from-blue-500
+                      to-indigo-600
                       text-white
-                      shadow-lg
-                      shadow-blue-100
+                      shadow-md
+                      shadow-blue-200/40
                     `
                     : `
-                      bg-slate-50
+                      bg-slate-50/50
                       text-slate-600
-                      hover:bg-blue-50
-                      hover:text-blue-600
+                      hover:bg-slate-100/80
+                      hover:text-slate-900
                     `
                 }
               `}
             >
-
               {tab.icon}
-
               {tab.label}
-
             </button>
-
           );
         })}
-
       </div>
-
     </div>
   );
 }

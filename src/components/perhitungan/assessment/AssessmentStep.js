@@ -15,7 +15,7 @@ export default function AssessmentStep({
         backdrop-blur-md
         rounded-[28px]
         border
-        border-blue-100
+        border-emerald-100
         shadow-soft
         p-7
         mb-8
@@ -48,10 +48,10 @@ export default function AssessmentStep({
               ${
                 isStepOneActive || isStepTwoActive
                   ? `
-                    bg-blue-600
+                    bg-emerald-600
                     text-white
                     shadow-lg
-                    shadow-blue-100
+                    shadow-emerald-100
                   `
                   : `
                     bg-slate-100
@@ -96,10 +96,10 @@ export default function AssessmentStep({
               ${
                 isStepTwoActive
                   ? `
-                    bg-blue-600
+                    bg-emerald-600
                     text-white
                     shadow-lg
-                    shadow-blue-100
+                    shadow-emerald-100
                   `
                   : `
                     bg-slate-100

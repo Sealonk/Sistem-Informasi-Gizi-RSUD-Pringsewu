@@ -97,6 +97,7 @@ if (bb && tinggiCm) {
       title="Antropometri"
       subtitle="Data antropometri digunakan untuk menentukan status gizi dan kebutuhan energi pasien"
       icon={<Ruler size={26} />}
+      theme="emerald"
     >
 
       {/* GRID */}

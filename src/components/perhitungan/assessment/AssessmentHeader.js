@@ -13,7 +13,7 @@ export default function AssessmentHeader({ onBack }) {
           text-slate-500
           text-sm
           mb-6
-          hover:text-blue-600
+          hover:text-emerald-600
           transition-all
         "
       >

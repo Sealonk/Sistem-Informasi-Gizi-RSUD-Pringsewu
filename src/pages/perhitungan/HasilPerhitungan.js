@@ -15,6 +15,7 @@ import StatusGizi from "../../components/perhitungan/Hasil/StatusGizi";
 import HasilAction from "../../components/perhitungan/Hasil/HasilAction";
 
 import { savePerhitungan } from "../../services/PasienServices/simpanPerhitunganApi";
+import { updateRiwayat } from "../../services/PasienServices/riwayatApi";
 import PortalBackground from "../../components/portal/PortalBackground";
 import ConfirmationModal from "../../components/common/ConfirmationModal";
 import SuccessModal from "../../components/perhitungan/Hasil/SuccessModal";
@@ -78,12 +79,18 @@ export default function HasilPerhitungan() {
 
     try {
       const payload = prepareSavePayload(data, hasil);
-      const response = await savePerhitungan(payload);
+      
+      let response;
+      if (data?.isEditMode && data?.id_perhitungan) {
+        response = await updateRiwayat(data.id_perhitungan, payload);
+      } else {
+        response = await savePerhitungan(payload);
+      }
 
       if (response.status === "success") {
         setFeedback({
           type: "success",
-          message: response.message || "Riwayat perhitungan berhasil disimpan",
+          message: response.message || (data?.isEditMode ? "Riwayat perhitungan berhasil diperbarui" : "Riwayat perhitungan berhasil disimpan"),
         });
         setShowSuccessModal(true);
       } else {
@@ -134,7 +141,21 @@ export default function HasilPerhitungan() {
         />
 
         <HasilHeader
-          data={data}
+          data={{
+            ...data,
+            diagnosis: data.isDiagnosisEdited ? (data.diagnosis || "-") : (hasil?.data?.kode_penyakit || data.diagnosis || "-"),
+            tanggal_masuk: hasil?.data?.tanggal_masuk_rapi || data.tanggal_masuk || "-",
+          }}
+        />
+
+        <StatusGizi
+          data={{
+            ...data,
+            bb: data?.bb,
+            tb: data?.tb,
+            imt_nilai: hasil?.data?.imt_preview?.nilaiIMT,
+            imt_status: hasil?.data?.imt_preview?.statusGizi,
+          }}
         />
 
         <SummaryCard
@@ -146,6 +167,7 @@ export default function HasilPerhitungan() {
           }}
         />
 
+        {/* Grid row: Combined Nutrition Card and Factors Card side-by-side */}
         <div
           className="
             grid
@@ -154,60 +176,25 @@ export default function HasilPerhitungan() {
             gap-6
           "
         >
-
           <MakroChart
-  hasil={{
-    protein: hasilPreview?.protein_gr || 0,
-    lemak: hasilPreview?.lemak_gr || 0,
-    karbohidrat: hasilPreview?.karbohidrat_gr || 0,
-
-    proteinPersen:
-      hasil?.data?.perhitungan?.persen?.protein || 0,
-
-    lemakPersen:
-      hasil?.data?.perhitungan?.persen?.lemak || 0,
-
-    karbohidratPersen:
-      hasil?.data?.perhitungan?.persen?.karbohidrat || 0,
-  }}
-/>
+            hasil={hasilPreview}
+            persen={hasil?.data?.perhitungan?.persen}
+            data={data}
+          />
 
           <FaktorPerhitungan
-  data={{
-    ...data,
-
-    bbi:
-      hasil?.data?.berat_badan_ideal || 0,
-
-    bmr:
-      hasil?.data?.data_simpan?.bmr || 0,
-
-    aktivitasFisikLabel: data?.aktivitasFisik || "",
-
-    faktorAktivitasNilai:
-      hasil?.data?.data_simpan?.faktor_aktivitas_nilai ?? 0,
-
-    faktorStressLabel: data?.faktorStress || "",
-
-    faktorStressNilai:
-      hasil?.data?.data_simpan?.faktor_stres_nilai ?? 0,
-
-    penambahanKaloriNilai:
-      hasil?.data?.data_simpan?.penambahan_kalori ?? 0,
-  }}
-/>
-
-       </div>
-
-<StatusGizi
-  data={{
-    ...data,
-    bb: data?.bb,
-    tb: data?.tb,
-    imt_nilai: hasil?.data?.imt_preview?.nilaiIMT,
-    imt_status: hasil?.data?.imt_preview?.statusGizi,
-  }}
-/>
+            data={{
+              ...data,
+              bbi: hasil?.data?.berat_badan_ideal || 0,
+              bmr: hasil?.data?.data_simpan?.bmr || 0,
+              aktivitasFisikLabel: data?.aktivitasFisik || "",
+              faktorAktivitasNilai: hasil?.data?.data_simpan?.faktor_aktivitas_nilai ?? 0,
+              faktorStressLabel: data?.faktorStress || "",
+              faktorStressNilai: hasil?.data?.data_simpan?.faktor_stres_nilai ?? 0,
+              penambahanKaloriNilai: hasil?.data?.data_simpan?.penambahan_kalori ?? 0,
+            }}
+          />
+        </div>
 
 <HasilAction
   navigate={navigate}
@@ -217,14 +204,18 @@ export default function HasilPerhitungan() {
 />
 
 {/* SUCCESS MODAL */}
-<SuccessModal isOpen={showSuccessModal} />
+<SuccessModal isOpen={showSuccessModal} isEdit={data?.isEditMode} />
       <ConfirmationModal
         isOpen={showConfirm}
-        title="Simpan Hasil Perhitungan"
-        message="Apakah Anda yakin ingin menyimpan riwayat perhitungan gizi pasien ini ke database?"
+        title={data?.isEditMode ? "Perbarui Hasil Perhitungan" : "Simpan Hasil Perhitungan"}
+        message={
+          data?.isEditMode
+            ? "Apakah Anda yakin ingin memperbarui riwayat perhitungan gizi pasien ini ke database?"
+            : "Apakah Anda yakin ingin menyimpan riwayat perhitungan gizi pasien ini ke database?"
+        }
         onConfirm={executeSave}
         onCancel={() => setShowConfirm(false)}
-        confirmText="Simpan"/>
+        confirmText={data?.isEditMode ? "Perbarui" : "Simpan"}/>
 </div>
 </div>
 );

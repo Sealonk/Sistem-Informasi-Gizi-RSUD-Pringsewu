@@ -22,21 +22,15 @@ export const mapAktivitasFisikToBackend = (aktivitas, isDM) => {
   return nonDmMap[aktivitas] || aktivitas;
 };
 
-export const mapFaktorStressToBackend = (stress, isDM) => {
+export const mapFaktorStressToBackend = (stress, sliderVal, isDM) => {
   if (!stress) return "Normal";
 
   if (isDM) {
     return stress;
   }
 
-  const nonDmMap = {
-    "Tidak ada stress": "Normal",
-    "Stress Ringan": "Ringan",
-    "Stress Ringan Sepsis": "Sedang",
-    "Stress Berat": "Berat",
-    "Stress Sangat Berat": "Berat",
-  };
-  return nonDmMap[stress] || "Normal";
+  const num = parseFloat(sliderVal || 1.1);
+  return `${num.toFixed(2)} (${stress})`;
 };
 
 export const prepareSavePayload = (data, hasil) => {
@@ -53,7 +47,7 @@ export const prepareSavePayload = (data, hasil) => {
     : mapAktivitasFisikToBackend(data?.aktivitasFisik, isDM);
   const mappedStress = isStrokeOnly
     ? null
-    : mapFaktorStressToBackend(data?.faktorStress, isDM);
+    : mapFaktorStressToBackend(data?.faktorStress, data?.faktorStressSlider, isDM);
 
   return {
     id_pasien: data?.id_pasien,
@@ -97,5 +91,9 @@ export const prepareSavePayload = (data, hasil) => {
     protein_gram: dataSimpan.protein_gram || 0,
     lemak_gram: dataSimpan.lemak_gram || 0,
     karbohidrat_gram: dataSimpan.karbohidrat_gram || 0,
+
+    input_persen_protein: dataSimpan.protein_persen || 0,
+    input_persen_lemak: dataSimpan.lemak_persen || 0,
+    input_persen_karbo: dataSimpan.karbohidrat_persen || 0,
   };
 };

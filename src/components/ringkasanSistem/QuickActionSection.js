@@ -2,6 +2,7 @@ import {
   ArrowRight,
   Calculator,
   History,
+  TrendingUp,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -57,7 +58,7 @@ export default function QuickActionSection() {
         className="
           grid
           grid-cols-1
-          md:grid-cols-2
+          md:grid-cols-3
           gap-5
         "
       >
@@ -242,6 +243,101 @@ export default function QuickActionSection() {
             size={18}
             className="
               text-indigo-500
+              transition-transform
+              duration-300
+              group-hover:translate-x-1.5
+              relative
+              z-10
+            "
+          />
+
+        </button>
+
+        {/* PREDIKSI */}
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/prediksi-pasien")
+          }
+          className="
+            group
+            relative
+            overflow-hidden
+            flex
+            items-center
+            justify-between
+            rounded-2xl
+            border
+            border-slate-200/60
+            bg-white/50
+            p-5
+            transition-all
+            duration-300
+            hover:bg-violet-50/50
+            hover:border-violet-200/80
+            hover:shadow-lg
+            hover:shadow-violet-500/5
+            hover:-translate-y-0.5
+          "
+        >
+          {/* Accent top gradient stripe */}
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-violet-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+          <div className="flex items-center gap-4 relative z-10">
+
+            <div
+              className="
+                flex
+                h-12
+                w-12
+                items-center
+                justify-center
+                rounded-xl
+                bg-violet-50
+                text-violet-600
+                transition-all
+                duration-300
+                group-hover:bg-violet-600
+                group-hover:text-white
+              "
+            >
+              <TrendingUp size={22} className="transition-transform duration-300 group-hover:scale-110" />
+            </div>
+
+            <div className="text-left">
+
+              <h3
+                className="
+                  text-sm
+                  font-bold
+                  text-slate-800
+                  transition-colors
+                  duration-300
+                  group-hover:text-violet-900
+                "
+              >
+                Prediksi Pasien
+              </h3>
+
+              <p
+                className="
+                  mt-1
+                  text-xs
+                  text-slate-400
+                  font-medium
+                "
+              >
+                Analisis tren dan prediksi kebutuhan gizi pasien secara cerdas.
+              </p>
+
+            </div>
+
+          </div>
+
+          <ArrowRight
+            size={18}
+            className="
+              text-violet-500
               transition-transform
               duration-300
               group-hover:translate-x-1.5

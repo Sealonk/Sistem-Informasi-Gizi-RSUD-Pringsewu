@@ -36,6 +36,7 @@ export default function IdentitasPasien({
       title="Identitas Pasien"
       subtitle="Lengkapi informasi dasar pasien sebelum melakukan assessment gizi"
       icon={<User size={26} />}
+      theme="emerald"
     >
 
       {/* GRID */}

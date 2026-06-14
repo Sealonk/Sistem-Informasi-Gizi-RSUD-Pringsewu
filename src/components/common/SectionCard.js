@@ -4,7 +4,32 @@ export default function SectionCard({
   icon,
   children,
   compact = false,
+  theme = "blue",
 }) {
+  const getThemeClasses = () => {
+    switch (theme) {
+      case "emerald":
+        return {
+          border: "border-emerald-100",
+          glow: "bg-emerald-100/30",
+          iconBg: "bg-emerald-50 text-emerald-600",
+        };
+      case "violet":
+        return {
+          border: "border-violet-100",
+          glow: "bg-violet-100/30",
+          iconBg: "bg-violet-50 text-violet-600",
+        };
+      default:
+        return {
+          border: "border-blue-100",
+          glow: "bg-blue-100/40",
+          iconBg: "bg-blue-50 text-blue-600",
+        };
+    }
+  };
+
+  const themeClasses = getThemeClasses();
 
   return (
 
@@ -12,10 +37,10 @@ export default function SectionCard({
       className={`
         relative
         overflow-hidden
-        bg-white/80
+        bg-white/85
         backdrop-blur-md
         border
-        border-blue-100
+        ${themeClasses.border}
         shadow-soft
 
         ${
@@ -56,7 +81,7 @@ export default function SectionCard({
               `
           }
 
-          bg-blue-100/40
+          ${themeClasses.glow}
         `}
       />
 
@@ -82,8 +107,7 @@ export default function SectionCard({
           <div
             className={`
               rounded-2xl
-              bg-blue-50
-              text-blue-600
+              ${themeClasses.iconBg}
               flex
               items-center
               justify-center

@@ -1,0 +1,474 @@
+{
+  "id": "a8f6d2b5-e6a3-4a11-b924-d2e8b594b29c",
+  "version": "2.0",
+  "name": "Blackbox Testing - Portal",
+  "url": "http://localhost:3000",
+  "tests": [
+    {
+      "id": "f05c3175-ea22-48a0-ba06-5b4d618d3632",
+      "name": "TC-PT-001 - Menampilkan Halaman Portal dengan Elemen Utama",
+      "commands": [
+        {
+          "id": "e01a1820-21db-46a4-8452-f47285bf81a1",
+          "comment": "Suntikkan token dummy agar lolos ProtectedRoute",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "673f8510-1cde-4934-8ab3-87a151b72e51",
+          "comment": "Buka halaman portal",
+          "command": "open",
+          "target": "/portal",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "97e68bf2-da64-44df-be91-7db138f5f653",
+          "comment": "Verifikasi badge Akses Portal Aktif",
+          "command": "assertElementPresent",
+          "target": "xpath=//span[text()='Akses Portal Aktif']",
+          "targets": [
+            [
+              "xpath=//span[text()='Akses Portal Aktif']",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "97b165b4-d55c-4c7b-bc43-ee8ff1a774db",
+          "comment": "Verifikasi greeting memuat Petugas Gizi",
+          "command": "assertText",
+          "target": "css=h2 span",
+          "targets": [
+            [
+              "css=h2 span",
+              "css:finder"
+            ]
+          ],
+          "value": "Petugas Gizi"
+        },
+        {
+          "id": "848bb2fb-6a9d-4fa0-82de-7c70c17de2eb",
+          "comment": "Verifikasi widget waktu server",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[contains(text(), 'Waktu Server')]",
+          "targets": [
+            [
+              "xpath=//p[contains(text(), 'Waktu Server')]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "314eb2fb-7e3c-41de-9ea0-47b8e1fde20c",
+          "comment": "Verifikasi menu Ringkasan Sistem",
+          "command": "assertText",
+          "target": "xpath=//h3[text()='Ringkasan Sistem']",
+          "targets": [
+            [
+              "xpath=//h3[text()='Ringkasan Sistem']",
+              "xpath:finder"
+            ]
+          ],
+          "value": "Ringkasan Sistem"
+        },
+        {
+          "id": "e09bb2fc-8e4d-42de-9fe0-47c9e1fde30d",
+          "comment": "Verifikasi menu Perhitungan Gizi",
+          "command": "assertText",
+          "target": "xpath=//h3[text()='Perhitungan Gizi']",
+          "targets": [
+            [
+              "xpath=//h3[text()='Perhitungan Gizi']",
+              "xpath:finder"
+            ]
+          ],
+          "value": "Perhitungan Gizi"
+        },
+        {
+          "id": "d09bb2fd-9e5d-43de-afef-47d9e1fde40e",
+          "comment": "Verifikasi menu Riwayat",
+          "command": "assertText",
+          "target": "xpath=//h3[text()='Riwayat']",
+          "targets": [
+            [
+              "xpath=//h3[text()='Riwayat']",
+              "xpath:finder"
+            ]
+          ],
+          "value": "Riwayat"
+        },
+        {
+          "id": "fc9bb2fe-0e6d-44de-bfff-47e9e1fde50f",
+          "comment": "Verifikasi footer SIMRS",
+          "command": "assertElementPresent",
+          "target": "xpath=//span[contains(text(), 'Terintegrasi SIMRS RSUD Pringsewu')]",
+          "targets": [
+            [
+              "xpath=//span[contains(text(), 'Terintegrasi SIMRS')]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "d2b5d4f3-c5b9-4786-8f3e-8cda287e07a3",
+      "name": "TC-PT-002 - Navigasi ke Modul Ringkasan Sistem",
+      "commands": [
+        {
+          "id": "01d01f11-7eb1-4682-8bc1-12c8230b561c",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "c1f01f22-8eb2-4783-9bc2-23c8230b562d",
+          "comment": "Buka portal",
+          "command": "open",
+          "target": "/portal",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "d1f01f33-9eb3-4884-ac32-33c8230b563e",
+          "comment": "Klik Card Ringkasan Sistem",
+          "command": "click",
+          "target": "xpath=//div[h3[text()='Ringkasan Sistem']]",
+          "targets": [
+            [
+              "xpath=//div[h3[text()='Ringkasan Sistem']]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "e1f01f44-aeb4-4985-bc43-43c8230b564f",
+          "comment": "Verifikasi mengarah ke ringkasan sistem",
+          "command": "waitForLocation",
+          "target": "glob:*/ringkasan-sistem",
+          "targets": [],
+          "value": "5000"
+        }
+      ]
+    },
+    {
+      "id": "ea2f814b-22c6-4bc3-95c9-586b978c4623",
+      "name": "TC-PT-003 - Navigasi ke Modul Perhitungan Gizi",
+      "commands": [
+        {
+          "id": "11f01f11-beb1-4682-8bc1-12c8230b561c",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "11f01f22-ceb2-4783-9bc2-23c8230b562d",
+          "comment": "Buka portal",
+          "command": "open",
+          "target": "/portal",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "11f01f33-deb3-4884-ac32-33c8230b563e",
+          "comment": "Klik Card Perhitungan Gizi",
+          "command": "click",
+          "target": "xpath=//div[h3[text()='Perhitungan Gizi']]",
+          "targets": [
+            [
+              "xpath=//div[h3[text()='Perhitungan Gizi']]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "11f01f44-eeb4-4985-bc43-43c8230b564f",
+          "comment": "Verifikasi mengarah ke perhitungan gizi (pilih pasien)",
+          "command": "waitForLocation",
+          "target": "glob:*/perhitungan",
+          "targets": [],
+          "value": "5000"
+        }
+      ]
+    },
+    {
+      "id": "77b4a2bf-c423-41bb-b841-f09dfa283ccb",
+      "name": "TC-PT-004 - Navigasi ke Modul Riwayat",
+      "commands": [
+        {
+          "id": "22f01f11-feb1-4682-8bc1-12c8230b561c",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "22f01f22-0eb2-4783-9bc2-23c8230b562d",
+          "comment": "Buka portal",
+          "command": "open",
+          "target": "/portal",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "22f01f33-1eb3-4884-ac32-33c8230b563e",
+          "comment": "Klik Card Riwayat",
+          "command": "click",
+          "target": "xpath=//div[h3[text()='Riwayat']]",
+          "targets": [
+            [
+              "xpath=//div[h3[text()='Riwayat']]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "22f01f44-2eb4-4985-bc43-43c8230b564f",
+          "comment": "Verifikasi mengarah ke riwayat",
+          "command": "waitForLocation",
+          "target": "glob:*/riwayat",
+          "targets": [],
+          "value": "5000"
+        }
+      ]
+    },
+    {
+      "id": "f9e4e6b1-a75d-4f24-9b5f-55df27d11894",
+      "name": "TC-PT-005 - Mengubah Slide Tips Edukasi Klinis Hari Ini",
+      "commands": [
+        {
+          "id": "33f01f11-3eb1-4682-8bc1-12c8230b561c",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "33f01f22-4eb2-4783-9bc2-23c8230b562d",
+          "comment": "Buka portal",
+          "command": "open",
+          "target": "/portal",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "33f01f33-5eb3-4884-ac32-33c8230b563e",
+          "comment": "Klik dot kedua pada widget tips",
+          "command": "click",
+          "target": "xpath=(//div[contains(@class, 'lg:col-span-2')]//button)[2]",
+          "targets": [
+            [
+              "xpath=(//div[contains(@class, 'lg:col-span-2')]//button)[2]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "33f01f44-6eb4-4985-bc43-43c8230b564f",
+          "comment": "Verifikasi teks tips berubah sesuai dengan index 1 (Tips DM)",
+          "command": "assertText",
+          "target": "xpath=//div[contains(@class, 'lg:col-span-2')]//p",
+          "targets": [
+            [
+              "xpath=//div[contains(@class, 'lg:col-span-2')]//p",
+              "xpath:finder"
+            ]
+          ],
+          "value": "\"Bagi pasien Diabetes Melitus, penambahan kalori kehamilan disesuaikan dengan Trimester (TM1: +300 kkal, TM3: +500 kkal).\""
+        }
+      ]
+    },
+    {
+      "id": "33efb1c7-2e11-4a47-bd7e-52db37f624d7",
+      "name": "TC-PT-006 - Membuka/Menutup Dropdown Menu User",
+      "commands": [
+        {
+          "id": "44f01f11-7eb1-4682-8bc1-12c8230b561c",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "44f01f22-8eb2-4783-9bc2-23c8230b562d",
+          "comment": "Buka portal",
+          "command": "open",
+          "target": "/portal",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "44f01f33-9eb3-4884-ac32-33c8230b563e",
+          "comment": "Klik dropdown profil Petugas Gizi",
+          "command": "click",
+          "target": "xpath=//button[contains(., 'Petugas Gizi')]",
+          "targets": [
+            [
+              "xpath=//button[contains(., 'Petugas Gizi')]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "44f01f44-aeb4-4985-bc43-43c8230b564f",
+          "comment": "Verifikasi tombol Logout muncul",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(., 'Logout')]",
+          "targets": [
+            [
+              "xpath=//button[contains(., 'Logout')]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "44f01f55-beb5-4986-bc44-53c8230b5650",
+          "comment": "Klik dropdown lagi untuk menutup",
+          "command": "click",
+          "target": "xpath=//button[contains(., 'Petugas Gizi')]",
+          "targets": [
+            [
+              "xpath=//button[contains(., 'Petugas Gizi')]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "44f01f66-ceb6-4987-bc45-63c8230b5651",
+          "comment": "Verifikasi tombol Logout hilang",
+          "command": "assertElementNotPresent",
+          "target": "xpath=//button[contains(., 'Logout')]",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "c96657fd-a5d6-4444-a1a1-77bb5f37ccb8",
+      "name": "TC-PT-007 - Proses Logout Melalui Menu User",
+      "commands": [
+        {
+          "id": "55f01f11-7eb1-4682-8bc1-12c8230b561c",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "55f01f22-8eb2-4783-9bc2-23c8230b562d",
+          "comment": "Buka portal",
+          "command": "open",
+          "target": "/portal",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "55f01f33-9eb3-4884-ac32-33c8230b563e",
+          "comment": "Klik dropdown profil",
+          "command": "click",
+          "target": "xpath=//button[contains(., 'Petugas Gizi')]",
+          "targets": [
+            [
+              "xpath=//button[contains(., 'Petugas Gizi')]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "55f01f44-aeb4-4985-bc43-43c8230b564f",
+          "comment": "Tunggu tombol Logout muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[contains(., 'Logout')]",
+          "targets": [
+            [
+              "xpath=//button[contains(., 'Logout')]",
+              "xpath:finder"
+            ]
+          ],
+          "value": "3000"
+        },
+        {
+          "id": "55f01f55-beb5-4986-bc44-53c8230b5650",
+          "comment": "Klik Logout",
+          "command": "click",
+          "target": "xpath=//button[contains(., 'Logout')]",
+          "targets": [
+            [
+              "xpath=//button[contains(., 'Logout')]",
+              "xpath:finder"
+            ]
+          ],
+          "value": ""
+        },
+        {
+          "id": "55f01f66-ceb6-4987-bc45-63c8230b5651",
+          "comment": "Pastikan diarahkan kembali ke login page",
+          "command": "waitForLocation",
+          "target": "glob:*/",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "55f01f77-deb7-4988-bc46-73c8230b5652",
+          "comment": "Pastikan token di localStorage terhapus",
+          "command": "executeScript",
+          "target": "return window.localStorage.getItem('token') === null;",
+          "targets": [],
+          "value": "isTokenDeleted"
+        },
+        {
+          "id": "55f01f88-eeb8-4989-bc47-83c8230b5653",
+          "comment": "Verifikasi token null",
+          "command": "assert",
+          "target": "${isTokenDeleted}",
+          "targets": [],
+          "value": "true"
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "fb21379e-4e6f-47d2-9721-2e65a04e578c",
+      "name": "Kategori Portal",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "f05c3175-ea22-48a0-ba06-5b4d618d3632",
+        "d2b5d4f3-c5b9-4786-8f3e-8cda287e07a3",
+        "ea2f814b-22c6-4bc3-95c9-586b978c4623",
+        "77b4a2bf-c423-41bb-b841-f09dfa283ccb",
+        "f9e4e6b1-a75d-4f24-9b5f-55df27d11894",
+        "33efb1c7-2e11-4a47-bd7e-52db37f624d7",
+        "c96657fd-a5d6-4444-a1a1-77bb5f37ccb8"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:3000"
+  ],
+  "plugins": []
+}

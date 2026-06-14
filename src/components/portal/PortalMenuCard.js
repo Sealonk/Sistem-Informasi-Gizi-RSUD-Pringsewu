@@ -23,6 +23,15 @@ export default function PortalMenuCard({ menu, onOpen }) {
           badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-100",
           label: "Kalkulasi Kebutuhan"
         };
+      case "/prediksi-pasien":
+        return {
+          gradient: "from-violet-500 to-purple-600",
+          iconBg: "bg-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white",
+          btnBg: "bg-violet-50 text-violet-600 hover:bg-violet-600 hover:text-white hover:shadow-lg hover:shadow-violet-100",
+          glow: "hover:shadow-violet-500/8 hover:border-violet-200/80",
+          badgeColor: "bg-violet-50 text-violet-700 border-violet-100",
+          label: "Prediksi & Analisis"
+        };
       case "/riwayat":
         return {
           gradient: "from-blue-500 to-sky-600",

@@ -12,6 +12,7 @@ import HasilPerhitungan from "../pages/perhitungan/HasilPerhitungan";
 import Riwayat from "../pages/riwayat/Riwayat";
 import DetailRiwayat from "../components/riwayat/DetailRiwayat";
 import RingkasanSistem from "../pages/ringkasanSistem/RingkasanSistem";
+import PrediksiPasien from "../pages/prediksiPasien/PrediksiPasien";
 import ProtectedRoute from "../routes/ProtectedRoute";
 
 export default function AppRoutes() {
@@ -91,6 +92,16 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <DetailRiwayat />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* PREDIKSI PASIEN */}
+        <Route
+          path="/prediksi-pasien"
+          element={
+            <ProtectedRoute>
+              <PrediksiPasien />
             </ProtectedRoute>
           }
         />

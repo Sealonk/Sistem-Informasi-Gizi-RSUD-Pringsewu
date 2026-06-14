@@ -9,6 +9,7 @@ export function mapPasien(item) {
     jk: item.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan",
     tanggal: new Date(item.tanggal_masuk).toLocaleDateString("id-ID"),
     dateISO: item.tanggal_masuk,
+    tanggal_masuk: item.tanggal_masuk,
     diagnosis: item.diagnosis,
   };
 }
@@ -19,9 +20,10 @@ export async function getPasienList({
   startDate = "",
   endDate = "",
   limit = 50,
+  page = 1,
 } = {}) {
   try {
-    const params = { limit };
+    const params = { limit, page };
 
     if (search) {
       params.search = search;

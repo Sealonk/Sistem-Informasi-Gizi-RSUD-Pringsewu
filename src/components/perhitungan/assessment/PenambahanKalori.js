@@ -149,6 +149,7 @@ export default function PenambahanKalori({
       title="Penambahan Energi"
       subtitle="Tambahan kebutuhan energi pasien"
       icon={<PlusCircle size={20} />}
+      theme="emerald"
     >
 
       {isMale && (
