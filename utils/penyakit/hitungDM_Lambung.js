@@ -134,8 +134,8 @@ const hitungDM_Lambung = (data) => {
         if (l < 10 || l > 25) {
             throw new Error(`Persentase Lemak DM + Lambung harus antara 10% - 25%. Input ditolak: ${l}%`);
         }
-        if (k < 45 || k > 65) {
-            throw new Error(`Persentase Karbohidrat DM + Lambung harus antara 45% - 65%. Input ditolak: ${k}%`);
+        if (k < 45 || k > 80) {
+            throw new Error(`Persentase Karbohidrat DM + Lambung harus antara 45% - 80%. Input ditolak: ${k}%`);
         }
 
         // Lolos validasi, timpa nilai default

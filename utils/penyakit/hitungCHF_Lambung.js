@@ -93,14 +93,14 @@ const hitungCHF_Lambung = (data) => {
         }
 
         // Validasi 2: Pagar Aman Buku Biru CHF
-        if (p < 15 || p > 25) {
-            throw new Error(`Persentase Protein CHF + Lambung harus antara 15% - 25%. Input ditolak: ${p}%`);
+        if (p < 10 || p > 25) {
+            throw new Error(`Persentase Protein CHF + Lambung harus antara 10% - 25%. Input ditolak: ${p}%`);
         }
         if (l < 10 || l > 25) {
             throw new Error(`Persentase Lemak CHF + Lambung harus antara 10% - 25%. Input ditolak: ${l}%`);
         }
-        if (k < 50 || k > 60) {
-            throw new Error(`Persentase Karbohidrat CHF + Lambung harus antara 50% - 60%. Input ditolak: ${k}%`);
+        if (k < 50 || k > 80) {
+            throw new Error(`Persentase Karbohidrat CHF + Lambung harus antara 50% - 80%. Input ditolak: ${k}%`);
         }
 
         // Lolos validasi, timpa nilai default
