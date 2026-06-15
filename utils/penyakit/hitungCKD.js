@@ -48,7 +48,7 @@ const hitungCKD = (data) => {
     if (isHD) {
         protein_gram = 1.2 * bbi; // HD: Protein Tinggi untuk mengganti asam amino yang hilang
     } else {
-        protein_gram = 0.6 * bbi; // Pre-HD: Protein Rendah untuk melindungi ginjal
+        protein_gram = 0.8 * bbi; // Pre-HD: Protein Rendah untuk melindungi ginjal
     }
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
