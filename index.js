@@ -17,11 +17,13 @@ const authRoutes = require('./routes/authRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const pasienRoutes = require('./routes/pasienRoutes');
 const perhitunganRoutes = require('./routes/perhitunganRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/pasien', pasienRoutes);
 app.use('/api/perhitungan', perhitunganRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
     res.json({
