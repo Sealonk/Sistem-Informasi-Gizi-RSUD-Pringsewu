@@ -91,8 +91,8 @@ const hitungCHF_Stroke = (data) => {
         }
 
         // Validasi 2: Pagar Aman Buku Biru CHF
-        if (p < 15 || p > 30) {
-            throw new Error(`Persentase Protein CHF + Stroke harus antara 15% - 30%. Input ditolak: ${p}%`);
+        if (p < 15 || p > 25) {
+            throw new Error(`Persentase Protein CHF + Stroke harus antara 15% - 25%. Input ditolak: ${p}%`);
         }
         if (l < 20 || l > 35) {
             throw new Error(`Persentase Lemak CHF + Stroke harus antara 20% - 35%. Input ditolak: ${l}%`);
