@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import RiwayatRow from "./RiwayatRow";
-import { getRiwayat, deleteRiwayat } from "../../../services/PasienServices/riwayatApi";
-import { Loader2, ChevronLeft, ChevronRight, AlertCircle, Inbox } from "lucide-react";
+import { getRiwayat, deleteRiwayat } from "../../../services/riwayat/riwayatApi";
+import { Loader2, ChevronLeft, ChevronRight, AlertCircle, Inbox, AlertTriangle } from "lucide-react";
+import ConfirmationModal from "../../common/ConfirmationModal";
 
 export default function RiwayatTable({ filters, page, setPage }) {
   const [data, setData] = useState([]);
@@ -45,24 +46,34 @@ export default function RiwayatTable({ filters, page, setPage }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page]);
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus data riwayat perhitungan ini?")) {
-      try {
-        const response = await deleteRiwayat(id);
-        if (response.status === "success") {
-          // If deleted successfully, refresh the list. If it was the last item on the page, go to previous page
-          const isLastItemOnPage = data.length === 1 && page > 1;
-          if (isLastItemOnPage) {
-            setPage(prev => prev - 1);
-          } else {
-            loadRiwayat();
-          }
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
+  const handleDeleteClick = (id) => {
+    setDeleteId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    setIsDeleteModalOpen(false);
+    try {
+      const response = await deleteRiwayat(deleteId);
+      if (response.status === "success") {
+        // If deleted successfully, refresh the list. If it was the last item on the page, go to previous page
+        const isLastItemOnPage = data.length === 1 && page > 1;
+        if (isLastItemOnPage) {
+          setPage(prev => prev - 1);
         } else {
-          alert(response.message || "Gagal menghapus riwayat");
+          loadRiwayat();
         }
-      } catch (err) {
-        alert(err.message || "Terjadi kesalahan saat menghapus riwayat");
+      } else {
+        alert(response.message || "Gagal menghapus riwayat");
       }
+    } catch (err) {
+      alert(err.message || "Terjadi kesalahan saat menghapus riwayat");
+    } finally {
+      setDeleteId(null);
     }
   };
 
@@ -186,7 +197,7 @@ export default function RiwayatTable({ filters, page, setPage }) {
                 <RiwayatRow
                   key={item.id_perhitungan}
                   item={item}
-                  onDelete={handleDelete}
+                  onDelete={handleDeleteClick}
                 />
               ))}
             </tbody>
@@ -220,6 +231,23 @@ export default function RiwayatTable({ filters, page, setPage }) {
           </div>
         </div>
       )}
+
+      {/* CONFIRMATION DELETE MODAL */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        title="Hapus Riwayat Perhitungan"
+        message="Apakah Anda yakin ingin menghapus data riwayat perhitungan gizi pasien ini? Tindakan ini tidak dapat dibatalkan."
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteId(null);
+        }}
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        confirmColor="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-lg shadow-rose-200/50"
+        iconBg="bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-rose-200/50"
+        icon={<AlertTriangle size={24} className="animate-pulse" />}
+      />
     </div>
   );
 }

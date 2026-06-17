@@ -7,7 +7,7 @@ import {
   User,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getUser } from "../../services/authService";
+import { getUser } from "../../services/auth/authService";
 
 const formatDate = (date) => {
   return new Intl.DateTimeFormat("id-ID", {

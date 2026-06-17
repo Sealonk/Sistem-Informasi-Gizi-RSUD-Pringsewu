@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Clock, Sparkles } from "lucide-react";
-import { getUser } from "../../services/authService";
+import { getUser } from "../../services/auth/authService";
 
 export default function PortalGreeting() {
   const [time, setTime] = useState(new Date());

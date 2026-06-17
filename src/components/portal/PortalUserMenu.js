@@ -1,6 +1,6 @@
 import { ChevronDown, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getUser } from "../../services/authService";
+import { getUser } from "../../services/auth/authService";
 
 export default function PortalUserMenu({
   showUserMenu,
@@ -33,7 +33,7 @@ export default function PortalUserMenu({
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">
           {getInitial()}
         </div>
-        <span className="text-sm font-medium text-slate-700">
+        <span className="hidden sm:inline text-sm font-medium text-slate-700">
           {user?.nama_lengkap || "Petugas Gizi"}
         </span>
         <ChevronDown

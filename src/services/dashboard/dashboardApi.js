@@ -1,8 +1,5 @@
-import { axiosInstance } from "../authService";
+import { axiosInstance } from "../auth/authService";
 
-/* ========================================
-   DASHBOARD STATS
-======================================== */
 export const getDashboardStats = async () => {
 
   try {

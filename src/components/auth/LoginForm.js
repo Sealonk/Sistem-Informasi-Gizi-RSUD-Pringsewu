@@ -1,3 +1,4 @@
+import { User, Lock, Eye, EyeOff } from "lucide-react";
 import LoginTextInput from "./LoginTextInput";
 
 export default function LoginForm({
@@ -17,8 +18,7 @@ export default function LoginForm({
         placeholder="Masukkan username"
         value={username}
         onChange={onUsernameChange}
-        icon="/img/LogoUser.png"
-        iconAlt="user"
+        icon={User}
       />
 
       <LoginTextInput
@@ -27,8 +27,7 @@ export default function LoginForm({
         placeholder="Masukkan password"
         value={password}
         onChange={onPasswordChange}
-        icon="/img/lock.png"
-        iconAlt="lock"
+        icon={Lock}
         rightElement={
           <button
             type="button"
@@ -38,16 +37,16 @@ export default function LoginForm({
               right-4
               top-1/2
               -translate-y-1/2
+              text-slate-400
+              hover:text-blue-500
+              transition-colors
+              duration-300
+              flex
+              items-center
+              justify-center
             "
           >
-            <img
-              src="/img/eye.jpg"
-              alt="eye"
-              className="
-                w-[18px]
-                opacity-50
-              "
-            />
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         }
       />

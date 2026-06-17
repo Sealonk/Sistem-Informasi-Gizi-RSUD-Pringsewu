@@ -1,4 +1,4 @@
-import { Stethoscope, AlertTriangle } from "lucide-react";
+import { Stethoscope, AlertTriangle, Droplet, Activity, Heart, Flame, Brain, ShieldAlert, Calculator } from "lucide-react";
 
 import SectionCard from "../../common/SectionCard";
 
@@ -55,37 +55,37 @@ export default function JenisPenyakit({
     {
       label: "Diabetes Mellitus",
       value: "dm",
-      short: "DM",
+      icon: Droplet,
     },
     {
       label: "CKD",
       value: "ckd",
-      short: "CKD",
+      icon: Activity,
     },
     {
       label: "CHF",
       value: "chf",
-      short: "CHF",
+      icon: Heart,
     },
     {
       label: "Lambung",
       value: "lambung",
-      short: "LMB",
+      icon: Flame,
     },
     {
       label: "Stroke",
       value: "stroke",
-      short: "STR",
+      icon: Brain,
     },
     {
       label: "Critical Ill",
       value: "critical_ill",
-      short: "CI",
+      icon: ShieldAlert,
     },
     {
       label: "Mifflin",
       value: "mifflin",
-      short: "MIF",
+      icon: Calculator,
     },
   ];
 
@@ -219,36 +219,39 @@ export default function JenisPenyakit({
                   "
                 >
 
-                  {/* SHORT */}
-                  <div
-                    className={`
-                      w-14
-                      h-14
-                      rounded-2xl
-                      flex
-                      items-center
-                      justify-center
-                      text-sm
-                      font-bold
-                      transition-all
+                  {/* ICON */}
+                  {(() => {
+                    const IconComponent = item.icon;
+                    return (
+                      <div
+                        className={`
+                          w-14
+                          h-14
+                          rounded-2xl
+                          flex
+                          items-center
+                          justify-center
+                          transition-all
 
-                      ${
-                        active
-                          ? `
-                            bg-emerald-600
-                            text-white
-                            shadow-lg
-                            shadow-emerald-100
-                          `
-                          : `
-                            bg-emerald-50
-                            text-emerald-600
-                          `
-                      }
-                    `}
-                  >
-                    {item.short}
-                  </div>
+                          ${
+                            active
+                              ? `
+                                bg-emerald-600
+                                text-white
+                                shadow-lg
+                                shadow-emerald-100
+                              `
+                              : `
+                                bg-emerald-50
+                                text-emerald-600
+                              `
+                          }
+                        `}
+                      >
+                        <IconComponent size={24} />
+                      </div>
+                    );
+                  })()}
 
                   {/* CHECK */}
                   <div

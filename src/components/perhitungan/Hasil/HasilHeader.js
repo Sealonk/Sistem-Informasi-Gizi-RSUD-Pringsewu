@@ -69,7 +69,8 @@ export default function HasilHeader({
         border-slate-200/80
         bg-white/75
         backdrop-blur-md
-        p-8
+        p-5
+        sm:p-8
         shadow-sm
         hover:shadow-md
         transition-all
@@ -167,8 +168,7 @@ export default function HasilHeader({
             grid
             grid-cols-2
             md:grid-cols-3
-            lg:grid-cols-4
-            xl:grid-cols-7
+            lg:grid-cols-6
             gap-4
           "
         >
@@ -231,16 +231,6 @@ export default function HasilHeader({
             </p>
             <h4 className="text-sm font-bold text-slate-800 leading-tight">
               {tanggal}
-            </h4>
-          </div>
-
-          {/* RUANG */}
-          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50 col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-1">
-            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
-              Ruang / Bangsal
-            </p>
-            <h4 className="text-sm font-bold text-slate-800 leading-tight truncate">
-              {data.ruangan || "-"}
             </h4>
           </div>
         </div>

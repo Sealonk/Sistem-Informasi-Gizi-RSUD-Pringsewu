@@ -6,7 +6,7 @@ export default function PilihPasienHeader({ statistik }) {
   const navigate = useNavigate();
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] border border-slate-200/80 bg-white/75 backdrop-blur-md p-8 shadow-sm mb-8 hover:shadow-md transition-all duration-300">
+    <div className="relative overflow-hidden rounded-[32px] border border-slate-200/80 bg-white/75 backdrop-blur-md p-5 sm:p-8 shadow-sm mb-8 hover:shadow-md transition-all duration-300">
       {/* Left Decorative Accent Strip */}
       <div className="absolute left-0 inset-y-0 w-2 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-l-[32px]" />
 

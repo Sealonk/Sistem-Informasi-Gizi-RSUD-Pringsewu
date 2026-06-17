@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
-import { getRiwayat } from "../../services/PasienServices/riwayatApi";
+import { getRiwayat } from "../../services/riwayat/riwayatApi";
 
 import SummaryPanel from "./SummaryPanel";
 

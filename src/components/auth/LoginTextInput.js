@@ -4,8 +4,7 @@ export default function LoginTextInput({
   placeholder,
   value,
   onChange,
-  icon,
-  iconAlt,
+  icon: Icon,
   rightElement,
 }) {
   return (
@@ -22,19 +21,24 @@ export default function LoginTextInput({
         {label}
       </label>
 
-      <div className="relative">
-        <img
-          src={icon}
-          alt={iconAlt}
-          className="
-            absolute
-            left-4
-            top-1/2
-            -translate-y-1/2
-            w-[18px]
-            opacity-50
-          "
-        />
+      <div className="relative group">
+        {Icon && (
+          <div
+            className="
+              absolute
+              left-4
+              top-1/2
+              -translate-y-1/2
+              text-slate-400
+              transition-colors
+              duration-300
+              group-focus-within:text-blue-500
+              pointer-events-none
+            "
+          >
+            <Icon size={18} />
+          </div>
+        )}
 
         <input
           type={type}
@@ -57,7 +61,7 @@ export default function LoginTextInput({
             transition-all
             focus:border-blue-500
             focus:ring-4
-            focus:ring-blue-100
+            focus:ring-blue-500/10
           "
         />
 

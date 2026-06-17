@@ -50,7 +50,7 @@ export default function SearchPasien({
           duration-300
           focus:border-blue-500
           focus:ring-4
-          focus:ring-blue-100
+          focus:ring-blue-500/10
         "
       />
 

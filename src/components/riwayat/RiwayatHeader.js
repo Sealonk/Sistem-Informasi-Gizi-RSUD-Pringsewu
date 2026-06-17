@@ -6,7 +6,7 @@ import {
   Database,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getUser } from "../../services/authService";
+import { getUser } from "../../services/auth/authService";
 
 export default function RiwayatHeader() {
   const navigate = useNavigate();
@@ -22,7 +22,8 @@ export default function RiwayatHeader() {
         border-slate-200/80
         bg-white/75
         backdrop-blur-md
-        p-8
+        p-5
+        sm:p-8
         shadow-sm
         hover:shadow-md
         transition-all

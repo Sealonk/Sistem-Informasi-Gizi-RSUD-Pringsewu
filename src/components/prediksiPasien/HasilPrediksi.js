@@ -36,7 +36,8 @@ export default function HasilPrediksi({ data = [], ringkasan = {} }) {
         border-slate-200/80
         bg-white/75
         backdrop-blur-md
-        p-8
+        p-5
+        sm:p-8
         shadow-sm
         hover:shadow-md
         transition-all

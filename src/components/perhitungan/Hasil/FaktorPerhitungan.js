@@ -3,6 +3,7 @@ import {
   Flame,
   Calculator,
   ClipboardList,
+  Droplet,
 } from "lucide-react";
 
 export default function FaktorPerhitungan({
@@ -86,107 +87,100 @@ export default function FaktorPerhitungan({
       .toUpperCase();
   };
 
+  const penyakitArray = Array.isArray(data.penyakit)
+    ? data.penyakit
+    : typeof data.penyakit === "string"
+    ? data.penyakit.split(",").map((p) => p.trim().toLowerCase())
+    : [];
+
+  const hasCkd = penyakitArray.some(
+    (p) => String(p).toLowerCase().trim() === "ckd" || String(p).toLowerCase().trim().startsWith("ckd")
+  );
+
+  const getHemodialisaValue = () => {
+    const val = data.hemodialisa || data.status_hemodialisa || data.statusHemodialisa;
+    if (!val) return "-";
+    const cleanVal = String(val).trim().toLowerCase();
+    if (cleanVal === "ya" || cleanVal === "iya") return "Ya (Hemodialisa)";
+    if (cleanVal === "tidak") return "Tidak Hemodialisa";
+    return val;
+  };
+
   const items = [
-  {
-    label: "Aktivitas",
-    value: getAktivitas(),
-    icon: (
-      <Activity size={18} />
-    ),
-    color:
-      "bg-blue-50 text-blue-600",
-    badge: renderChangedBadge("aktivitasFisik", data.aktivitasFisik),
-  },
-  {
-    label: "Stress",
-    value: getStress(),
-    icon: (
-      <Flame size={18} />
-    ),
-    color:
-      "bg-violet-50 text-violet-600",
-    badge: renderChangedBadge("faktorStress", data.faktorStress),
-  },
-  {
-    label: "Metode",
-    value: getMetode(),
-    icon: (
-      <Calculator
-        size={18}
-      />
-    ),
-    color:
-      "bg-emerald-50 text-emerald-600",
-    badge: renderChangedBadge("metodePerhitungan", data.metodePerhitungan),
-  },
-  {
-    label: "Jenis Perhitungan",
-    value: getPenyakit(),
-    icon: (
-      <ClipboardList
-        size={18}
-      />
-    ),
-    color:
-      "bg-amber-50 text-amber-600",
-    badge: renderChangedBadge("penyakit", data.penyakit),
-  },
-
-  // =========================
-  // DATA BACKEND TAMBAHAN
-  // =========================
-
-  {
-    label: "BBI",
-    value: `${data.bbi || 0} kg`,
-    icon: (
-      <Calculator size={18} />
-    ),
-    color:
-      "bg-cyan-50 text-cyan-600",
-  },
-
-  {
-    label: "BMR",
-    value: `${data.bmr || 0} kkal`,
-    icon: (
-      <Flame size={18} />
-    ),
-    color:
-      "bg-rose-50 text-rose-600",
-  },
-
-  {
-    label: "Faktor Aktivitas",
-    value: `${data.faktorAktivitasNilai ?? 0}`,
-    icon: (
-      <Activity size={18} />
-    ),
-    color:
-      "bg-indigo-50 text-indigo-600",
-  },
-
-  {
-    label: "Faktor Stress",
-    value: `${data.faktorStressNilai ?? 0}`,
-    icon: (
-      <Flame size={18} />
-    ),
-    color:
-      "bg-fuchsia-50 text-fuchsia-600",
-  },
-
-  {
-    label: "Penambahan Kalori",
-    value: `${data.penambahanKaloriNilai || 0} kkal`,
-    icon: (
-      <Calculator size={18} />
-    ),
-    color:
-      "bg-orange-50 text-orange-600",
-    badge: renderChangedBadge("penambahanKalori", data.penambahanKalori),
-  },
-];
+    {
+      label: "Aktivitas",
+      value: getAktivitas(),
+      icon: <Activity size={18} />,
+      color: "bg-blue-50 text-blue-600",
+      badge: renderChangedBadge("aktivitasFisik", data.aktivitasFisik),
+    },
+    {
+      label: "Stress",
+      value: getStress(),
+      icon: <Flame size={18} />,
+      color: "bg-violet-50 text-violet-600",
+      badge: renderChangedBadge("faktorStress", data.faktorStress),
+    },
+    {
+      label: "Metode",
+      value: getMetode(),
+      icon: <Calculator size={18} />,
+      color: "bg-emerald-50 text-emerald-600",
+      badge: renderChangedBadge("metodePerhitungan", data.metodePerhitungan),
+    },
+    {
+      label: "Jenis Perhitungan",
+      value: getPenyakit(),
+      icon: <ClipboardList size={18} />,
+      color: "bg-amber-50 text-amber-600",
+      badge: renderChangedBadge("penyakit", data.penyakit),
+    },
+    ...(hasCkd
+      ? [
+          {
+            label: "Status Hemodialisa",
+            value: getHemodialisaValue(),
+            icon: <Droplet size={18} />,
+            color: "bg-teal-50 text-teal-600",
+            badge: renderChangedBadge(
+              "hemodialisa",
+              data.hemodialisa || data.status_hemodialisa
+            ),
+          },
+        ]
+      : []),
+    {
+      label: "BBI",
+      value: `${data.bbi || 0} kg`,
+      icon: <Calculator size={18} />,
+      color: "bg-cyan-50 text-cyan-600",
+    },
+    {
+      label: "BMR",
+      value: `${data.bmr || 0} kkal`,
+      icon: <Flame size={18} />,
+      color: "bg-rose-50 text-rose-600",
+    },
+    {
+      label: "Faktor Aktivitas",
+      value: `${data.faktorAktivitasNilai ?? 0}`,
+      icon: <Activity size={18} />,
+      color: "bg-indigo-50 text-indigo-600",
+    },
+    {
+      label: "Faktor Stress",
+      value: `${data.faktorStressNilai ?? 0}`,
+      icon: <Flame size={18} />,
+      color: "bg-fuchsia-50 text-fuchsia-600",
+    },
+    {
+      label: "Penambahan Kalori",
+      value: `${data.penambahanKaloriNilai || 0} kkal`,
+      icon: <Calculator size={18} />,
+      color: "bg-orange-50 text-orange-600",
+      badge: renderChangedBadge("penambahanKalori", data.penambahanKalori),
+    },
+  ];
 
   return (
 

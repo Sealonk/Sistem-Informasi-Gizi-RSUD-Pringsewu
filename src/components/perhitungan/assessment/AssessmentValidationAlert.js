@@ -4,7 +4,7 @@ export default function AssessmentValidationAlert({ errors }) {
   }
 
   return (
-    <div className="mt-8 max-w-7xl mx-auto">
+    <div className="mt-8 max-w-5xl mx-auto">
       <div className="bg-rose-50 border border-rose-200 rounded-[12px] p-4 mb-4">
         <p className="text-rose-800 text-sm font-medium mb-2">
           Silakan lengkapi field yang wajib diisi:

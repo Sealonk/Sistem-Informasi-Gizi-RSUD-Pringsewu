@@ -1,4 +1,4 @@
-import { axiosInstance } from "../authService";
+import { axiosInstance } from "../auth/authService";
 
 export const postPrediksi = async ({ bulan, tahun, total_pasien }) => {
   try {

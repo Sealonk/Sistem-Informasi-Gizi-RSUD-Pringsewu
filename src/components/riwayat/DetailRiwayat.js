@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
-import { getRiwayatDetail } from "../../services/PasienServices/riwayatApi";
-import { previewPerhitungan } from "../../services/PasienServices/previewPerhitunganApi";
-import { getFilteredDiseaseCodes } from "../../hooks/useAssessmentLogic";
+import { getRiwayatDetail } from "../../services/riwayat/riwayatApi";
+import { previewPerhitungan } from "../../services/perhitungan/previewPerhitunganApi";
+import { getFilteredDiseaseCodes } from "../../hooks/assessmentHelpers";
 
 import HasilHeader from "../../components/perhitungan/Hasil/HasilHeader";
 import SummaryCard from "../../components/perhitungan/Hasil/SummaryCard";
@@ -182,6 +182,7 @@ export default function DetailRiwayat() {
     faktorAktivitasNilai: detailData.faktor_aktivitas_nilai,
     faktorStressNilai: detailData.faktor_stres_nilai,
     penambahanKaloriNilai: detailData.penambahan_kalori || 0,
+    status_hemodialisa: detailData.status_hemodialisa,
   };
 
   /* 4. MAPPING UNTUK STATUS GIZI */
@@ -197,8 +198,10 @@ export default function DetailRiwayat() {
       className="
         min-h-screen
         bg-[#f8fbff]
-        px-6
-        py-8
+        px-4
+        py-6
+        sm:px-6
+        sm:py-8
         relative
         overflow-hidden
       "
@@ -214,11 +217,13 @@ export default function DetailRiwayat() {
           z-10
         "
       >
-        {/* HEADER */}
-        <HasilHeader data={headerData} />
+        <div className="max-w-5xl mx-auto w-full space-y-6">
+          {/* HEADER */}
+          <HasilHeader data={headerData} />
 
-        {/* STATUS GIZI */}
-        <StatusGizi data={statusGiziData} />
+          {/* STATUS GIZI */}
+          <StatusGizi data={statusGiziData} />
+        </div>
 
         {/* SUMMARY */}
         <SummaryCard hasil={hasilData} />

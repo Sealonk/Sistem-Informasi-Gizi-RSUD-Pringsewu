@@ -3,8 +3,8 @@ export default function AssessmentActions({
   onContinue,
 }) {
   return (
-    <div className="mt-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="mt-8 px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto">
         <div className="bg-white/80 backdrop-blur-md rounded-[28px] border border-emerald-100 p-5 shadow-soft">
           <div className="flex items-center justify-end gap-4">
             <button

@@ -61,7 +61,7 @@ export default function PasienTable({
       "
     >
       {/* Table Top Controls */}
-      <div className="px-8 py-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
+      <div className="px-4 sm:px-8 py-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
             Tampilkan
@@ -128,7 +128,7 @@ export default function PasienTable({
       </div>
 
       {/* Responsive Table Wrapper */}
-      <div className="overflow-x-auto px-8 pb-4">
+      <div className="overflow-x-auto px-4 sm:px-8 pb-4">
         <table className="w-full text-left border-separate border-spacing-y-3.5">
           <thead>
             <tr className="text-slate-400">
@@ -147,6 +147,9 @@ export default function PasienTable({
               <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Jenis Kelamin
               </th>
+              <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Status Hitung
+              </th>
               <th className="pr-6 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">
                 Aksi
               </th>
@@ -155,7 +158,7 @@ export default function PasienTable({
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="px-8 py-16 text-center">
+                <td colSpan={7} className="px-8 py-16 text-center">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <div className="w-8 h-8 rounded-full border-4 border-slate-100 border-t-emerald-600 animate-spin" />
                     <span className="text-xs font-bold text-slate-500">
@@ -166,7 +169,7 @@ export default function PasienTable({
               </tr>
             ) : error ? (
               <tr>
-                <td colSpan={6} className="px-8 py-16 text-center text-xs font-semibold text-rose-500">
+                <td colSpan={7} className="px-8 py-16 text-center text-xs font-semibold text-rose-500">
                   ❌ {error}
                 </td>
               </tr>
@@ -180,7 +183,7 @@ export default function PasienTable({
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-8 py-16 text-center text-xs font-semibold text-slate-400">
+                <td colSpan={7} className="px-8 py-16 text-center text-xs font-semibold text-slate-400">
                   Tidak ada data pasien yang sesuai filter.
                 </td>
               </tr>
@@ -191,7 +194,7 @@ export default function PasienTable({
 
       {/* Horizontally scrollable or stacked footer */}
       {!isLoading && !error && totalPages > 1 && (
-        <div className="px-8 py-5 bg-slate-50/30 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+        <div className="px-4 sm:px-8 py-5 bg-slate-50/30 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
           <p className="text-xs font-semibold text-slate-500">
             Halaman <span className="font-bold text-slate-800">{page}</span> dari{" "}
             <span className="font-bold text-slate-800">{totalPages}</span>{" "}

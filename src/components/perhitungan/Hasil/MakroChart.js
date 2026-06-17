@@ -52,7 +52,6 @@ export default function MakroChart({ hasil, persen, data }) {
     },
   ];
 
-  const maxMacroValue = Math.max(...macroData.map((item) => item.value), 1);
 
   // 2. MICRONUTRIENTS DATA
   const microData = [];
@@ -61,6 +60,7 @@ export default function MakroChart({ hasil, persen, data }) {
     microData.push({
       label: "Natrium (Sodium)",
       value: hasil.natrium_mg,
+      target: 2000,
       unit: "mg",
       badge: "Batas Asupan",
       color: "bg-amber-500",
@@ -71,6 +71,7 @@ export default function MakroChart({ hasil, persen, data }) {
     microData.push({
       label: "Kolesterol",
       value: hasil.kolesterol_mg,
+      target: 200,
       unit: "mg",
       badge: "Maks Harian",
       color: "bg-rose-500",
@@ -81,6 +82,7 @@ export default function MakroChart({ hasil, persen, data }) {
     microData.push({
       label: "Kalium (Potassium)",
       value: hasil.kalium_mg,
+      target: 2000,
       unit: "mg",
       badge: "Target Ginjal",
       color: "bg-violet-500",
@@ -91,6 +93,7 @@ export default function MakroChart({ hasil, persen, data }) {
     microData.push({
       label: "Kalsium (Calcium)",
       value: hasil.kalsium_mg,
+      target: 1000,
       unit: "mg",
       badge: "Kebutuhan",
       color: "bg-cyan-500",
@@ -101,6 +104,7 @@ export default function MakroChart({ hasil, persen, data }) {
     microData.push({
       label: "Fosfor (Phosphorus)",
       value: hasil.fosfor_mg,
+      target: 800,
       unit: "mg",
       badge: "Target Ginjal",
       color: "bg-indigo-500",
@@ -112,6 +116,7 @@ export default function MakroChart({ hasil, persen, data }) {
     microData.push({
       label: "Kecukupan Serat",
       value: seratVal,
+      target: 25,
       unit: "g",
       badge: "Kecukupan",
       color: "bg-emerald-500",
@@ -143,7 +148,7 @@ export default function MakroChart({ hasil, persen, data }) {
           <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Zat Gizi Makro</h4>
           <div className="space-y-4">
             {macroData.map((item) => {
-              const width = (item.value / maxMacroValue) * 100;
+              const width = item.persen;
               return (
                 <div key={item.label} className="space-y-1.5">
                   <div className="flex items-center justify-between text-sm">
@@ -172,8 +177,7 @@ export default function MakroChart({ hasil, persen, data }) {
             <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Zat Gizi Mikro</h4>
             <div className="space-y-4">
               {microData.map((item) => {
-                // Micronutrients don't share a single scale due to different magnitudes (e.g. 1500mg vs 20mg).
-                // We display them with a clean 100% capacity tracker representing their target/limit.
+                const width = Math.min((item.value / item.target) * 100, 100);
                 return (
                   <div key={item.label} className="space-y-1.5">
                     <div className="flex items-center justify-between text-sm">
@@ -188,8 +192,8 @@ export default function MakroChart({ hasil, persen, data }) {
                     </div>
                     <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                       <div
-                        className={`h-full rounded-full opacity-80 ${item.color}`}
-                        style={{ width: "100%" }}
+                        className={`h-full rounded-full transition-all duration-500 opacity-80 ${item.color}`}
+                        style={{ width: `${width}%` }}
                       />
                     </div>
                   </div>

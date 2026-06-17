@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   previewPerhitungan,
-} from "../services/PasienServices/previewPerhitunganApi";
+} from "../services/perhitungan/previewPerhitunganApi";
 import {
   getDiseaseValues,
 } from "../components/perhitungan/assessment/JenisPenyakit";

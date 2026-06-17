@@ -69,7 +69,8 @@ export default function PortalMenuCard({ menu, onOpen }) {
         border-slate-200/80
         rounded-[32px]
         shadow-sm
-        p-8
+        p-6
+        sm:p-8
         flex
         flex-col
         items-center

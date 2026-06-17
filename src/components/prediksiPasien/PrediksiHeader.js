@@ -41,7 +41,8 @@ export default function PrediksiHeader() {
         border-slate-200/80
         bg-white/75
         backdrop-blur-md
-        p-6
+        p-5
+        sm:p-6
         shadow-sm
         hover:shadow-md
         transition-all

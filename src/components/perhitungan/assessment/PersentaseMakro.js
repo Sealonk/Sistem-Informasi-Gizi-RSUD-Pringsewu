@@ -8,44 +8,44 @@ export const MACRO_CONFIGS = {
   "dm": {
     name: "Diabetes Mellitus",
     type: "three-sliders",
-    protein: { min: 10, max: 20, defaultVal: 15, label: "Protein" },
-    lemak: { min: 20, max: 25, defaultVal: 20, label: "Lemak" },
+    protein: { min: 10, max: 20, defaultVal: 10, label: "Protein" },
+    lemak: { min: 20, max: 25, defaultVal: 25, label: "Lemak" },
     karbo: { min: 45, max: 65, defaultVal: 65, label: "Karbohidrat" },
   },
   "dm,stroke": {
     name: "DM + Stroke",
-    type: "one-slider",
-    lemak: { min: 20, max: 25, defaultVal: 25, label: "Lemak" },
-    proteinLockedLabel: "Locked: 1.2 x BBI (fase pemulihan)",
-    karboLockedLabel: "Sisa dari protein + lemak",
+    type: "three-sliders",
+    protein: { min: 10, max: 25, defaultVal: 10, label: "Protein" },
+    lemak: { min: 20, max: 35, defaultVal: 25, label: "Lemak" },
+    karbo: { min: 45, max: 65, defaultVal: 65, label: "Karbohidrat" },
   },
   "dm,lambung": {
     name: "DM + Lambung",
     type: "three-sliders",
-    protein: { min: 10, max: 20, defaultVal: 20, label: "Protein" },
-    lemak: { min: 10, max: 15, defaultVal: 15, label: "Lemak" },
-    karbo: { min: 45, max: 65, defaultVal: 65, label: "Karbohidrat" },
+    protein: { min: 10, max: 20, defaultVal: 10, label: "Protein" },
+    lemak: { min: 10, max: 25, defaultVal: 25, label: "Lemak" },
+    karbo: { min: 45, max: 80, defaultVal: 65, label: "Karbohidrat" },
   },
   "ckd,dm": {
     name: "DM + CKD",
     type: "one-slider",
-    lemak: { min: 20, max: 25, defaultVal: 25, label: "Lemak" }, // backend accepts 20-30%, we set range 20-25% as requested (default 25%)
+    lemak: { min: 15, max: 30, defaultVal: 25, label: "Lemak" },
     proteinLockedLabel: "Locked: Dihitung berdasarkan hemodialisa (HD/non-HD)",
     karboLockedLabel: "Sisa dari protein + lemak",
   },
   "chf,ckd,dm": {
     name: "DM + CKD + CHF",
     type: "one-slider",
-    lemak: { min: 20, max: 25, defaultVal: 25, label: "Lemak" },
+    lemak: { min: 15, max: 30, defaultVal: 25, label: "Lemak" },
     proteinLockedLabel: "Locked: Dihitung berdasarkan hemodialisa (HD/non-HD)",
     karboLockedLabel: "Sisa dari protein + lemak",
   },
   "chf,dm": {
     name: "DM + CHF",
     type: "three-sliders",
-    protein: { min: 15, max: 20, defaultVal: 15, label: "Protein" },
-    lemak: { min: 20, max: 25, defaultVal: 25, label: "Lemak" }, // default 25% to sum to 100%
-    karbo: { min: 50, max: 60, defaultVal: 60, label: "Karbohidrat" },
+    protein: { min: 10, max: 25, defaultVal: 10, label: "Protein" },
+    lemak: { min: 20, max: 25, defaultVal: 25, label: "Lemak" },
+    karbo: { min: 45, max: 65, defaultVal: 65, label: "Karbohidrat" },
   },
   "ckd": {
     name: "CKD",
@@ -57,7 +57,7 @@ export const MACRO_CONFIGS = {
   "ckd,stroke": {
     name: "CKD + Stroke",
     type: "one-slider",
-    lemak: { min: 25, max: 30, defaultVal: 25, label: "Lemak" },
+    lemak: { min: 15, max: 35, defaultVal: 25, label: "Lemak" },
     proteinLockedLabel: "Locked: Dihitung berdasarkan hemodialisa (HD/non-HD)",
     karboLockedLabel: "Sisa dari protein + lemak",
   },
@@ -71,16 +71,16 @@ export const MACRO_CONFIGS = {
   "chf,lambung": {
     name: "CHF + Lambung",
     type: "three-sliders",
-    protein: { min: 15, max: 25, defaultVal: 15, label: "Protein" },
-    lemak: { min: 10, max: 15, defaultVal: 15, label: "Lemak" },
-    karbo: { min: 60, max: 75, defaultVal: 70, label: "Karbohidrat" },
+    protein: { min: 10, max: 25, defaultVal: 15, label: "Protein" },
+    lemak: { min: 10, max: 25, defaultVal: 25, label: "Lemak" },
+    karbo: { min: 50, max: 80, defaultVal: 60, label: "Karbohidrat" },
   },
   "lambung": {
     name: "Lambung",
     type: "three-sliders",
-    protein: { min: 10, max: 20, defaultVal: 15, label: "Protein" },
+    protein: { min: 10, max: 20, defaultVal: 10, label: "Protein" },
     lemak: { min: 10, max: 15, defaultVal: 15, label: "Lemak" },
-    karbo: { min: 65, max: 80, defaultVal: 70, label: "Karbohidrat" },
+    karbo: { min: 65, max: 80, defaultVal: 75, label: "Karbohidrat" },
   },
   "stroke": {
     name: "Stroke",
@@ -89,21 +89,67 @@ export const MACRO_CONFIGS = {
     proteinLockedLabel: "Locked: 1.2 x BBI (fase pemulihan)",
     karboLockedLabel: "Sisa dari protein + lemak",
   },
-};
+  "chf,stroke": {
+    name: "CHF + Stroke",
+    type: "three-sliders",
+    protein: { min: 15, max: 30, defaultVal: 15, label: "Protein" },
+    lemak: { min: 20, max: 35, defaultVal: 25, label: "Lemak" },
+    karbo: { min: 50, max: 60, defaultVal: 60, label: "Karbohidrat" },
+  },
+  "ckd,lambung": {
+    name: "CKD + Lambung",
+    type: "one-slider",
+    lemak: { min: 10, max: 30, defaultVal: 25, label: "Lemak" },
+    proteinLockedLabel: "Locked: Dihitung berdasarkan hemodialisa (HD/non-HD)",
+    karboLockedLabel: "Sisa dari protein + lemak",
+  },
+  "chf,ckd": {
+    name: "CKD + CHF",
+    type: "one-slider",
+    lemak: { min: 15, max: 30, defaultVal: 25, label: "Lemak" },
+    proteinLockedLabel: "Locked: Dihitung berdasarkan hemodialisa (HD/non-HD)",
+    karboLockedLabel: "Sisa dari protein + lemak",
+  },
+  "": {
+    name: "Mifflin St Jeor (Umum)",
+    type: "three-sliders",
+    protein: { min: 10, max: 30, defaultVal: 15, label: "Protein" },
+    lemak: { min: 20, max: 35, defaultVal: 25, label: "Lemak" },
+    karbo: { min: 45, max: 65, defaultVal: 60, label: "Karbohidrat" },
+  },
+}
 
-// Check if a combination is in the excluded (LEWATIN) list
+// Check if a combination is in the excluded list (all now supported)
 export function isExcludedCombination(penyakitArray) {
-  const diseaseValues = getDiseaseValues(penyakitArray);
-  const sorted = [...diseaseValues].sort().join(",");
-  return ["chf,stroke", "ckd,lambung", "chf,ckd"].includes(sorted);
+  return false;
 }
 
 export default function MetodePerhitungan({ data, setData, errors, showErrors }) {
   const penyakitOnly = getDiseaseValues(data.penyakit);
   const sortedPenyakit = [...penyakitOnly].sort();
   const key = sortedPenyakit.join(",");
-  const config = MACRO_CONFIGS[key];
   const isExcluded = isExcludedCombination(data.penyakit);
+  const rawConfig = MACRO_CONFIGS[key];
+  
+  // Clone config to allow dynamic changes
+  const config = rawConfig ? { ...rawConfig } : null;
+
+
+  // Clamp persen_lemak when config min/max changes dynamically (e.g. switching HD status)
+  useEffect(() => {
+    if (config && config.lemak) {
+      const min = config.lemak.min;
+      const max = config.lemak.max;
+      if (data.persen_lemak !== undefined && (data.persen_lemak < min || data.persen_lemak > max)) {
+        const clamped = Math.max(min, Math.min(max, data.persen_lemak));
+        setData(prev => ({
+          ...prev,
+          persen_lemak: clamped
+        }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config?.lemak?.min, config?.lemak?.max, data.persen_lemak, setData]);
 
   const prevKeyRef = useRef(null);
 
@@ -147,7 +193,8 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
       }
       prevKeyRef.current = key;
     }
-  }, [key, config, setData, data.persen_protein, data.persen_lemak, data.persen_karbohidrat]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, rawConfig, setData, data.persen_protein, data.persen_lemak, data.persen_karbohidrat]);
 
   // Handle resets to defaults
   const handleResetToDefault = () => {

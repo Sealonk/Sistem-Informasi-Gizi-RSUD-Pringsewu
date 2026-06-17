@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Search, RotateCcw } from "lucide-react";
+import { Calendar, Search, RotateCcw, CheckCircle } from "lucide-react";
 
 export default function FilterCard({
   periode,
@@ -8,6 +8,8 @@ export default function FilterCard({
   setSelectedDate,
   search,
   setSearch,
+  statusPerhitungan,
+  setStatusPerhitungan,
   error,
   onReset,
   onSearch,
@@ -20,6 +22,12 @@ export default function FilterCard({
     { label: "Custom", value: "Custom" },
   ];
 
+  const statusOptions = [
+    { label: "Semua", value: "" },
+    { label: "Sudah Dihitung", value: "sudah" },
+    { label: "Belum", value: "belum" },
+  ];
+
   return (
     <div
       className="
@@ -28,7 +36,8 @@ export default function FilterCard({
         border-slate-200/80
         bg-white/75
         backdrop-blur-md
-        p-8
+        p-5
+        sm:p-8
         shadow-sm
         hover:shadow-md
         transition-all
@@ -36,8 +45,8 @@ export default function FilterCard({
         mb-8
       "
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* Left Column: Periode Data */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Column 1: Periode Data */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
             <Calendar size={18} className="text-emerald-600" />
@@ -89,8 +98,8 @@ export default function FilterCard({
                 duration-300
                 ${
                   periode !== "Custom"
-                    ? "bg-slate-50/50 text-slate-400 border-slate-100 cursor-not-allowed"
-                    : "border-slate-200 bg-white text-slate-800 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50/50"
+                    ? "bg-slate-50/50 text-slate-450 border-slate-100 cursor-not-allowed"
+                    : "border-slate-200 bg-white text-slate-800 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                 }
               `}
             />
@@ -103,12 +112,47 @@ export default function FilterCard({
           </div>
         </div>
 
-        {/* Right Column: Cari Pasien */}
+        {/* Column 2: Status Perhitungan */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
+            <CheckCircle size={18} className="text-emerald-600" />
+            <h3>2. Status Perhitungan</h3>
+          </div>
+
+          <div className="flex flex-wrap gap-2 items-center">
+            {statusOptions.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`
+                  h-11
+                  px-4
+                  rounded-xl
+                  border
+                  text-xs
+                  font-bold
+                  transition-all
+                  duration-300
+                  ${
+                    statusPerhitungan === opt.value
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-100 hover:bg-emerald-700"
+                      : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+                  }
+                `}
+                onClick={() => setStatusPerhitungan(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Column 3: Cari Pasien */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
               <Search size={18} className="text-emerald-600" />
-              <h3>2. Cari Pasien</h3>
+              <h3>3. Cari Pasien</h3>
             </div>
 
             <button
@@ -136,7 +180,7 @@ export default function FilterCard({
           <div className="flex gap-3">
             <input
               type="text"
-              placeholder="Cari berdasarkan nama pasien atau No. RM..."
+              placeholder="Cari nama atau No. RM..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="
@@ -152,7 +196,7 @@ export default function FilterCard({
                 outline-none
                 focus:border-emerald-500
                 focus:ring-4
-                focus:ring-emerald-50/50
+                focus:ring-emerald-500/10
                 transition-all
                 duration-300
               "

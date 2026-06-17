@@ -11,7 +11,7 @@ import {
 
 import {
   getPasienList,
-} from "../services/PasienServices/pasienApi";
+} from "../services/perhitungan/pasienApi";
 
 export default function usePilihPasien() {
   const navigate = useNavigate();
@@ -19,6 +19,7 @@ export default function usePilihPasien() {
   const [periode, setPeriode] = useState("");
   const [search, setSearch] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [statusPerhitungan, setStatusPerhitungan] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedPatientForConfirm, setSelectedPatientForConfirm] = useState(null);
   const [pageSize, setPageSize] = useState(50);
@@ -57,6 +58,7 @@ export default function usePilihPasien() {
         endDate: periode === "Custom" ? selectedDate : "",
         limit: pageSize,
         page: page,
+        status_perhitungan: statusPerhitungan,
       });
 
       setPatients(response.pasien);
@@ -73,6 +75,7 @@ export default function usePilihPasien() {
     selectedDate,
     pageSize,
     page,
+    statusPerhitungan,
     getPeriodeValue,
   ]);
 
@@ -116,6 +119,10 @@ export default function usePilihPasien() {
     setSelectedDate(value);
   };
 
+  const handleStatusPerhitunganChange = (value) => {
+    setStatusPerhitungan(value);
+  };
+
   const handleChangePageSize = (size) => {
     setPageSize(size);
     setPage(1);
@@ -140,6 +147,7 @@ export default function usePilihPasien() {
     setSearch("");
     setSelectedDate("");
     setFilterError("");
+    setStatusPerhitungan("");
     setPage(1);
 
     // Trigger eksplisit untuk memuat data setelah reset
@@ -151,6 +159,7 @@ export default function usePilihPasien() {
     periode,
     search,
     selectedDate,
+    statusPerhitungan,
     showConfirm,
     setShowConfirm,
     selectedPatientForConfirm,
@@ -168,6 +177,7 @@ export default function usePilihPasien() {
     handlePeriodeChange,
     handleSearchChange,
     handleDateChange,
+    handleStatusPerhitunganChange,
     handleChangePageSize,
     handleSearch,
     handleReset,

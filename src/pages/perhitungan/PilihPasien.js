@@ -10,6 +10,7 @@ export default function PilihPasien() {
     periode,
     search,
     selectedDate,
+    statusPerhitungan,
     showConfirm,
     setShowConfirm,
     selectedPatientForConfirm,
@@ -27,6 +28,7 @@ export default function PilihPasien() {
     handlePeriodeChange,
     handleSearchChange,
     handleDateChange,
+    handleStatusPerhitunganChange,
     handleChangePageSize,
     handleSearch,
     handleReset,
@@ -38,7 +40,7 @@ export default function PilihPasien() {
     <div className="min-h-screen bg-[#f8fbff] relative overflow-hidden">
       <PortalBackground />
 
-      <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-8 relative z-10">
         <PilihPasienHeader statistik={statistik} />
 
         <FilterCard
@@ -48,6 +50,8 @@ export default function PilihPasien() {
           setSelectedDate={handleDateChange}
           search={search}
           setSearch={handleSearchChange}
+          statusPerhitungan={statusPerhitungan}
+          setStatusPerhitungan={handleStatusPerhitunganChange}
           error={filterError}
           onReset={handleReset}
           onSearch={handleSearch}

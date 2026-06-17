@@ -4,7 +4,7 @@ import PortalBackground from "../../components/portal/PortalBackground";
 import PortalGreeting from "../../components/portal/PortalGreeting";
 import PortalHeader from "../../components/portal/PortalHeader";
 import PortalMenuGrid from "../../components/portal/PortalMenuGrid";
-import { logoutUser } from "../../services/authService";
+import { logoutUser } from "../../services/auth/authService";
 import { ShieldCheck, HeartPulse, Zap, Award } from "lucide-react";
 
 export default function PortalPage() {
@@ -78,7 +78,7 @@ export default function PortalPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
             
             {/* Dynamic Clinical Tips Widget */}
-            <div className="lg:col-span-2 relative overflow-hidden bg-white/70 backdrop-blur-md border border-blue-100 rounded-[32px] p-7 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between gap-4">
+            <div className="lg:col-span-2 relative overflow-hidden bg-white/70 backdrop-blur-md border border-blue-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between gap-4">
               <div className="flex items-center gap-2">
                 <span className="flex h-2.5 w-2.5 relative">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -109,7 +109,7 @@ export default function PortalPage() {
             </div>
 
             {/* Platform Highlights */}
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-[32px] p-7 shadow-lg shadow-blue-500/10 flex flex-col justify-between gap-6 relative overflow-hidden group">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 shadow-lg shadow-blue-500/10 flex flex-col justify-between gap-6 relative overflow-hidden group">
               <div className="absolute -right-10 -bottom-10 w-36 h-36 rounded-full bg-white/5 blur-xl group-hover:scale-125 transition-transform duration-500" />
               
               <div className="space-y-2">

@@ -20,7 +20,8 @@ export default function LoginCard({
         shadow-soft
         border
         border-white/40
-        p-10
+        p-6
+        sm:p-10
       "
     >
       <div className="text-center mb-8">

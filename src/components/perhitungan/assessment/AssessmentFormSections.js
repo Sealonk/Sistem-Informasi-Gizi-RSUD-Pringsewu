@@ -53,7 +53,7 @@ export default function AssessmentFormSections({
         />
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AktivitasFisik
           data={data}
           setData={setData}
@@ -71,7 +71,7 @@ export default function AssessmentFormSections({
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <PenambahanKalori
           data={data}
           setData={setData}

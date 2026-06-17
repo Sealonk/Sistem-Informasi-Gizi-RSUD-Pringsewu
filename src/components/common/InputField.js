@@ -29,8 +29,8 @@ export default function InputField({
             readOnly
               ? "border-slate-100 bg-slate-50 text-slate-500 cursor-not-allowed"
               : error
-                ? "border-rose-300 focus:border-rose-500 focus:ring-4 focus:ring-rose-100 hover:border-rose-300"
-                : "border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 hover:border-slate-200"
+                ? "border-rose-300 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 hover:border-rose-300"
+                : "border-slate-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 hover:border-slate-200"
           } ${suffix ? "pr-14" : ""}`}
         />
 

@@ -30,7 +30,7 @@ export default function Riwayat() {
 
   return (
     <div
-      className={`min-h-screen bg-[#f8fbff] px-6 py-8 relative overflow-hidden transition-all duration-500 ease-out ${
+      className={`min-h-screen bg-[#f8fbff] px-4 py-6 sm:px-6 sm:py-8 relative overflow-hidden transition-all duration-500 ease-out ${
         mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
     >

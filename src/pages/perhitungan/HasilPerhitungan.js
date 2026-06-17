@@ -14,8 +14,8 @@ import FaktorPerhitungan from "../../components/perhitungan/Hasil/FaktorPerhitun
 import StatusGizi from "../../components/perhitungan/Hasil/StatusGizi";
 import HasilAction from "../../components/perhitungan/Hasil/HasilAction";
 
-import { savePerhitungan } from "../../services/PasienServices/simpanPerhitunganApi";
-import { updateRiwayat } from "../../services/PasienServices/riwayatApi";
+import { savePerhitungan } from "../../services/perhitungan/simpanPerhitunganApi";
+import { updateRiwayat } from "../../services/riwayat/riwayatApi";
 import PortalBackground from "../../components/portal/PortalBackground";
 import ConfirmationModal from "../../components/common/ConfirmationModal";
 import SuccessModal from "../../components/perhitungan/Hasil/SuccessModal";
@@ -112,8 +112,10 @@ export default function HasilPerhitungan() {
       className="
         min-h-screen
         bg-[#f8fbff]
-        px-6
-        py-8
+        px-4
+        py-6
+        sm:px-6
+        sm:py-8
         relative
         overflow-hidden
       "
@@ -140,23 +142,25 @@ export default function HasilPerhitungan() {
           }
         />
 
-        <HasilHeader
-          data={{
-            ...data,
-            diagnosis: data.isDiagnosisEdited ? (data.diagnosis || "-") : (hasil?.data?.kode_penyakit || data.diagnosis || "-"),
-            tanggal_masuk: hasil?.data?.tanggal_masuk_rapi || data.tanggal_masuk || "-",
-          }}
-        />
+        <div className="max-w-5xl mx-auto w-full space-y-6">
+          <HasilHeader
+            data={{
+              ...data,
+              diagnosis: data.isDiagnosisEdited ? (data.diagnosis || "-") : (hasil?.data?.kode_penyakit || data.diagnosis || "-"),
+              tanggal_masuk: hasil?.data?.tanggal_masuk_rapi || data.tanggal_masuk || "-",
+            }}
+          />
 
-        <StatusGizi
-          data={{
-            ...data,
-            bb: data?.bb,
-            tb: data?.tb,
-            imt_nilai: hasil?.data?.imt_preview?.nilaiIMT,
-            imt_status: hasil?.data?.imt_preview?.statusGizi,
-          }}
-        />
+          <StatusGizi
+            data={{
+              ...data,
+              bb: data?.bb,
+              tb: data?.tb,
+              imt_nilai: hasil?.data?.imt_preview?.nilaiIMT,
+              imt_status: hasil?.data?.imt_preview?.statusGizi,
+            }}
+          />
+        </div>
 
         <SummaryCard
           hasil={{
@@ -204,7 +208,17 @@ export default function HasilPerhitungan() {
 />
 
 {/* SUCCESS MODAL */}
-<SuccessModal isOpen={showSuccessModal} isEdit={data?.isEditMode} />
+<SuccessModal
+  isOpen={showSuccessModal}
+  isEdit={data?.isEditMode}
+  patientName={data?.nama}
+  noRM={data?.noRM}
+  statusGizi={hasil?.data?.imt_preview?.statusGizi || data?.imt_status}
+  energi={hasilPreview?.energi_kkal || 0}
+  protein={hasilPreview?.protein_gr || 0}
+  lemak={hasilPreview?.lemak_gr || 0}
+  karbohidrat={hasilPreview?.karbohidrat_gr || 0}
+/>
       <ConfirmationModal
         isOpen={showConfirm}
         title={data?.isEditMode ? "Perbarui Hasil Perhitungan" : "Simpan Hasil Perhitungan"}

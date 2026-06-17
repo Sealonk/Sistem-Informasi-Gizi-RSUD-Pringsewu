@@ -1,4 +1,4 @@
-import { axiosInstance } from "../authService";
+import { axiosInstance } from "../auth/authService";
 
 export function mapPasien(item) {
   return {
@@ -11,6 +11,9 @@ export function mapPasien(item) {
     dateISO: item.tanggal_masuk,
     tanggal_masuk: item.tanggal_masuk,
     diagnosis: item.diagnosis,
+    status_perhitungan: item.status_perhitungan,
+    id_perhitungan: item.id_perhitungan,
+    waktu_pembaruan: item.waktu_pembaruan,
   };
 }
 
@@ -21,6 +24,7 @@ export async function getPasienList({
   endDate = "",
   limit = 50,
   page = 1,
+  status_perhitungan = "",
 } = {}) {
   try {
     const params = { limit, page };
@@ -36,6 +40,9 @@ export async function getPasienList({
     }
     if (endDate) {
       params.endDate = endDate;
+    }
+    if (status_perhitungan) {
+      params.status_perhitungan = status_perhitungan;
     }
 
     const response = await axiosInstance.get("/api/pasien", { params });

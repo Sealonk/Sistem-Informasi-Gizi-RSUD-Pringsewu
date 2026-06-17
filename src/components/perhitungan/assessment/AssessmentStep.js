@@ -17,7 +17,8 @@ export default function AssessmentStep({
         border
         border-emerald-100
         shadow-soft
-        p-7
+        p-5
+        sm:p-7
         mb-8
       "
     >

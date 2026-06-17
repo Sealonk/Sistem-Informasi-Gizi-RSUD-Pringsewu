@@ -47,11 +47,13 @@ export default function SectionCard({
           compact
             ? `
               rounded-[24px]
-              p-5
+              p-4
+              sm:p-5
             `
             : `
               rounded-[32px]
-              p-8
+              p-5
+              sm:p-8
             `
         }
       `}
@@ -141,8 +143,8 @@ export default function SectionCard({
 
                 ${
                   compact
-                    ? "text-lg"
-                    : "text-2xl"
+                    ? "text-base sm:text-lg"
+                    : "text-xl sm:text-2xl"
                 }
               `}
             >

@@ -23,7 +23,8 @@ export default function AssessmentHeader({ onBack }) {
 
       <h1
         className="
-          text-4xl
+          text-2xl
+          sm:text-3xl
           font-bold
           text-slate-900
           tracking-tight
@@ -36,7 +37,8 @@ export default function AssessmentHeader({ onBack }) {
       <p
         className="
           text-slate-500
-          text-base
+          text-sm
+          sm:text-base
         "
       >
         Lengkapi data pasien untuk melakukan perhitungan kebutuhan gizi

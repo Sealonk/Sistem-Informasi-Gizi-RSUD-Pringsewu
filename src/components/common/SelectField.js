@@ -28,8 +28,8 @@ export default function SelectField({
             disabled
               ? "border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed"
               : error
-              ? "border-rose-300 bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-100 hover:border-rose-300"
-              : "border-slate-100 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 hover:border-slate-200"
+              ? "border-rose-300 bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 hover:border-rose-300"
+              : "border-slate-100 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 hover:border-slate-200"
           }`}
         >
           {/* PLACEHOLDER */}
