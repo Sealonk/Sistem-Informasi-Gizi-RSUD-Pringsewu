@@ -16,30 +16,32 @@ const getAllPasien = async (req, res, next) => {
         const startDate = req.query.startDate || '';
         const endDate = req.query.endDate || '';
         
-        // PARAMETER BARU: Filter Status Perhitungan
-        const status_perhitungan = req.query.status_perhitungan || ''; // 'sudah', 'belum', atau kosong (semua)
+        const status_perhitungan = req.query.status_perhitungan || '';
 
         // 1. Build Klausa WHERE Dinamis
         let whereClause = '';
         const queryParams = [];
 
+        // Pencarian Nama atau No RM
         if (search) {
             whereClause += ` AND (p.nm_pasien LIKE ? OR p.no_rkm_medis LIKE ?)`;
             queryParams.push(`%${search}%`, `%${search}%`);
         }
 
+        // Filter Tanggal (Menggunakan COALESCE agar mengakomodir Rawat Inap maupun Rawat Jalan)
+        const dateColumn = `COALESCE(ki.tgl_masuk, rp.tgl_registrasi)`;
+        
         if (periode === 'hari_ini') {
-            whereClause += ` AND DATE(p.tgl_masuk) = CURDATE()`;
+            whereClause += ` AND DATE(${dateColumn}) = CURDATE()`;
         } else if (periode === 'minggu_ini') {
-            whereClause += ` AND YEARWEEK(p.tgl_masuk, 1) = YEARWEEK(CURDATE(), 1)`;
+            whereClause += ` AND YEARWEEK(${dateColumn}, 1) = YEARWEEK(CURDATE(), 1)`;
         } else if (periode === 'bulan_ini') {
-            whereClause += ` AND MONTH(p.tgl_masuk) = MONTH(CURDATE()) AND YEAR(p.tgl_masuk) = YEAR(CURDATE())`;
+            whereClause += ` AND MONTH(${dateColumn}) = MONTH(CURDATE()) AND YEAR(${dateColumn}) = YEAR(CURDATE())`;
         } else if (periode === 'custom' && startDate && endDate) {
-            whereClause += ` AND DATE(p.tgl_masuk) BETWEEN ? AND ?`;
+            whereClause += ` AND DATE(${dateColumn}) BETWEEN ? AND ?`;
             queryParams.push(startDate, endDate);
         }
 
-        // Filter Tambahan untuk Status Perhitungan di level validasi akhir
         let validPasienFilter = '';
         if (status_perhitungan === 'sudah') {
             validPasienFilter = 'WHERE id_perhitungan IS NOT NULL';
@@ -48,55 +50,58 @@ const getAllPasien = async (req, res, next) => {
         }
 
         // =======================================================
-        // 2. CTE (Common Table Expression) 
+        // 2. CTE (Common Table Expression) dengan JOIN SIMRS
         // =======================================================
         const cteQuery = `
-            WITH LatestRawat AS (
-                SELECT no_rkm_medis, MAX(no_rawat) AS max_rawat
-                FROM pasien
-                GROUP BY no_rkm_medis
-            ),
-            StatusHitung AS (
-                -- CTE Baru: Mencari perhitungan terakhir untuk setiap pasien (no_rawat)
+            WITH StatusHitung AS (
                 SELECT no_rawat, MAX(id_perhitungan) AS id_perhitungan, MAX(tanggal_perhitungan) AS waktu_pembaruan
                 FROM perhitungan_gizi
                 GROUP BY no_rawat
             ),
             ValidPasien AS (
                 SELECT 
-                    p.no_rawat AS id_pasien,
+                    rp.no_rawat AS id_pasien,
                     MAX(p.nm_pasien) AS nama_pasien,
-                    p.no_rkm_medis AS no_rm,
+                    rp.no_rkm_medis AS no_rm,
                     MAX(p.jk) AS jenis_kelamin,
-                    MAX(p.umurdaftar) AS umurdaftar,
-                    MAX(p.sttsumur) AS sttsumur,
-                    MAX(p.tgl_masuk) AS tanggal_masuk,
-                    MAX(p.nm_penyakit) AS nama_penyakit_asli,
+                    MAX(rp.umurdaftar) AS umurdaftar,
+                    MAX(rp.sttsumur) AS sttsumur,
+                    MAX(${dateColumn}) AS tanggal_masuk,
                     
-                    -- PENGAMBILAN STATUS PERHITUNGAN
+                    -- Gabungkan nama penyakit jika komplikasi
+                    GROUP_CONCAT(DISTINCT py.nm_penyakit SEPARATOR ', ') AS nama_penyakit_asli,
+                    
                     MAX(sh.id_perhitungan) AS id_perhitungan,
                     MAX(sh.waktu_pembaruan) AS waktu_pembaruan,
                     
-                    MAX(CASE WHEN p.kd_penyakit LIKE 'E10%' OR p.kd_penyakit LIKE 'E11%' OR p.kd_penyakit LIKE 'E12%' OR p.kd_penyakit LIKE 'E13%' OR p.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
-                    MAX(CASE WHEN p.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
-                    MAX(CASE WHEN p.kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
-                    MAX(CASE WHEN p.kd_penyakit LIKE 'I60%' OR p.kd_penyakit LIKE 'I61%' OR p.kd_penyakit LIKE 'I62%' OR p.kd_penyakit LIKE 'I63%' OR p.kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
-                    MAX(CASE WHEN p.kd_penyakit LIKE 'K21%' OR p.kd_penyakit LIKE 'K25%' OR p.kd_penyakit LIKE 'K29%' OR p.kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
+                    -- FLAG KODE PENYAKIT (Berdasarkan ICD-10)
+                    MAX(CASE WHEN dp.kd_penyakit LIKE 'E10%' OR dp.kd_penyakit LIKE 'E11%' OR dp.kd_penyakit LIKE 'E12%' OR dp.kd_penyakit LIKE 'E13%' OR dp.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
+                    MAX(CASE WHEN dp.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
+                    MAX(CASE WHEN dp.kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
+                    MAX(CASE WHEN dp.kd_penyakit LIKE 'I60%' OR dp.kd_penyakit LIKE 'I61%' OR dp.kd_penyakit LIKE 'I62%' OR dp.kd_penyakit LIKE 'I63%' OR dp.kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
+                    MAX(CASE WHEN dp.kd_penyakit LIKE 'K21%' OR dp.kd_penyakit LIKE 'K25%' OR dp.kd_penyakit LIKE 'K29%' OR dp.kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
                     
                     SUM(CASE WHEN 
-                        (p.kd_penyakit NOT LIKE 'E10%' AND p.kd_penyakit NOT LIKE 'E11%' AND p.kd_penyakit NOT LIKE 'E12%' AND p.kd_penyakit NOT LIKE 'E13%' AND p.kd_penyakit NOT LIKE 'E14%') AND
-                        (p.kd_penyakit NOT LIKE 'N18%') AND
-                        (p.kd_penyakit NOT LIKE 'I50%') AND
-                        (p.kd_penyakit NOT LIKE 'I60%' AND p.kd_penyakit NOT LIKE 'I61%' AND p.kd_penyakit NOT LIKE 'I62%' AND p.kd_penyakit NOT LIKE 'I63%' AND p.kd_penyakit NOT LIKE 'I64%') AND
-                        (p.kd_penyakit NOT LIKE 'K21%' AND p.kd_penyakit NOT LIKE 'K25%' AND p.kd_penyakit NOT LIKE 'K29%' AND p.kd_penyakit NOT LIKE 'K30%') AND
-                        p.kd_penyakit IS NOT NULL AND p.kd_penyakit != ''
+                        (dp.kd_penyakit NOT LIKE 'E10%' AND dp.kd_penyakit NOT LIKE 'E11%' AND dp.kd_penyakit NOT LIKE 'E12%' AND dp.kd_penyakit NOT LIKE 'E13%' AND dp.kd_penyakit NOT LIKE 'E14%') AND
+                        (dp.kd_penyakit NOT LIKE 'N18%') AND
+                        (dp.kd_penyakit NOT LIKE 'I50%') AND
+                        (dp.kd_penyakit NOT LIKE 'I60%' AND dp.kd_penyakit NOT LIKE 'I61%' AND dp.kd_penyakit NOT LIKE 'I62%' AND dp.kd_penyakit NOT LIKE 'I63%' AND dp.kd_penyakit NOT LIKE 'I64%') AND
+                        (dp.kd_penyakit NOT LIKE 'K21%' AND dp.kd_penyakit NOT LIKE 'K25%' AND dp.kd_penyakit NOT LIKE 'K29%' AND dp.kd_penyakit NOT LIKE 'K30%') AND
+                        dp.kd_penyakit IS NOT NULL AND dp.kd_penyakit != ''
                     THEN 1 ELSE 0 END) AS count_other
-                FROM pasien p
-                INNER JOIN LatestRawat lr ON p.no_rawat = lr.max_rawat
-                LEFT JOIN StatusHitung sh ON p.no_rawat = sh.no_rawat
+
+                FROM reg_periksa rp
+                INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+                LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+                LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
+                LEFT JOIN penyakit py ON dp.kd_penyakit = py.kd_penyakit
+                LEFT JOIN StatusHitung sh ON rp.no_rawat = sh.no_rawat
+                
                 WHERE 1=1 ${whereClause} 
-                AND NOT (LOWER(p.sttsumur) LIKE '%bl%' OR LOWER(p.sttsumur) LIKE '%hr%' OR (LOWER(p.sttsumur) LIKE '%th%' AND p.umurdaftar < 18))
-                GROUP BY p.no_rawat, p.no_rkm_medis
+                -- Blokir pasien balita/anak-anak (Hanya dewasa yang dihitung)
+                AND NOT (LOWER(rp.sttsumur) LIKE '%bl%' OR LOWER(rp.sttsumur) LIKE '%hr%' OR (LOWER(rp.sttsumur) LIKE '%th%' AND rp.umurdaftar < 18))
+                
+                GROUP BY rp.no_rawat, rp.no_rkm_medis
             )
         `;
 
@@ -125,15 +130,17 @@ const getAllPasien = async (req, res, next) => {
         const queryParamsList = [...queryParams, limit.toString(), offset.toString()];
         const [rowsPasien] = await db.execute(queryList, queryParamsList);
 
+        // Fallback: Jika dicari tapi tidak ada, periksa apakah itu pasien anak-anak
         if (search && rowsPasien.length === 0) {
             const checkQuery = `
                 SELECT 
-                    MAX(p.umurdaftar) AS umurdaftar, 
-                    MAX(p.sttsumur) AS sttsumur
-                FROM pasien p
+                    MAX(rp.umurdaftar) AS umurdaftar, 
+                    MAX(rp.sttsumur) AS sttsumur
+                FROM reg_periksa rp
+                INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
                 WHERE p.nm_pasien LIKE ? OR p.no_rkm_medis LIKE ?
-                GROUP BY p.no_rawat
-                ORDER BY MAX(p.tgl_masuk) DESC
+                GROUP BY rp.no_rawat
+                ORDER BY MAX(COALESCE(rp.tgl_registrasi)) DESC
                 LIMIT 1
             `;
             
@@ -167,7 +174,6 @@ const getAllPasien = async (req, res, next) => {
                 penyakitLainnya = item.nama_penyakit_asli || 'Penyakit Umum';
             }
 
-            // PEMFORMATAN WAKTU PEMBARUAN TERAKHIR
             let waktu_pembaruan_rapi = null;
             if (item.waktu_pembaruan) {
                 const tglObj = new Date(item.waktu_pembaruan);
@@ -187,8 +193,6 @@ const getAllPasien = async (req, res, next) => {
                 diagnosis_array: penyakitArr,
                 penyakit_lainnya: penyakitLainnya,
                 nama_penyakit_asli: item.nama_penyakit_asli,
-                
-                // FIELD BARU UNTUK UI
                 status_perhitungan: item.id_perhitungan ? 'Sudah Dihitung' : 'Belum',
                 id_perhitungan: item.id_perhitungan || null, 
                 waktu_pembaruan: waktu_pembaruan_rapi
@@ -221,45 +225,56 @@ const getPasienById = async (req, res, next) => {
     try {
         const { id } = req.params; 
 
-        // Query ditambahkan LEFT JOIN ke tabel perhitungan gizi untuk mengecek status
+        // Query SIMRS JOIN Lengkap
         const queryPasien = `
             SELECT 
-                p.no_rawat AS id_pasien, 
+                rp.no_rawat AS id_pasien, 
                 MAX(p.nm_pasien) AS nama_pasien, 
                 MAX(p.no_rkm_medis) AS no_rm, 
-                MAX(p.umurdaftar) AS umurdaftar, 
-                MAX(p.sttsumur) AS sttsumur,
+                MAX(rp.umurdaftar) AS umurdaftar, 
+                MAX(rp.sttsumur) AS sttsumur,
                 MAX(p.jk) AS jenis_kelamin, 
-                MAX(p.tinggi) AS tinggi_badan, 
-                MAX(p.berat) AS berat_badan,
-                MAX(p.nm_penyakit) AS nama_penyakit_asli,
                 
-                -- CEK STATUS
+                -- Ambil tinggi/berat (prioritaskan rawat inap, jika kosong pakai rawat jalan)
+                MAX(COALESCE(pranap.tinggi, pralan.tinggi)) AS tinggi_badan, 
+                MAX(COALESCE(pranap.berat, pralan.berat)) AS berat_badan,
+                
+                -- Gabungan Penyakit SIMRS
+                GROUP_CONCAT(DISTINCT py.nm_penyakit SEPARATOR ', ') AS nama_penyakit_asli,
+                
                 MAX(sh.id_perhitungan) AS id_perhitungan,
                 MAX(sh.waktu_pembaruan) AS waktu_pembaruan,
 
-                MAX(CASE WHEN p.kd_penyakit LIKE 'E10%' OR p.kd_penyakit LIKE 'E11%' OR p.kd_penyakit LIKE 'E12%' OR p.kd_penyakit LIKE 'E13%' OR p.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
-                MAX(CASE WHEN p.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
-                MAX(CASE WHEN p.kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
-                MAX(CASE WHEN p.kd_penyakit LIKE 'I60%' OR p.kd_penyakit LIKE 'I61%' OR p.kd_penyakit LIKE 'I62%' OR p.kd_penyakit LIKE 'I63%' OR p.kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
-                MAX(CASE WHEN p.kd_penyakit LIKE 'K21%' OR p.kd_penyakit LIKE 'K25%' OR p.kd_penyakit LIKE 'K29%' OR p.kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
+                MAX(CASE WHEN dp.kd_penyakit LIKE 'E10%' OR dp.kd_penyakit LIKE 'E11%' OR dp.kd_penyakit LIKE 'E12%' OR dp.kd_penyakit LIKE 'E13%' OR dp.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
+                MAX(CASE WHEN dp.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
+                MAX(CASE WHEN dp.kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
+                MAX(CASE WHEN dp.kd_penyakit LIKE 'I60%' OR dp.kd_penyakit LIKE 'I61%' OR dp.kd_penyakit LIKE 'I62%' OR dp.kd_penyakit LIKE 'I63%' OR dp.kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
+                MAX(CASE WHEN dp.kd_penyakit LIKE 'K21%' OR dp.kd_penyakit LIKE 'K25%' OR dp.kd_penyakit LIKE 'K29%' OR dp.kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
                 SUM(CASE WHEN 
-                    (p.kd_penyakit NOT LIKE 'E10%' AND p.kd_penyakit NOT LIKE 'E11%' AND p.kd_penyakit NOT LIKE 'E12%' AND p.kd_penyakit NOT LIKE 'E13%' AND p.kd_penyakit NOT LIKE 'E14%') AND
-                    (p.kd_penyakit NOT LIKE 'N18%') AND
-                    (p.kd_penyakit NOT LIKE 'I50%') AND
-                    (p.kd_penyakit NOT LIKE 'I60%' AND p.kd_penyakit NOT LIKE 'I61%' AND p.kd_penyakit NOT LIKE 'I62%' AND p.kd_penyakit NOT LIKE 'I63%' AND p.kd_penyakit NOT LIKE 'I64%') AND
-                    (p.kd_penyakit NOT LIKE 'K21%' AND p.kd_penyakit NOT LIKE 'K25%' AND p.kd_penyakit NOT LIKE 'K29%' AND p.kd_penyakit NOT LIKE 'K30%') AND
-                    p.kd_penyakit IS NOT NULL AND p.kd_penyakit != ''
+                    (dp.kd_penyakit NOT LIKE 'E10%' AND dp.kd_penyakit NOT LIKE 'E11%' AND dp.kd_penyakit NOT LIKE 'E12%' AND dp.kd_penyakit NOT LIKE 'E13%' AND dp.kd_penyakit NOT LIKE 'E14%') AND
+                    (dp.kd_penyakit NOT LIKE 'N18%') AND
+                    (dp.kd_penyakit NOT LIKE 'I50%') AND
+                    (dp.kd_penyakit NOT LIKE 'I60%' AND dp.kd_penyakit NOT LIKE 'I61%' AND dp.kd_penyakit NOT LIKE 'I62%' AND dp.kd_penyakit NOT LIKE 'I63%' AND dp.kd_penyakit NOT LIKE 'I64%') AND
+                    (dp.kd_penyakit NOT LIKE 'K21%' AND dp.kd_penyakit NOT LIKE 'K25%' AND dp.kd_penyakit NOT LIKE 'K29%' AND dp.kd_penyakit NOT LIKE 'K30%') AND
+                    dp.kd_penyakit IS NOT NULL AND dp.kd_penyakit != ''
                 THEN 1 ELSE 0 END) AS count_other
-            FROM pasien p
+            
+            FROM reg_periksa rp
+            INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+            LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
+            LEFT JOIN penyakit py ON dp.kd_penyakit = py.kd_penyakit
+            LEFT JOIN pemeriksaan_ralan pralan ON rp.no_rawat = pralan.no_rawat
+            LEFT JOIN pemeriksaan_ranap pranap ON rp.no_rawat = pranap.no_rawat
             LEFT JOIN (
                 SELECT no_rawat, MAX(id_perhitungan) AS id_perhitungan, MAX(tanggal_perhitungan) AS waktu_pembaruan
                 FROM perhitungan_gizi
                 GROUP BY no_rawat
-            ) sh ON p.no_rawat = sh.no_rawat
-            WHERE p.no_rawat = ?
-            GROUP BY p.no_rawat
+            ) sh ON rp.no_rawat = sh.no_rawat
+            
+            WHERE rp.no_rawat = ?
+            GROUP BY rp.no_rawat
         `;
+        
         const [rows] = await db.execute(queryPasien, [id]);
 
         if (rows.length === 0) {
@@ -296,7 +311,6 @@ const getPasienById = async (req, res, next) => {
         let umurNumerik = parseFloat(pasien.umurdaftar) || 0;
         const kelompokUmur = getKelompokUmur(umurNumerik);
 
-        // Waktu Pembaruan Detail
         let waktu_pembaruan_rapi = null;
         if (pasien.waktu_pembaruan) {
             const tglObj = new Date(pasien.waktu_pembaruan);
@@ -322,8 +336,6 @@ const getPasienById = async (req, res, next) => {
                 diagnosa_kategori: diagnosa_array,
                 penyakit_lainnya: penyakitLainnya,
                 nama_penyakit_asli: pasien.nama_penyakit_asli,
-                
-                // FIELD BARU
                 status_perhitungan: pasien.id_perhitungan ? 'Sudah Dihitung' : 'Belum',
                 id_perhitungan: pasien.id_perhitungan || null,
                 waktu_pembaruan: waktu_pembaruan_rapi

@@ -38,37 +38,35 @@ const Perhitungan = {
     },
 
     /**
-     * FUNGSI BARU: Update data riwayat berdasarkan ID
+     * Update data riwayat berdasarkan ID
      * @param {number} id - ID perhitungan
      * @param {Object} data - Objek data yang ingin diupdate
      */
     updateById: async (id, data) => {
-        // 1. Ambil keys (kolom) dan values (data) dari objek
         const keys = Object.keys(data);
         const values = Object.values(data);
-
-        // 2. Buat string SET kolom1 = ?, kolom2 = ?
         const setClause = keys.map(key => `${key} = ?`).join(', ');
 
-        // 3. Gabungkan dengan ID ke dalam array values
         const sql = `UPDATE perhitungan_gizi SET ${setClause} WHERE id_perhitungan = ?`;
         const queryValues = [...values, id];
 
-        // 4. Eksekusi
         const [result] = await db.execute(sql, queryValues);
         return result.affectedRows > 0;
     },
 
     /**
      * Mengambil semua riwayat perhitungan dengan fitur Filter
+     * [Menggunakan struktur tabel SIMRS]
      */
     findAllRiwayat: async (filters) => {
         let query = `
-            SELECT pg.*, 
-                   MAX(p.nm_pasien) AS nama_pasien, 
-                   MAX(p.no_rkm_medis) AS no_rm 
+            SELECT 
+                pg.*, 
+                MAX(p.nm_pasien) AS nama_pasien, 
+                MAX(p.no_rkm_medis) AS no_rm 
             FROM perhitungan_gizi pg
-            JOIN pasien p ON pg.no_rawat = p.no_rawat
+            INNER JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
+            INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
             WHERE 1=1
         `;
         const values = [];
@@ -96,18 +94,22 @@ const Perhitungan = {
 
     /**
      * Mengambil detail satu riwayat spesifik
+     * [JOIN lengkap SIMRS untuk menarik penyakit dan tgl_masuk aktual]
      */
-findDetailById: async (id_perhitungan) => {
+    findDetailById: async (id_perhitungan) => {
         const query = `
             SELECT 
                 pg.*, 
                 MAX(p.nm_pasien) AS nama_pasien, 
                 MAX(p.no_rkm_medis) AS no_rm, 
                 MAX(p.jk) AS jenis_kelamin, 
-                GROUP_CONCAT(DISTINCT p.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
-                MAX(p.tgl_masuk) AS tanggal_masuk
+                GROUP_CONCAT(DISTINCT dp.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
+                COALESCE(MAX(ki.tgl_masuk), MAX(rp.tgl_registrasi)) AS tanggal_masuk
             FROM perhitungan_gizi pg
-            JOIN pasien p ON pg.no_rawat = p.no_rawat
+            INNER JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
+            INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+            LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+            LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
             WHERE pg.id_perhitungan = ?
             GROUP BY pg.id_perhitungan
         `;
@@ -115,6 +117,9 @@ findDetailById: async (id_perhitungan) => {
         return rows[0]; 
     },
 
+    /**
+     * Mencari seluruh riwayat perhitungan yang pernah dilakukan pada satu nomor kunjungan
+     */
     findByPasienId: async (no_rawat) => {
         const query = `
             SELECT * FROM perhitungan_gizi 

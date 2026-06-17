@@ -38,9 +38,17 @@ const previewPerhitungan = async (req, res, next) => {
             });
         }
 
-        // 2. VALIDASI DATABASE: Cek apakah no_rawat tersebut ada di tabel pasien
-        // Hapus LIMIT 1 agar semua baris penyakit untuk no_rawat tersebut terambil
-        const queryCekPasien = 'SELECT no_rawat, tgl_masuk, kd_penyakit FROM pasien WHERE no_rawat = ?';
+        // 2. VALIDASI DATABASE: Cek tabel SIMRS (reg_periksa, kamar_inap, diagnosa_pasien)
+        const queryCekPasien = `
+            SELECT 
+                rp.no_rawat, 
+                COALESCE(ki.tgl_masuk, rp.tgl_registrasi) AS tgl_masuk, 
+                dp.kd_penyakit 
+            FROM reg_periksa rp
+            LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+            LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
+            WHERE rp.no_rawat = ?
+        `;
         const [cekPasien] = await db.execute(queryCekPasien, [dataInput.id_pasien]);
 
         if (cekPasien.length === 0) {
@@ -53,10 +61,9 @@ const previewPerhitungan = async (req, res, next) => {
         // Gabungkan semua kode penyakit yang ditemukan dengan koma
         const gabunganKodePenyakit = cekPasien
             .map(row => row.kd_penyakit)
-            .filter(Boolean) // Membuang nilai null/kosong jika ada
+            .filter(Boolean) 
             .join(', ');
 
-        // Ambil tanggal masuk dari baris pertama (karena tgl_masuk pasti sama untuk 1 no_rawat)
         const dataPasienSIMRS = cekPasien[0]; 
 
         // 3. KALKULASI GIZI
@@ -78,14 +85,11 @@ const previewPerhitungan = async (req, res, next) => {
         
         const hasilKalkulasi = kalkulasiGiziTotal(dataInput);
 
-        // Sisipkan kembali keterangan penyakit lainnya agar tampil di response preview
         if (dataInput.diagnosa_penyakit && dataInput.diagnosa_penyakit.includes('Mifflin') && dataInput.penyakit_lainnya) {
             hasilKalkulasi.penyakit_lainnya = dataInput.penyakit_lainnya;
         }
 
-        // =====================================================================
-        // 4. PENYISIPAN DATA TAMBAHAN UNTUK UI FRONTEND (HEADER KARTU PASIEN)
-        // =====================================================================
+        // 4. PENYISIPAN DATA TAMBAHAN UNTUK UI FRONTEND
         hasilKalkulasi.kode_penyakit = gabunganKodePenyakit || '-';
 
         if (dataPasienSIMRS.tgl_masuk) {
@@ -131,12 +135,13 @@ const simpanPerhitungan = async (req, res, next) => {
             return res.status(400).json({ status: 'error', message: 'ID Pasien / No Rawat tidak ditemukan' });
         }
 
-        const [cekPasien] = await db.execute('SELECT no_rawat FROM pasien WHERE no_rawat = ?', [id_pasien]);
+        // Target tabel validasi diubah ke reg_periksa
+        const [cekPasien] = await db.execute('SELECT no_rawat FROM reg_periksa WHERE no_rawat = ?', [id_pasien]);
         
         if (cekPasien.length === 0) {
             return res.status(404).json({ 
                 status: 'error', 
-                message: `Gagal menyimpan! Pasien dengan No. Rawat ${id_pasien} tidak ditemukan di database.` 
+                message: `Gagal menyimpan! Pasien dengan No. Rawat ${id_pasien} tidak ditemukan di database SIMRS.` 
             });
         }
 
@@ -247,16 +252,19 @@ const getRiwayat = async (req, res, next) => {
             queryParams.push(tanggal);
         }
 
+        // JOIN disesuaikan dengan SIMRS
         const countQuery = `
             SELECT COUNT(DISTINCT pg.id_perhitungan) AS total
             FROM perhitungan_gizi pg
-            JOIN pasien p ON pg.no_rawat = p.no_rawat
+            JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
+            JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
             JOIN users u ON pg.id_user = u.id_user
             ${whereClause}
         `;
         const [[countResult]] = await db.execute(countQuery, queryParams);
         const totalData = countResult.total;
 
+        // JOIN disesuaikan dengan SIMRS dan penambahan diagnosa_pasien
         const dataQuery = `
             SELECT 
                 pg.id_perhitungan,
@@ -264,7 +272,7 @@ const getRiwayat = async (req, res, next) => {
                 MAX(p.nm_pasien) AS nama_pasien,
                 MAX(p.no_rkm_medis) AS no_rm,
                 MAX(p.jk) AS jenis_kelamin,
-                GROUP_CONCAT(DISTINCT p.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
+                GROUP_CONCAT(DISTINCT dp.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
                 pg.diagnosa_penyakit_saat_dihitung AS penyakit,
                 pg.kebutuhan_energi_total AS total_energi,
                 pg.protein_persen, 
@@ -273,8 +281,10 @@ const getRiwayat = async (req, res, next) => {
                 pg.tanggal_perhitungan,
                 MAX(u.nama_lengkap) AS created_by
             FROM perhitungan_gizi pg
-            JOIN pasien p ON pg.no_rawat = p.no_rawat
+            JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
+            JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
             JOIN users u ON pg.id_user = u.id_user
+            LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
             ${whereClause}
             GROUP BY pg.id_perhitungan
             ORDER BY pg.tanggal_perhitungan DESC

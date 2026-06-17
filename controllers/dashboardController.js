@@ -15,7 +15,7 @@ const getDashboardStats = async (req, res, next) => {
             FROM perhitungan_gizi
         `;
 
-        // 2. Ambil sebaran Status Gizi (1 Bulan Terakhir) menggunakan pengelompokan baku (CASE WHEN)
+        // 2. Ambil sebaran Status Gizi (1 Bulan Terakhir)
         const queryStatusGizi = `
             SELECT 
                 CASE 
@@ -41,7 +41,7 @@ const getDashboardStats = async (req, res, next) => {
             FROM perhitungan_gizi
         `;
 
-        // 4. Ambil Distribusi Penyakit (1 Bulan Terakhir) - Mengakomodasi Komplikasi Ganda
+        // 4. Ambil Distribusi Penyakit (1 Bulan Terakhir)
         const queryPenyakit = `
             SELECT 
                 SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%DM%' OR diagnosa_penyakit_saat_dihitung LIKE '%Diabetes%' THEN 1 ELSE 0 END) AS dm,
@@ -50,7 +50,7 @@ const getDashboardStats = async (req, res, next) => {
                 SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%CHF%' OR diagnosa_penyakit_saat_dihitung LIKE '%Jantung%' OR diagnosa_penyakit_saat_dihitung LIKE '%Heart%' THEN 1 ELSE 0 END) as chf,
                 SUM(CASE WHEN diagnosa_penyakit_saat_dihitung LIKE '%CKD%' OR diagnosa_penyakit_saat_dihitung LIKE '%Ginjal%' OR diagnosa_penyakit_saat_dihitung LIKE '%Renal%' THEN 1 ELSE 0 END) as ckd,
                 
-                -- Kategori 'Lainnya' untuk penyakit yang sama sekali tidak mengandung kata kunci utama di atas
+                -- Kategori 'Lainnya'
                 SUM(CASE WHEN 
                     diagnosa_penyakit_saat_dihitung NOT LIKE '%DM%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Diabetes%' AND 
                     diagnosa_penyakit_saat_dihitung NOT LIKE '%Lambung%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Gastritis%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%Dyspepsia%' AND diagnosa_penyakit_saat_dihitung NOT LIKE '%GERD%' AND
@@ -62,25 +62,25 @@ const getDashboardStats = async (req, res, next) => {
             WHERE tanggal_perhitungan >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
         `;
 
-        // 5. Ambil 5 Riwayat Terakhir (DIPERBARUI)
+        // =========================================================================
+        // 5. Ambil 5 Riwayat Terakhir (Terintegrasi SIMRS)
+        // =========================================================================
         const queryRiwayatTerakhir = `
             SELECT 
                 MAX(p.nm_pasien) AS nama_pasien, 
                 MAX(p.no_rkm_medis) AS no_rm,
                 MAX(p.jk) AS jenis_kelamin, 
-                MAX(p.umurdaftar) AS umur,
+                MAX(rp.umurdaftar) AS umur,
                 
-                -- TAMBAHAN: Tanggal Masuk Pasien
-                MAX(p.tgl_masuk) AS tanggal_masuk,
+                -- Fallback cerdas: Jika pasien rawat jalan (tidak ada di kamar_inap), pakai tanggal registrasi
+                COALESCE(MAX(ki.tgl_masuk), MAX(rp.tgl_registrasi)) AS tanggal_masuk,
                 
-                -- TAMBAHAN: Kode Penyakit (Gabungan jika komplikasi)
-                GROUP_CONCAT(DISTINCT p.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
+                GROUP_CONCAT(DISTINCT dp.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
                 
                 pg.tanggal_perhitungan AS tanggal, 
                 pg.metode_perhitungan AS metode, 
                 pg.kebutuhan_energi_total AS energi,
                 
-                -- TAMBAHAN: Persen Makronutrien
                 pg.protein_persen,
                 pg.lemak_persen,
                 pg.karbohidrat_persen,
@@ -88,7 +88,10 @@ const getDashboardStats = async (req, res, next) => {
                 pg.status_gizi_saat_dihitung AS status_gizi, 
                 pg.diagnosa_penyakit_saat_dihitung AS penyakit
             FROM perhitungan_gizi pg
-            JOIN pasien p ON pg.no_rawat = p.no_rawat
+            INNER JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
+            INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+            LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+            LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
             GROUP BY pg.id_perhitungan
             ORDER BY pg.tanggal_perhitungan DESC
             LIMIT 5
@@ -131,25 +134,24 @@ const getDashboardStats = async (req, res, next) => {
         }));
 
         // 2. Data Penyakit
-        const p = penyakitData[0];
+        const p_data = penyakitData[0];
         const formatPenyakit = [
-            { nama: 'Diabetes Melitus', jumlah: Number(p.dm), persentase: totalBulanIni > 0 ? parseFloat(((p.dm / totalBulanIni) * 100).toFixed(1)) : 0 },
-            { nama: 'Penyakit Jantung', jumlah: Number(p.chf), persentase: totalBulanIni > 0 ? parseFloat(((p.chf / totalBulanIni) * 100).toFixed(1)) : 0 },
-            { nama: 'Ginjal Kronik', jumlah: Number(p.ckd), persentase: totalBulanIni > 0 ? parseFloat(((p.ckd / totalBulanIni) * 100).toFixed(1)) : 0 },
-            { nama: 'Lambung', jumlah: Number(p.lambung), persentase: totalBulanIni > 0 ? parseFloat(((p.lambung / totalBulanIni) * 100).toFixed(1)) : 0 },
-            { nama: 'Stroke', jumlah: Number(p.stroke), persentase: totalBulanIni > 0 ? parseFloat(((p.stroke / totalBulanIni) * 100).toFixed(1)) : 0 },
-            { nama: 'Lainnya', jumlah: Number(p.lainnya), persentase: totalBulanIni > 0 ? parseFloat(((p.lainnya / totalBulanIni) * 100).toFixed(1)) : 0 }
+            { nama: 'Diabetes Melitus', jumlah: Number(p_data.dm), persentase: totalBulanIni > 0 ? parseFloat(((p_data.dm / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Penyakit Jantung', jumlah: Number(p_data.chf), persentase: totalBulanIni > 0 ? parseFloat(((p_data.chf / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Ginjal Kronik', jumlah: Number(p_data.ckd), persentase: totalBulanIni > 0 ? parseFloat(((p_data.ckd / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Lambung', jumlah: Number(p_data.lambung), persentase: totalBulanIni > 0 ? parseFloat(((p_data.lambung / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Stroke', jumlah: Number(p_data.stroke), persentase: totalBulanIni > 0 ? parseFloat(((p_data.stroke / totalBulanIni) * 100).toFixed(1)) : 0 },
+            { nama: 'Lainnya', jumlah: Number(p_data.lainnya), persentase: totalBulanIni > 0 ? parseFloat(((p_data.lainnya / totalBulanIni) * 100).toFixed(1)) : 0 }
         ].sort((a, b) => b.jumlah - a.jumlah);
 
         // 3. Data Rata-rata
         const r = rataRataData[0];
 
-        // 4. Data Riwayat Terakhir (Format UI Diperbarui)
+        // 4. Data Riwayat Terakhir
         const formatRiwayat = riwayatTerakhirData.map(item => {
             const tglObj = new Date(item.tanggal);
             const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
             
-            // Format Tanggal Masuk
             let tglMasukRapi = '-';
             if (item.tanggal_masuk) {
                 const tglMasukObj = new Date(item.tanggal_masuk);
@@ -158,21 +160,21 @@ const getDashboardStats = async (req, res, next) => {
 
             return {
                 nama_pasien: item.nama_pasien,
-                tanggal_masuk: tglMasukRapi, // BARU
+                tanggal_masuk: tglMasukRapi,
                 no_rm: item.no_rm,
                 info_pasien: `${item.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}, ${item.umur} Tahun`,
                 tanggal: tglObj.toLocaleDateString('id-ID', opsiTanggal),
                 jam: tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
                 metode: item.metode,
                 energi: Math.round(item.energi).toLocaleString('id-ID'), 
-                makronutrien: { // BARU
+                makronutrien: {
                     protein: item.protein_persen,
                     lemak: item.lemak_persen,
                     karbohidrat: item.karbohidrat_persen
                 },
                 status_gizi: item.status_gizi,
-                kode_penyakit: item.kode_penyakit || '-', // BARU
-                penyakit: item.penyakit // Tetap di-passing untuk jaga-jaga jika UI masih membutuhkannya
+                kode_penyakit: item.kode_penyakit || '-',
+                penyakit: item.penyakit 
             }
         });
 
