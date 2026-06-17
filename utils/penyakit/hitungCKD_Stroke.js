@@ -94,6 +94,9 @@ const hitungCKD_Stroke = (data) => {
 
     // 3c. KARBOHIDRAT: Sisa energi total agar mutlak 100%
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    if (karbohidrat_persen < 50 || karbohidrat_persen > 70) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Persentase Karbohidrat CKD + Stroke harus antara 50% - 70%.`);
+    }
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 

@@ -80,6 +80,9 @@ const hitungCKD_Lambung = (data) => {
 
     // 3c. KARBOHIDRAT: Sisa energi total (Otomatis melebar untuk menutupi defisit kalori lemak)
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    if (karbohidrat_persen < 55 || karbohidrat_persen > 80) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Persentase Karbohidrat CKD + Lambung harus antara 55% - 80%.`);
+    }
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 

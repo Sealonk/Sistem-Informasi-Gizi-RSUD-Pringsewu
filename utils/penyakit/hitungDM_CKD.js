@@ -148,6 +148,9 @@ const hitungDM_CKD = (data) => {
 
     // 3c. KARBOHIDRAT: Sisa dari Total Kalori agar persis 100%
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    if (karbohidrat_persen < 50 || karbohidrat_persen > 70) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Persentase Karbohidrat DM + CKD harus antara 50% - 70%.`);
+    }
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
@@ -180,7 +183,7 @@ const hitungDM_CKD = (data) => {
         fosfor_mg = 17 * bbi; 
     } else {
         natrium_mg = 2000;    
-        kalium_mg = 1600;     
+        kalium_mg = 39 * bbi; // 39 mg/kg BBI     
         kalsium_mg = 1200;    
         fosfor_mg = 10 * bbi; 
     }

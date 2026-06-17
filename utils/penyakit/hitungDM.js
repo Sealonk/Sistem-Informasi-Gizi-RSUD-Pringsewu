@@ -131,34 +131,28 @@ const hitungDM = (data) => {
     
     let protein_persen = 10; // Default
     let lemak_persen = 25;   // Default
-    let karbohidrat_persen = 65; // Default
 
     // Jika Frontend mengirim nilai slider, lakukan validasi ketat
-    if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {
+    if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
-        const k = parseFloat(input_persen_karbo);
 
-        // Validasi 1: Total harus tepat 100%
-        if (Math.round(p + l + k) !== 100) {
-            throw new Error(`Total persentase makronutrien harus 100%. Saat ini: ${p + l + k}%`);
-        }
-
-        // Validasi 2: Harus masuk rentang ("Pagar Aman") Buku Biru untuk DM murni
+        // Validasi 1: Harus masuk rentang ("Pagar Aman") Buku Biru untuk DM murni
         if (p < 10 || p > 20) {
             throw new Error(`Persentase Protein DM harus antara 10% - 20%. Input ditolak: ${p}%`);
         }
         if (l < 20 || l > 25) {
             throw new Error(`Persentase Lemak DM harus antara 20% - 25%. Input ditolak: ${l}%`);
         }
-        if (k < 45 || k > 65) {
-            throw new Error(`Persentase Karbohidrat DM harus antara 45% - 65%. Input ditolak: ${k}%`);
+
+        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
         // Jika lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
-        karbohidrat_persen = k;
     }
 
     // Eksekusi Perhitungan Kalori ke Gram
@@ -168,6 +162,10 @@ const hitungDM = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    if (karbohidrat_persen < 45 || karbohidrat_persen > 65) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Persentase Karbohidrat DM harus antara 45% - 65%.`);
+    }
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 

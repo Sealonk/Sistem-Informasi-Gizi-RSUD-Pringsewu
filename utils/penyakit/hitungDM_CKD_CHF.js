@@ -149,6 +149,9 @@ const hitungDM_CKD_CHF = (data) => {
 
     // 3c. KARBOHIDRAT: Dihitung otomatis sebagai sisa agar persis 100%
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    if (karbohidrat_persen < 50 || karbohidrat_persen > 70) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Persentase Karbohidrat DM + CKD + CHF harus antara 50% - 70%.`);
+    }
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total; 
     const karbohidrat_gram = kalori_karbohidrat / 4; 
 
@@ -182,7 +185,7 @@ const hitungDM_CKD_CHF = (data) => {
         kalsium_mg = 1000; 
         fosfor_mg = 17 * bbi;
     } else {
-        kalium_mg = 1600; // Nefropati Diabetik (Batas bawah paling aman)
+        kalium_mg = 39 * bbi; // 39 mg/kg BBI
         kalsium_mg = 1200;
     }
 

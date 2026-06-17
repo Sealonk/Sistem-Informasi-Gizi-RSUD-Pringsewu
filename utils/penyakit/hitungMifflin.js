@@ -88,18 +88,11 @@ const hitungMifflin = (data) => {
     // Nilai Default (Sesuai Tabel 2.3)
     let protein_persen = 15;
     let lemak_persen = 25;
-    let karbohidrat_persen = 60;
 
     // Jika Frontend mengirim nilai slider, lakukan validasi ketat
-    if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {
+    if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
-        const k = parseFloat(input_persen_karbo);
-
-        // Validasi 1: Total harus tepat 100%
-        if (Math.round(p + l + k) !== 100) {
-            throw new Error(`Total persentase makronutrien harus 100%. Saat ini: ${p + l + k}%`);
-        }
 
         // Validasi 2: Pagar Aman sesuai Tabel 2.3 PERSAGI
         if (p < 10 || p > 30) {
@@ -108,14 +101,15 @@ const hitungMifflin = (data) => {
         if (l < 20 || l > 30) {
             throw new Error(`Persentase Lemak Dewasa harus di rentang 20% - 30%. Input ditolak: ${l}%`);
         }
-        if (k < 45 || k > 65) {
-            throw new Error(`Persentase Karbohidrat Dewasa harus di rentang 45% - 65%. Input ditolak: ${k}%`);
+        
+        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
         // Lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
-        karbohidrat_persen = k;
     }
 
     const kalori_protein = (protein_persen / 100) * kebutuhan_energi_total;
@@ -124,7 +118,10 @@ const hitungMifflin = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    if (karbohidrat_persen < 45 || karbohidrat_persen > 65) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Persentase Karbohidrat Mifflin harus antara 45% - 65%.`);
+    } const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
     return {

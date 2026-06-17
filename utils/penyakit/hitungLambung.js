@@ -101,34 +101,29 @@ const hitungLambung = (data) => {
     // Nilai Default Buku Biru (Kondisi Stabil Nyaman)
     let protein_persen = 10;
     let lemak_persen = 15;
-    let karbohidrat_persen = 75;
 
     // Jika Frontend mengirim nilai slider, lakukan validasi ketat
-    if (input_persen_protein !== undefined && input_persen_lemak !== undefined && input_persen_karbo !== undefined) {
+    if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
-        const k = parseFloat(input_persen_karbo);
 
-        // Validasi 1: Total harus tepat 100%
-        if (Math.round(p + l + k) !== 100) {
-            throw new Error(`Total persentase makronutrien harus 100%. Saat ini: ${p + l + k}%`);
-        }
-
-        // Validasi 2: Pagar Aman Buku Biru Lambung murni
+        // Validasi 1: Pagar Aman Buku Biru Lambung murni
         if (p < 10 || p > 20) {
             throw new Error(`Persentase Protein Lambung harus kadar normal (10% - 20%). Input ditolak: ${p}%`);
         }
         if (l < 10 || l > 15) {
             throw new Error(`Persentase Lemak Lambung ketat rendah (10% - 15%) agar tidak memicu mual. Input ditolak: ${l}%`);
         }
-        if (k < 65 || k > 80) {
-            throw new Error(`Persentase Karbohidrat Lambung berada di rentang tinggi (65% - 80%). Input ditolak: ${k}%`);
+
+        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
+        if ((protein_persen + l) >= 100) {
+            throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
+
 
         // Lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
-        karbohidrat_persen = k;
     }
 
     // Eksekusi Kalori ke Gram
@@ -138,7 +133,11 @@ const hitungLambung = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
+    const karbohidrat_persen = 100 - protein_persen - lemak_persen;
+    if (karbohidrat_persen < 65 || karbohidrat_persen > 80) {
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Persentase Karbohidrat Lambung harus antara 65% - 80%.`);
+    }
+     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
     // Keterangan klinis tambahan dari Buku Biru

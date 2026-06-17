@@ -75,14 +75,10 @@ const hitungStroke = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // 3c. KARBOHIDRAT: Sisa energi total agar mutlak 100%
     const karbohidrat_persen = 100 - protein_persen - lemak_persen;
-
-    // Memastikan Karbohidrat tidak melanggar batas Stroke (50% - 60%)
     if (karbohidrat_persen < 50 || karbohidrat_persen > 60) {
-        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Hal ini berada di luar batas pedoman Stroke (50% - 60%). Silakan sesuaikan persentase Lemak di slider untuk menyeimbangkan.`);
+        throw new Error(`Kalkulasi ditolak: Sisa Karbohidrat mencapai ${karbohidrat_persen.toFixed(1)}%. Persentase Karbohidrat Stroke harus antara 50% - 60%.`);
     }
-
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total; 
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
