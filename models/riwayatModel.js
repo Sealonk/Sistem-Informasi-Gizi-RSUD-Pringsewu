@@ -7,8 +7,6 @@ const db = require('../config/database');
 const Riwayat = {
     /**
      * Update data riwayat berdasarkan ID
-     * @param {number} id - ID perhitungan
-     * @param {Object} data - Objek data yang ingin diupdate
      */
     updateById: async (id, data) => {
         const keys = Object.keys(data);
@@ -24,7 +22,6 @@ const Riwayat = {
 
     /**
      * Mengambil semua riwayat perhitungan dengan fitur Filter
-     * [Menggunakan struktur tabel SIMRS]
      */
     findAllRiwayat: async (filters) => {
         let query = `
@@ -62,7 +59,7 @@ const Riwayat = {
 
     /**
      * Mengambil detail satu riwayat spesifik
-     * [JOIN lengkap SIMRS untuk menarik penyakit dan tgl_masuk aktual]
+     * Menarik informasi Ruangan/Bangsal]
      */
     findDetailById: async (id_perhitungan) => {
         const query = `
@@ -71,13 +68,16 @@ const Riwayat = {
                 MAX(p.nm_pasien) AS nama_pasien, 
                 MAX(p.no_rkm_medis) AS no_rm, 
                 MAX(p.jk) AS jenis_kelamin, 
+                MAX(b.nm_bangsal) AS ruangan, 
                 GROUP_CONCAT(DISTINCT dp.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
                 COALESCE(MAX(ki.tgl_masuk), MAX(rp.tgl_registrasi)) AS tanggal_masuk
             FROM perhitungan_gizi pg
             INNER JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
             INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
-            LEFT JOIN kamar_inap ki ON pg.no_rawat = ki.no_rawat
-            LEFT JOIN diagnosa_pasien dp ON pg.no_rawat = dp.no_rawat
+            LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+            LEFT JOIN kamar k ON ki.kd_kamar = k.kd_kamar
+            LEFT JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
+            LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
             WHERE pg.id_perhitungan = ?
             GROUP BY pg.id_perhitungan
         `;

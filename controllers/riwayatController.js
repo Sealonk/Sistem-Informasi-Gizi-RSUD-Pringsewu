@@ -78,6 +78,7 @@ const getRiwayat = async (req, res, next) => {
         const [[countResult]] = await db.execute(countQuery, queryParams);
         const totalData = countResult.total;
 
+        // [DIPERBARUI]: Penarikan Gram Makronutrien dan JOIN Ruangan (Bangsal)
         const dataQuery = `
             SELECT 
                 pg.id_perhitungan,
@@ -85,18 +86,22 @@ const getRiwayat = async (req, res, next) => {
                 MAX(p.nm_pasien) AS nama_pasien,
                 MAX(p.no_rkm_medis) AS no_rm,
                 MAX(p.jk) AS jenis_kelamin,
+                MAX(b.nm_bangsal) AS ruangan, 
                 GROUP_CONCAT(DISTINCT dp.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
                 pg.diagnosa_penyakit_saat_dihitung AS penyakit,
                 pg.kebutuhan_energi_total AS total_energi,
-                pg.protein_persen, 
-                pg.lemak_persen, 
-                pg.karbohidrat_persen,
+                pg.protein_gram, 
+                pg.lemak_gram, 
+                pg.karbohidrat_gram,
                 pg.tanggal_perhitungan,
                 MAX(u.nama_lengkap) AS created_by
             FROM perhitungan_gizi pg
             JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
             JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
             JOIN users u ON pg.id_user = u.id_user
+            LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+            LEFT JOIN kamar k ON ki.kd_kamar = k.kd_kamar
+            LEFT JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
             LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
             ${whereClause}
             GROUP BY pg.id_perhitungan
@@ -117,13 +122,14 @@ const getRiwayat = async (req, res, next) => {
                 nama_pasien: item.nama_pasien,
                 no_rm: item.no_rm, 
                 jenis_kelamin: item.jenis_kelamin, 
+                ruangan: item.ruangan || 'Poli / Rawat Jalan', // [BARU]
                 kode_penyakit: item.kode_penyakit || '-', 
                 penyakit: item.penyakit,
                 total_energi: Math.round(item.total_energi), 
                 makronutrien: { 
-                    protein: item.protein_persen,
-                    lemak: item.lemak_persen,
-                    karbohidrat: item.karbohidrat_persen
+                    protein: parseFloat(item.protein_gram) || 0, // [DIPERBARUI] Menjadi Gram
+                    lemak: parseFloat(item.lemak_gram) || 0, // [DIPERBARUI] Menjadi Gram
+                    karbohidrat: parseFloat(item.karbohidrat_gram) || 0 // [DIPERBARUI] Menjadi Gram
                 },
                 tanggal_perhitungan: tanggalRapi,
                 created_by: item.created_by, 
@@ -173,6 +179,9 @@ const getRiwayatDetail = async (req, res, next) => {
             detail.tanggal_perhitungan_rapi = tglHitungObj.toLocaleDateString('id-ID', opsiTanggal);
         }
 
+        // Jika ruangan null, berikan label default
+        detail.ruangan = detail.ruangan || 'Poli / Rawat Jalan';
+
         res.status(200).json({
             status: 'success',
             data: detail
@@ -189,14 +198,17 @@ const updateRiwayat = async (req, res, next) => {
     try {
         const { id } = req.params;
         const dataInput = req.body;
+        
         const id_user_login = req.user.id_user; 
+        const user_role = req.user.role; // Ambil role pengguna dari token
 
         const detailLama = await PerhitunganModel.findDetailById(id);
         if (!detailLama) {
             return res.status(404).json({ status: 'error', message: 'Data riwayat tidak ditemukan' });
         }
 
-        if (detailLama.id_user !== id_user_login) {
+        // Izinkan update jika dia pembuatnya, ATAU jika dia adalah admin
+        if (detailLama.id_user !== id_user_login && user_role !== 'admin') {
             return res.status(403).json({ 
                 status: 'error', 
                 message: 'Akses Ditolak! Anda hanya dapat memperbarui perhitungan yang Anda buat sendiri.' 
@@ -267,14 +279,17 @@ const updateRiwayat = async (req, res, next) => {
 const deleteRiwayat = async (req, res, next) => {
     try {
         const { id } = req.params;
+        
         const id_user_login = req.user.id_user; 
+        const user_role = req.user.role; // Ambil role pengguna dari token
 
         const detailLama = await PerhitunganModel.findDetailById(id);
         if (!detailLama) {
             return res.status(404).json({ status: 'error', message: 'Gagal menghapus, data tidak ditemukan' });
         }
 
-        if (detailLama.id_user !== id_user_login) {
+        // Izinkan hapus jika dia pembuatnya, ATAU jika dia adalah admin
+        if (detailLama.id_user !== id_user_login && user_role !== 'admin') {
             return res.status(403).json({ 
                 status: 'error', 
                 message: 'Akses Ditolak! Anda hanya dapat menghapus perhitungan yang Anda buat sendiri.' 

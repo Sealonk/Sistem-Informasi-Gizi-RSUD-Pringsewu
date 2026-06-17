@@ -63,7 +63,7 @@ const getDashboardStats = async (req, res, next) => {
         `;
 
         // =========================================================================
-        // 5. Ambil 5 Riwayat Terakhir (Terintegrasi SIMRS)
+        // 5. Ambil 5 Riwayat Terakhir (Ruangan & Makronutrien Gram)
         // =========================================================================
         const queryRiwayatTerakhir = `
             SELECT 
@@ -72,7 +72,9 @@ const getDashboardStats = async (req, res, next) => {
                 MAX(p.jk) AS jenis_kelamin, 
                 MAX(rp.umurdaftar) AS umur,
                 
-                -- Fallback cerdas: Jika pasien rawat jalan (tidak ada di kamar_inap), pakai tanggal registrasi
+                -- Tambahan Ruangan
+                MAX(b.nm_bangsal) AS ruangan,
+                
                 COALESCE(MAX(ki.tgl_masuk), MAX(rp.tgl_registrasi)) AS tanggal_masuk,
                 
                 GROUP_CONCAT(DISTINCT dp.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
@@ -81,9 +83,10 @@ const getDashboardStats = async (req, res, next) => {
                 pg.metode_perhitungan AS metode, 
                 pg.kebutuhan_energi_total AS energi,
                 
-                pg.protein_persen,
-                pg.lemak_persen,
-                pg.karbohidrat_persen,
+                -- Diubah dari Persen menjadi Gram
+                pg.protein_gram,
+                pg.lemak_gram,
+                pg.karbohidrat_gram,
                 
                 pg.status_gizi_saat_dihitung AS status_gizi, 
                 pg.diagnosa_penyakit_saat_dihitung AS penyakit
@@ -91,6 +94,8 @@ const getDashboardStats = async (req, res, next) => {
             INNER JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
             INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
             LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+            LEFT JOIN kamar k ON ki.kd_kamar = k.kd_kamar
+            LEFT JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
             LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
             GROUP BY pg.id_perhitungan
             ORDER BY pg.tanggal_perhitungan DESC
@@ -162,15 +167,17 @@ const getDashboardStats = async (req, res, next) => {
                 nama_pasien: item.nama_pasien,
                 tanggal_masuk: tglMasukRapi,
                 no_rm: item.no_rm,
+                ruangan: item.ruangan || 'Poli / Rawat Jalan', // Nilai default jika pasien rawat jalan
                 info_pasien: `${item.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}, ${item.umur} Tahun`,
                 tanggal: tglObj.toLocaleDateString('id-ID', opsiTanggal),
                 jam: tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
                 metode: item.metode,
                 energi: Math.round(item.energi).toLocaleString('id-ID'), 
                 makronutrien: {
-                    protein: item.protein_persen,
-                    lemak: item.lemak_persen,
-                    karbohidrat: item.karbohidrat_persen
+                    // Dikonversi menjadi angka (float) dari database Gram
+                    protein: parseFloat(item.protein_gram) || 0,
+                    lemak: parseFloat(item.lemak_gram) || 0,
+                    karbohidrat: parseFloat(item.karbohidrat_gram) || 0
                 },
                 status_gizi: item.status_gizi,
                 kode_penyakit: item.kode_penyakit || '-',

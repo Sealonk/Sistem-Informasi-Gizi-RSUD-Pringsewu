@@ -7,13 +7,10 @@ const db = require('../config/database');
 const Pasien = {
     /**
      * Mengambil data dasar satu pasien spesifik berdasarkan No. Rawat (Kunjungan).
-     * Berguna jika Anda butuh menarik identitas dasar pasien dengan cepat di controller lain.
      * @param {string} no_rawat 
      * @returns {Promise<Object>} Data pasien
      */
     findById: async (no_rawat) => {
-        // Karena database sudah dinormalisasi SIMRS, kita melakukan JOIN antara
-        // reg_periksa (yang menyimpan no_rawat) dan pasien (yang menyimpan identitas mutlak)
         const query = `
             SELECT 
                 rp.no_rawat, 
@@ -22,27 +19,35 @@ const Pasien = {
                 p.jk, 
                 rp.umurdaftar, 
                 rp.sttsumur, 
-                rp.tgl_registrasi
+                rp.tgl_registrasi,
+                b.nm_bangsal AS ruangan,
+                ki.tgl_keluar
             FROM reg_periksa rp
             INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+            LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+            LEFT JOIN kamar k ON ki.kd_kamar = k.kd_kamar
+            LEFT JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
             WHERE rp.no_rawat = ?
         `;
         const [[row]] = await db.execute(query, [no_rawat]);
         return row;
     },
 
-    /**
-     * Mengecek apakah sebuah no_rawat (kunjungan) valid dan ada di database.
-     * Sangat berguna untuk middleware validasi sebelum menyimpan riwayat perhitungan gizi
-     * agar data tidak "yatim/piatu" (orphaned).
-     * @param {string} no_rawat
-     * @returns {Promise<boolean>}
-     */
     checkExists: async (no_rawat) => {
-        // Di struktur SIMRS, no_rawat adalah Primary Key milik tabel reg_periksa
         const query = 'SELECT no_rawat FROM reg_periksa WHERE no_rawat = ?';
         const [rows] = await db.execute(query, [no_rawat]);
         return rows.length > 0;
+    },
+
+    /**
+     * FUNGSI: Mengambil seluruh daftar bangsal (ruangan) yang ada di Rumah Sakit
+     * Berguna untuk mengisi dropdown filter di Frontend.
+     * @returns {Promise<Array>}
+     */
+    getAllBangsal: async () => {
+        const query = 'SELECT kd_bangsal, nm_bangsal FROM bangsal ORDER BY nm_bangsal ASC';
+        const [rows] = await db.execute(query);
+        return rows;
     }
 };
 
