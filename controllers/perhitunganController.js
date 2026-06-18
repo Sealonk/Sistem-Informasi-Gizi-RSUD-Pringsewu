@@ -33,8 +33,14 @@ const previewPerhitungan = async (req, res, next) => {
             return res.status(400).json({ status: 'error', message: 'ID Pasien (no_rawat) wajib diisi' });
         }
 
+        // 1. Tarik data umur mutlak (umurdaftar & sttsumur) langsung dari database SIMRS
         const queryCekPasien = `
-            SELECT rp.no_rawat, COALESCE(ki.tgl_masuk, rp.tgl_registrasi) AS tgl_masuk, dp.kd_penyakit 
+            SELECT 
+                rp.no_rawat, 
+                rp.umurdaftar, 
+                rp.sttsumur, 
+                COALESCE(ki.tgl_masuk, rp.tgl_registrasi) AS tgl_masuk, 
+                dp.kd_penyakit 
             FROM reg_periksa rp
             LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
             LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
@@ -46,17 +52,23 @@ const previewPerhitungan = async (req, res, next) => {
             return res.status(404).json({ status: 'error', message: `Gagal! Pasien dengan No. Rawat ${dataInput.id_pasien} tidak ditemukan di database SIMRS` });
         }
 
-        const gabunganKodePenyakit = cekPasien.map(row => row.kd_penyakit).filter(Boolean).join(', ');
         const dataPasienSIMRS = cekPasien[0]; 
+        const gabunganKodePenyakit = cekPasien.map(row => row.kd_penyakit).filter(Boolean).join(', ');
 
-        if (dataInput.umur) {
-            dataInput.umur = konversiUmurKeTahun(dataInput.umur);
-            if (dataInput.umur < 18) {
-                return res.status(403).json({ status: 'error', message: 'Perhitungan tidak dapat dilanjutkan karena pasien anak-anak.' });
-            }
-        } else {
-            return res.status(400).json({ status: 'error', message: 'Umur pasien wajib diisi.' });
+        // 2. VALIDASI UMUR MUTLAK
+        const sttsUmur = dataPasienSIMRS.sttsumur ? dataPasienSIMRS.sttsumur.toLowerCase() : '';
+        const isBulanAtauHari = sttsUmur.includes('bl') || sttsUmur.includes('hr');
+        const isAnakAnak = isBulanAtauHari || (sttsUmur.includes('th') && parseInt(dataPasienSIMRS.umurdaftar) < 18);
+
+        if (isAnakAnak) {
+            return res.status(403).json({ 
+                status: 'error', 
+                message: 'Perhitungan ditolak! Sistem saat ini belum mendukung kategori pasien pediatri (anak-anak di bawah usia 18 tahun).' 
+            });
         }
+
+        // 3. Timpa/Ganti nilai 'umur' yang mungkin dikirim frontend dengan umur yang sah dari database
+        dataInput.umur = konversiUmurKeTahun(`${dataPasienSIMRS.umurdaftar} ${dataPasienSIMRS.sttsumur}`);
         
         const hasilKalkulasi = kalkulasiGiziTotal(dataInput);
 
@@ -109,18 +121,39 @@ const simpanPerhitungan = async (req, res, next) => {
             return res.status(400).json({ status: 'error', message: 'ID Pasien / No Rawat tidak ditemukan' });
         }
 
-        const [cekPasien] = await db.execute('SELECT no_rawat FROM reg_periksa WHERE no_rawat = ?', [id_pasien]);
+        // 1. Cek ketersediaan pasien di SIMRS dan tarik umurnya
+        const [cekPasien] = await db.execute('SELECT no_rawat, umurdaftar, sttsumur FROM reg_periksa WHERE no_rawat = ?', [id_pasien]);
         
         if (cekPasien.length === 0) {
             return res.status(404).json({ status: 'error', message: `Gagal menyimpan! Pasien dengan No. Rawat ${id_pasien} tidak ditemukan di SIMRS.` });
         }
 
-        const umurNumerikTahun = konversiUmurKeTahun(umur);
+        const dataPasienSIMRS = cekPasien[0];
 
-        if (umurNumerikTahun < 18) {
-            return res.status(403).json({ status: 'error', message: 'Data tidak dapat disimpan karena pasien kategori anak-anak.' });
+        // 2. VALIDASI UMUR MUTLAK
+        const sttsUmur = dataPasienSIMRS.sttsumur ? dataPasienSIMRS.sttsumur.toLowerCase() : '';
+        const isBulanAtauHari = sttsUmur.includes('bl') || sttsUmur.includes('hr');
+        const isAnakAnak = isBulanAtauHari || (sttsUmur.includes('th') && parseInt(dataPasienSIMRS.umurdaftar) < 18);
+
+        if (isAnakAnak) {
+            return res.status(403).json({ 
+                status: 'error', 
+                message: 'Data tidak dapat disimpan! Sistem belum mendukung kategori pasien pediatri (anak-anak di bawah usia 18 tahun).' 
+            });
         }
 
+        // 3. VALIDASI GANDA: Tolak jika pasien sudah pernah dihitung sebelumnya
+        const [cekRiwayat] = await db.execute('SELECT id_perhitungan FROM perhitungan_gizi WHERE no_rawat = ?', [id_pasien]);
+        
+        if (cekRiwayat.length > 0) {
+            return res.status(409).json({ 
+                status: 'error', 
+                message: 'Pasien ini sudah memiliki riwayat perhitungan. Jika Anda ingin merevisi perhitungannya, silakan gunakan fitur Update di menu Riwayat Pasien.' 
+            });
+        }
+
+        // Ambil umur numerik pasti dari database untuk disimpan ke tabel perhitungan
+        const umurNumerikTahun = konversiUmurKeTahun(`${dataPasienSIMRS.umurdaftar} ${dataPasienSIMRS.sttsumur}`);
         const kelompok_umur = getKelompokUmur(umurNumerikTahun);
         const { nilaiIMT, statusGizi } = hitungIMT(berat_badan, tinggi_badan);
         
