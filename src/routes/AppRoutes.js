@@ -5,7 +5,10 @@ import {
 } from "react-router-dom";
 
 import LoginPage from "../pages/auth/Login";
+import ForgotPasswordAdmin from "../pages/auth/ForgotPasswordAdmin";
+import ResetPasswordAdmin from "../pages/auth/ResetPasswordAdmin";
 import PortalPage from "../pages/portal/PortalPage";
+import UserManagement from "../pages/admin/UserManagement";
 import PilihPasien from "../pages/perhitungan/PilihPasien";
 import Assessment from "../pages/perhitungan/Assessment";
 import HasilPerhitungan from "../pages/perhitungan/HasilPerhitungan";
@@ -24,6 +27,18 @@ export default function AppRoutes() {
         <Route
           path="/"
           element={<LoginPage />}
+        />
+
+        {/* LUPA PASSWORD ADMIN */}
+        <Route
+          path="/lupa-password-admin"
+          element={<ForgotPasswordAdmin />}
+        />
+
+        {/* RESET PASSWORD ADMIN */}
+        <Route
+          path="/reset-password"
+          element={<ResetPasswordAdmin />}
         />
 
         {/* PORTAL */}
@@ -102,6 +117,16 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <PrediksiPasien />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* MANAJEMEN USER */}
+        <Route
+          path="/manajemen-user"
+          element={
+            <ProtectedRoute>
+              <UserManagement />
             </ProtectedRoute>
           }
         />

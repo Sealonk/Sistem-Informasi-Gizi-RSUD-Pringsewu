@@ -4,6 +4,11 @@ import {
   Pencil,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  formatMakronutrienGram,
+  getEnergiTotal,
+  hasMakronutrienData,
+} from "../../../utils/makronutrien";
 
 const formatIndonesianDate = (dateStr) => {
   if (!dateStr) return "-";
@@ -25,6 +30,8 @@ export default function RiwayatRow({
   onDelete,
 }) {
   const navigate = useNavigate();
+  const energiTotal = getEnergiTotal(item);
+  const hasMakro = hasMakronutrienData(item);
 
   return (
     <tr
@@ -115,20 +122,20 @@ export default function RiwayatRow({
               text-slate-800
             "
           >
-            {item.total_energi}{" "}
+            {energiTotal?.toLocaleString("id-ID") || 0}{" "}
             <span className="text-xs font-normal text-slate-400">kkal</span>
           </h4>
 
-          {item.makronutrien && (
+          {hasMakro && (
             <div className="flex gap-1.5 mt-1.5 justify-center">
               <span className="text-[10px] font-bold text-blue-700 bg-blue-50/80 border border-blue-100/40 px-1.5 py-0.5 rounded-md">
-                P: {item.makronutrien.protein}%
+                P: {formatMakronutrienGram(item, "protein")}
               </span>
               <span className="text-[10px] font-bold text-amber-700 bg-amber-50/80 border border-amber-100/40 px-1.5 py-0.5 rounded-md">
-                L: {item.makronutrien.lemak}%
+                L: {formatMakronutrienGram(item, "lemak")}
               </span>
               <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50/80 border border-emerald-100/40 px-1.5 py-0.5 rounded-md">
-                K: {item.makronutrien.karbohidrat}%
+                K: {formatMakronutrienGram(item, "karbohidrat")}
               </span>
             </div>
           )}

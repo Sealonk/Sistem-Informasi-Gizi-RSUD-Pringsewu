@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 export default function PasienRow({ patient, onSelect }) {
   const navigate = useNavigate();
   const isDihitung = patient.status_perhitungan === "Sudah Dihitung";
+  const isSudahPulang = patient.status_pulang === "Sudah Pulang";
+  const isRawatJalan = patient.status_pulang === "Rawat Jalan (Poli)";
 
   return (
     <tr
@@ -59,7 +61,7 @@ export default function PasienRow({ patient, onSelect }) {
         {patient.rm}
       </td>
 
-      {/* DIAGNOSIS (JENIS PENYAKIT) */}
+      {/* JENIS PERHITUNGAN */}
       <td
         className="
           px-4
@@ -88,7 +90,7 @@ export default function PasienRow({ patient, onSelect }) {
             border-slate-200/60
           "
         >
-          {patient.diagnosis || "-"}
+          {patient.jenis_perhitungan || "-"}
         </span>
       </td>
 
@@ -144,6 +146,78 @@ export default function PasienRow({ patient, onSelect }) {
           `}
         >
           {patient.jk}
+        </span>
+      </td>
+
+      {/* RUANGAN */}
+      <td
+        className="
+          px-4
+          py-5
+          border-y
+          border-slate-200/70
+          bg-white/80
+          group-hover:bg-emerald-50/20
+          group-hover:border-emerald-200/50
+          transition-all
+          duration-300
+        "
+      >
+        <span
+          className="
+            inline-flex
+            items-center
+            rounded-xl
+            bg-cyan-50/80
+            px-3
+            py-1
+            text-xs
+            font-bold
+            text-cyan-700
+            border
+            border-cyan-100
+            whitespace-nowrap
+          "
+        >
+          {patient.ruangan || "-"}
+        </span>
+      </td>
+
+      {/* STATUS PULANG */}
+      <td
+        className="
+          px-4
+          py-5
+          border-y
+          border-slate-200/70
+          bg-white/80
+          group-hover:bg-emerald-50/20
+          group-hover:border-emerald-200/50
+          transition-all
+          duration-300
+        "
+      >
+        <span
+          className={`
+            inline-flex
+            items-center
+            rounded-xl
+            px-3
+            py-1
+            text-xs
+            font-bold
+            border
+            whitespace-nowrap
+            ${
+              isSudahPulang
+                ? "bg-amber-50/80 text-amber-700 border-amber-100"
+                : isRawatJalan
+                  ? "bg-violet-50/80 text-violet-700 border-violet-100"
+                  : "bg-emerald-50/80 text-emerald-700 border-emerald-100"
+            }
+          `}
+        >
+          {patient.status_pulang || "-"}
         </span>
       </td>
 

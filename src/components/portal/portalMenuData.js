@@ -3,6 +3,7 @@ import {
   History,
   LayoutDashboard,
   TrendingUp,
+  UsersRound,
 } from "lucide-react";
 
 export const portalMenus = [
@@ -31,5 +32,13 @@ export const portalMenus = [
     description: "Lihat riwayat perhitungan gizi pasien yang telah dilakukan.",
     icon: History,
     path: "/riwayat",
+  },
+  {
+    title: "Manajemen User",
+    description:
+      "Tambahkan user baru dan reset password petugas melalui akses administrator.",
+    icon: UsersRound,
+    path: "/manajemen-user",
+    requiredRole: "admin",
   },
 ];

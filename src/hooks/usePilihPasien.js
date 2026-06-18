@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 
 import {
+  getDaftarRuangan,
   getPasienList,
 } from "../services/perhitungan/pasienApi";
 
@@ -20,6 +21,8 @@ export default function usePilihPasien() {
   const [search, setSearch] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [statusPerhitungan, setStatusPerhitungan] = useState("");
+  const [ruangan, setRuangan] = useState("");
+  const [statusPulang, setStatusPulang] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedPatientForConfirm, setSelectedPatientForConfirm] = useState(null);
   const [pageSize, setPageSize] = useState(50);
@@ -30,6 +33,8 @@ export default function usePilihPasien() {
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState("");
   const [statistik, setStatistik] = useState(null);
+  const [ruanganOptions, setRuanganOptions] = useState([]);
+  const [ruanganError, setRuanganError] = useState("");
 
   const getPeriodeValue = useCallback(() => {
     switch (periode) {
@@ -59,6 +64,8 @@ export default function usePilihPasien() {
         limit: pageSize,
         page: page,
         status_perhitungan: statusPerhitungan,
+        ruangan,
+        status_pulang: statusPulang,
       });
 
       setPatients(response.pasien);
@@ -76,6 +83,8 @@ export default function usePilihPasien() {
     pageSize,
     page,
     statusPerhitungan,
+    ruangan,
+    statusPulang,
     getPeriodeValue,
   ]);
 
@@ -88,6 +97,31 @@ export default function usePilihPasien() {
     loadPatients();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadTrigger, page, pageSize]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadRuangan = async () => {
+      try {
+        setRuanganError("");
+        const data = await getDaftarRuangan();
+
+        if (isMounted) {
+          setRuanganOptions(data);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setRuanganError(error.message || "Gagal mengambil daftar ruangan");
+        }
+      }
+    };
+
+    loadRuangan();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSelectPatient = (patient) => {
     setSelectedPatientForConfirm(patient);
@@ -123,6 +157,14 @@ export default function usePilihPasien() {
     setStatusPerhitungan(value);
   };
 
+  const handleRuanganChange = (value) => {
+    setRuangan(value);
+  };
+
+  const handleStatusPulangChange = (value) => {
+    setStatusPulang(value);
+  };
+
   const handleChangePageSize = (size) => {
     setPageSize(size);
     setPage(1);
@@ -148,6 +190,8 @@ export default function usePilihPasien() {
     setSelectedDate("");
     setFilterError("");
     setStatusPerhitungan("");
+    setRuangan("");
+    setStatusPulang("");
     setPage(1);
 
     // Trigger eksplisit untuk memuat data setelah reset
@@ -160,6 +204,8 @@ export default function usePilihPasien() {
     search,
     selectedDate,
     statusPerhitungan,
+    ruangan,
+    statusPulang,
     showConfirm,
     setShowConfirm,
     selectedPatientForConfirm,
@@ -172,12 +218,16 @@ export default function usePilihPasien() {
     isLoading,
     fetchError,
     statistik,
+    ruanganOptions,
+    ruanganError,
     handleSelectPatient,
     handleConfirmSelect,
     handlePeriodeChange,
     handleSearchChange,
     handleDateChange,
     handleStatusPerhitunganChange,
+    handleRuanganChange,
+    handleStatusPulangChange,
     handleChangePageSize,
     handleSearch,
     handleReset,

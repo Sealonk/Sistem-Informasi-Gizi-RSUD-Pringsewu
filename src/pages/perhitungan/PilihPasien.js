@@ -11,6 +11,8 @@ export default function PilihPasien() {
     search,
     selectedDate,
     statusPerhitungan,
+    ruangan,
+    statusPulang,
     showConfirm,
     setShowConfirm,
     selectedPatientForConfirm,
@@ -23,12 +25,16 @@ export default function PilihPasien() {
     isLoading,
     fetchError,
     statistik,
+    ruanganOptions,
+    ruanganError,
     handleSelectPatient,
     handleConfirmSelect,
     handlePeriodeChange,
     handleSearchChange,
     handleDateChange,
     handleStatusPerhitunganChange,
+    handleRuanganChange,
+    handleStatusPulangChange,
     handleChangePageSize,
     handleSearch,
     handleReset,
@@ -52,6 +58,12 @@ export default function PilihPasien() {
           setSearch={handleSearchChange}
           statusPerhitungan={statusPerhitungan}
           setStatusPerhitungan={handleStatusPerhitunganChange}
+          ruangan={ruangan}
+          setRuangan={handleRuanganChange}
+          statusPulang={statusPulang}
+          setStatusPulang={handleStatusPulangChange}
+          ruanganOptions={ruanganOptions}
+          ruanganError={ruanganError}
           error={filterError}
           onReset={handleReset}
           onSearch={handleSearch}

@@ -4,6 +4,7 @@ import {
   isValidCombination,
 } from "../components/perhitungan/assessment/JenisPenyakit";
 import {
+  getSisaKarbohidrat,
   MACRO_CONFIGS,
   isExcludedCombination,
 } from "../components/perhitungan/assessment/PersentaseMakro";
@@ -93,11 +94,9 @@ export function useAssessmentValidation(data) {
       if (config.type === "three-sliders") {
         const pVal = data.persen_protein ?? config.protein.defaultVal;
         const lVal = data.persen_lemak ?? config.lemak.defaultVal;
-        const kVal = data.persen_karbohidrat ?? config.karbo.defaultVal;
+        const kVal = getSisaKarbohidrat(pVal, lVal);
         
-        if (pVal + lVal + kVal !== 100) {
-          errors.makronutrien = "Total persentase makronutrien harus tepat 100%";
-        } else if (pVal < config.protein.min || pVal > config.protein.max) {
+        if (pVal < config.protein.min || pVal > config.protein.max) {
           errors.makronutrien = `Protein harus berada di antara ${config.protein.min}% - ${config.protein.max}%`;
         } else if (lVal < config.lemak.min || lVal > config.lemak.max) {
           errors.makronutrien = `Lemak harus berada di antara ${config.lemak.min}% - ${config.lemak.max}%`;

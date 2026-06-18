@@ -2,9 +2,27 @@ import { useEffect } from "react";
 import { getDetailPasien } from "../services/perhitungan/detailPasienApi";
 import { getRiwayatDetail } from "../services/riwayat/riwayatApi";
 import {
+  mapDiagnosisTextToPenyakit,
+  mapDiagnosisToPenyakit,
   mapAktivitasFisikFromBackend,
   mapFaktorStressFromBackend,
 } from "./assessmentHelpers";
+
+const getBeratBadan = (source = {}) =>
+  source.berat_badan ??
+  source.bb ??
+  source.BB ??
+  source.berat_badan_saat_masuk ??
+  source.berat_badan_saat_dihitung ??
+  "";
+
+const getTinggiBadan = (source = {}) =>
+  source.tinggi_badan ??
+  source.tb ??
+  source.TB ??
+  source.tinggi_badan_saat_masuk ??
+  source.tinggi_badan_saat_dihitung ??
+  "";
 
 export default function useAssessmentDataFetch({
   patient,
@@ -21,35 +39,33 @@ export default function useAssessmentDataFetch({
 
     async function loadDetailPasien() {
       try {
-        const patientId = patient?.id;
+        const patientId = patient?.id || patient?.id_pasien || patient?.no_rawat;
         if (!patientId) return;
 
         const detail = await getDetailPasien(patientId);
 
-        const mappedPenyakit =
-          detail?.diagnosa_kategori?.map((item) => {
-            const value = item.toLowerCase().trim();
-
-            if (value === "dm") return "dm";
-            if (value === "ckd") return "ckd";
-            if (value === "chf") return "chf";
-            if (value === "stroke") return "stroke";
-            if (value === "lambung") return "lambung";
-            if (value === "critical ill") return "critical_ill";
-            if (value === "mifflin") return "mifflin";
-
-            return value;
-          }) || [];
+        const mappedPenyakit = mapDiagnosisToPenyakit(
+          detail?.diagnosa_kategori?.length ? detail.diagnosa_kategori : []
+        );
+        const fallbackPenyakit = mapDiagnosisTextToPenyakit(
+          patient?.diagnosis || ""
+        );
+        const detailBb = getBeratBadan(detail);
+        const detailTb = getTinggiBadan(detail);
+        const patientBb = getBeratBadan(patient);
+        const patientTb = getTinggiBadan(patient);
 
         setData((current) => ({
           ...current,
-          bb: detail?.berat_badan || "",
-          tb: detail?.tinggi_badan || "",
-          originalBb: detail?.berat_badan || "",
-          originalTb: detail?.tinggi_badan || "",
-          penyakit: mappedPenyakit,
+          bb: detailBb || current.bb || patientBb || "",
+          tb: detailTb || current.tb || patientTb || "",
+          originalBb: detailBb || current.originalBb || patientBb || "",
+          originalTb: detailTb || current.originalTb || patientTb || "",
+          penyakit: mappedPenyakit.length ? mappedPenyakit : fallbackPenyakit,
           penyakitLainnya: detail?.penyakit_lainnya || "",
           tanggal_masuk: current.tanggal_masuk || detail?.tanggal_masuk || "",
+          ruangan: detail?.ruangan || current.ruangan || "",
+          status_pulang: detail?.status_pulang || current.status_pulang || "",
           diagnosis: detail?.diagnosis || current.diagnosis || "",
           originalDiagnosis: detail?.diagnosis || current.originalDiagnosis || "",
         }));
@@ -118,6 +134,8 @@ export default function useAssessmentDataFetch({
             persen_karbohidrat: detail.karbohidrat_persen || undefined,
             umur: detail.umur_saat_dihitung ? String(Math.round(detail.umur_saat_dihitung)) : "",
             jenisKelamin: detail.jenis_kelamin || "L",
+            ruangan: detail.ruangan || "",
+            status_pulang: detail.status_pulang || "",
           };
 
           setData({
@@ -125,6 +143,8 @@ export default function useAssessmentDataFetch({
             noRM: detail.no_rm || "",
             umur: detail.umur_saat_dihitung ? String(Math.round(detail.umur_saat_dihitung)) : "",
             jenisKelamin: detail.jenis_kelamin || "L",
+            ruangan: detail.ruangan || "",
+            status_pulang: detail.status_pulang || "",
             bb: detail.berat_badan_saat_dihitung || "",
             tb: detail.tinggi_badan_saat_dihitung || "",
             isEstimasi: detail.is_estimasi === 1,
@@ -134,7 +154,7 @@ export default function useAssessmentDataFetch({
             tbEstimasi: detail.is_estimasi === 1 ? detail.tinggi_badan_saat_dihitung : "",
             persenLila: detail.persen_lila || "",
             originalBb: detail.berat_badan_saat_dihitung || "",
-            originalTb: detail.berat_badan_saat_dihitung || "",
+            originalTb: detail.tinggi_badan_saat_dihitung || "",
             penyakit: penyakitArray,
             penyakitLainnya: penyakitLainnya || "",
             aktivitasFisik: mappedAktivitas,

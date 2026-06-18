@@ -53,6 +53,32 @@ export const getFilteredDiseaseCodes = (selectedPenyakitKeys, originalDiagnosis)
   return uniqueCodes.length > 0 ? uniqueCodes.join(", ") : "-";
 };
 
+export const mapDiagnosisToPenyakit = (items = []) => {
+  return items
+    .map((item) => {
+      const value = String(item || "").toLowerCase().trim();
+
+      if (value === "dm" || value.includes("diabetes")) return "dm";
+      if (value === "ckd") return "ckd";
+      if (value === "chf") return "chf";
+      if (value === "stroke") return "stroke";
+      if (value === "lambung") return "lambung";
+      if (value === "critical ill") return "critical_ill";
+      if (value === "mifflin") return "mifflin";
+
+      return "";
+    })
+    .filter(Boolean);
+};
+
+export const mapDiagnosisTextToPenyakit = (diagnosis = "") => {
+  return mapDiagnosisToPenyakit(
+    String(diagnosis)
+      .split("+")
+      .map((item) => item.trim())
+  );
+};
+
 export const mapAktivitasFisikFromBackend = (val, isDM) => {
   if (!val) return "";
   const cleaned = val.toLowerCase().trim();
@@ -162,6 +188,8 @@ export const initialAssessmentData = {
   hemodialisa: "",
   penambahanKalori: [],
   tanggal_masuk: "",
+  ruangan: "",
+  status_pulang: "",
   diagnosis: "",
   originalDiagnosis: "",
   isDiagnosisEdited: false,

@@ -3,6 +3,10 @@ import { Calculator, Lock, Unlock, RotateCcw, CheckCircle2, AlertCircle, Info } 
 import SectionCard from "../../common/SectionCard";
 import { getDiseaseValues } from "./JenisPenyakit";
 
+export const getSisaKarbohidrat = (protein, lemak) => {
+  return Math.max(0, 100 - Number(protein || 0) - Number(lemak || 0));
+};
+
 // Configuration for macronutrients by disease combination
 export const MACRO_CONFIGS = {
   "dm": {
@@ -160,7 +164,7 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
 
     if (diseaseChanged) {
       const needsInit = isInitialLoad && (
-        (config?.type === "three-sliders" && (data.persen_protein === undefined || data.persen_lemak === undefined || data.persen_karbohidrat === undefined)) ||
+        (config?.type === "three-sliders" && (data.persen_protein === undefined || data.persen_lemak === undefined)) ||
         (config?.type === "one-slider" && data.persen_lemak === undefined)
       );
       const needsReset = !isInitialLoad && diseaseChanged;
@@ -168,11 +172,15 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
       if (needsInit || needsReset) {
         if (config) {
           if (config.type === "three-sliders") {
+            const defaultKarbo = getSisaKarbohidrat(
+              config.protein.defaultVal,
+              config.lemak.defaultVal
+            );
             setData(prev => ({
               ...prev,
               persen_protein: config.protein.defaultVal,
               persen_lemak: config.lemak.defaultVal,
-              persen_karbohidrat: config.karbo.defaultVal,
+              persen_karbohidrat: defaultKarbo,
             }));
           } else if (config.type === "one-slider") {
             setData(prev => ({
@@ -196,15 +204,43 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, rawConfig, setData, data.persen_protein, data.persen_lemak, data.persen_karbohidrat]);
 
+  useEffect(() => {
+    if (!config || config.type !== "three-sliders") return;
+
+    const pVal = data.persen_protein ?? config.protein.defaultVal;
+    const lVal = data.persen_lemak ?? config.lemak.defaultVal;
+    const nextKarbo = getSisaKarbohidrat(pVal, lVal);
+
+    if (data.persen_karbohidrat !== nextKarbo) {
+      setData(prev => ({
+        ...prev,
+        persen_karbohidrat: nextKarbo,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    config?.type,
+    config?.protein?.defaultVal,
+    config?.lemak?.defaultVal,
+    data.persen_protein,
+    data.persen_lemak,
+    data.persen_karbohidrat,
+    setData,
+  ]);
+
   // Handle resets to defaults
   const handleResetToDefault = () => {
     if (!config) return;
     if (config.type === "three-sliders") {
+      const defaultKarbo = getSisaKarbohidrat(
+        config.protein.defaultVal,
+        config.lemak.defaultVal
+      );
       setData(prev => ({
         ...prev,
         persen_protein: config.protein.defaultVal,
         persen_lemak: config.lemak.defaultVal,
-        persen_karbohidrat: config.karbo.defaultVal,
+        persen_karbohidrat: defaultKarbo,
       }));
     } else if (config.type === "one-slider") {
       setData(prev => ({
@@ -227,14 +263,14 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
   const hasSliders = config && !isExcluded;
   const pVal = hasSliders && config.type === "three-sliders" ? (data.persen_protein ?? config.protein.defaultVal) : 0;
   const lVal = hasSliders ? (data.persen_lemak ?? config.lemak.defaultVal) : 0;
-  const kVal = hasSliders && config.type === "three-sliders" ? (data.persen_karbohidrat ?? config.karbo.defaultVal) : 0;
+  const kVal = hasSliders && config.type === "three-sliders" ? getSisaKarbohidrat(pVal, lVal) : 0;
   const total = pVal + lVal + kVal;
 
   const isDifferentFromDefault = config && (
     (config.type === "three-sliders" && (
       pVal !== config.protein.defaultVal ||
       lVal !== config.lemak.defaultVal ||
-      kVal !== config.karbo.defaultVal
+      kVal !== getSisaKarbohidrat(config.protein.defaultVal, config.lemak.defaultVal)
     )) ||
     (config.type === "one-slider" && lVal !== config.lemak.defaultVal)
   );
@@ -285,7 +321,7 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
               <div className="flex justify-between text-xs font-semibold text-slate-500 px-1">
                 <span>Visualisasi Distribusi Energi</span>
                 {config.type === "three-sliders" && (
-                  <span className={total === 100 ? "text-emerald-600" : "text-amber-600"}>
+                  <span className="text-emerald-600">
                     Total: {total}%
                   </span>
                 )}
@@ -404,30 +440,23 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
                 </div>
               </div>
 
-              {/* KARBOHIDRAT SLIDER OR LOCKED */}
+              {/* KARBOHIDRAT AUTOMATIC REMAINDER */}
               {config.type === "three-sliders" ? (
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-                      <Unlock size={14} className="text-slate-400" />
-                      Karbohidrat
-                    </span>
-                    <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full text-xs">
-                      {kVal}%
-                    </span>
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <Lock size={14} className="text-emerald-600" />
+                    <div>
+                      <div className="font-semibold text-emerald-800">
+                        Karbohidrat
+                      </div>
+                      <div className="text-[10px] text-emerald-700">
+                        Otomatis dari sisa 100% setelah protein dan lemak
+                      </div>
+                    </div>
                   </div>
-                  <input
-                    type="range"
-                    min={config.karbo.min}
-                    max={config.karbo.max}
-                    value={kVal}
-                    onChange={(e) => handleSliderChange("persen_karbohidrat", e.target.value)}
-                    className="w-full h-1.5 bg-emerald-100 rounded-lg appearance-none cursor-pointer accent-emerald-600 focus:outline-none"
-                  />
-                  <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-                    <span>Rentang: {config.karbo.min}% - {config.karbo.max}%</span>
-                    <span>Default: {config.karbo.defaultVal}%</span>
-                  </div>
+                  <span className="font-bold text-emerald-700 bg-white/80 px-3 py-1 rounded-full">
+                    {kVal}%
+                  </span>
                 </div>
               ) : (
                 <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 flex items-center justify-between text-xs">
@@ -450,13 +479,13 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
               <div>
                 {config.type === "three-sliders" && (
                   <div className="flex items-center gap-1.5 text-xs font-semibold">
-                    {total === 100 ? (
+                    {kVal >= config.karbo.min && kVal <= config.karbo.max ? (
                       <span className="text-emerald-600 flex items-center gap-1">
-                        <CheckCircle2 size={14} /> Total 100% tepat.
+                        <CheckCircle2 size={14} /> Karbohidrat otomatis {kVal}%.
                       </span>
                     ) : (
                       <span className="text-amber-600 flex items-center gap-1">
-                        <AlertCircle size={14} /> Total {total}% (harus 100%).
+                        <AlertCircle size={14} /> Karbohidrat {kVal}% di luar rentang {config.karbo.min}% - {config.karbo.max}%.
                       </span>
                     )}
                   </div>

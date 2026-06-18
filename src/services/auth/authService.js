@@ -12,6 +12,8 @@ const API_ENDPOINTS = {
     register: `/api/auth/register`,
     refreshToken: `/api/auth/refresh-token`,
     verifyToken: `/api/auth/verify-token`,
+    forgotPasswordAdmin: `/api/auth/forgot-password-admin`,
+    resetPasswordAdmin: `/api/auth/reset-password-admin`,
   },
 };
 
@@ -75,6 +77,40 @@ export const loginUser = async (data) => {
 
     throw new Error(
       error.response?.data?.message || "Login gagal, server bermasalah"
+    );
+  }
+};
+
+export const forgotPasswordAdmin = async (email) => {
+  try {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.auth.forgotPasswordAdmin,
+      { email }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message ||
+        "Gagal mengirim tautan pemulihan password admin"
+    );
+  }
+};
+
+export const resetPasswordAdmin = async ({ token, newPassword }) => {
+  try {
+    const response = await axiosInstance.post(
+      API_ENDPOINTS.auth.resetPasswordAdmin,
+      {
+        token,
+        newPassword,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Gagal mereset password admin"
     );
   }
 };

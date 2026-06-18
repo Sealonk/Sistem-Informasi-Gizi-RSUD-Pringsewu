@@ -1,4 +1,5 @@
 import LoginForm from "./LoginForm";
+import { Link } from "react-router-dom";
 
 export default function LoginCard({
   error,
@@ -75,9 +76,18 @@ export default function LoginCard({
         onSubmit={onSubmit}
       />
 
+      <div className="mt-5 text-center">
+        <Link
+          to="/lupa-password-admin"
+          className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+        >
+          Lupa password admin?
+        </Link>
+      </div>
+
       <div
         className="
-          mt-6
+          mt-5
           text-center
           text-[13px]
           text-slate-500

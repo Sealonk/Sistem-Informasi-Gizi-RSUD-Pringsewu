@@ -41,6 +41,15 @@ export default function PortalMenuCard({ menu, onOpen }) {
           badgeColor: "bg-blue-50 text-blue-700 border-blue-100",
           label: "Riwayat Perhitungan"
         };
+      case "/manajemen-user":
+        return {
+          gradient: "from-cyan-500 to-blue-600",
+          iconBg: "bg-cyan-50 text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white",
+          btnBg: "bg-cyan-50 text-cyan-600 hover:bg-cyan-600 hover:text-white hover:shadow-lg hover:shadow-cyan-100",
+          glow: "hover:shadow-cyan-500/8 hover:border-cyan-200/80",
+          badgeColor: "bg-cyan-50 text-cyan-700 border-cyan-100",
+          label: "Kontrol Admin"
+        };
       default:
         return {
           gradient: "from-blue-600 to-blue-600",

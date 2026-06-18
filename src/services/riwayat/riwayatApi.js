@@ -10,7 +10,7 @@ export const getRiwayat = async ({
 }) => {
   try {
     const response = await axiosInstance.get(
-      "/api/perhitungan/riwayat",
+      "/api/riwayat",
       {
         params: {
           page,
@@ -37,7 +37,7 @@ export const getRiwayat = async ({
 export const getRiwayatDetail = async (id) => {
   try {
     const response = await axiosInstance.get(
-      `/api/perhitungan/riwayat/${id}`
+      `/api/riwayat/${id}`
     );
 
     return response.data;
@@ -54,7 +54,7 @@ export const getRiwayatDetail = async (id) => {
 export const deleteRiwayat = async (id) => {
   try {
     const response = await axiosInstance.delete(
-      `/api/perhitungan/riwayat/${id}`
+      `/api/riwayat/${id}`
     );
 
     return response.data;
@@ -71,7 +71,7 @@ export const deleteRiwayat = async (id) => {
 export const updateRiwayat = async (id, payload) => {
   try {
     const response = await axiosInstance.put(
-      `/api/perhitungan/riwayat/${id}`,
+      `/api/riwayat/${id}`,
       payload
     );
     return response.data;

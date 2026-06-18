@@ -92,6 +92,14 @@ export default function IdentitasPasien({
           value={data.umur ? getKelompokUmur(data.umur) : ""}
           readOnly
         />
+
+        {/* RUANGAN */}
+        <InputField
+          label="Ruangan"
+          placeholder="Ruangan pasien"
+          value={data.ruangan || "-"}
+          readOnly
+        />
       </div>
 
       {/* JENIS KELAMIN */}

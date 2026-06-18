@@ -4,6 +4,8 @@ import { getDiseaseValues } from "../components/perhitungan/assessment/JenisPeny
 import {
   initialAssessmentData,
   getFilteredDiseaseCodes,
+  mapDiagnosisTextToPenyakit,
+  mapDiagnosisToPenyakit,
 } from "./assessmentHelpers";
 import useAntropometriEstimation from "./useAntropometriEstimation";
 import useAssessmentDataFetch from "./useAssessmentDataFetch";
@@ -26,13 +28,26 @@ export function useAssessmentLogic() {
     if (isRestored && restoredData) {
       return restoredData;
     }
+
+    const penyakitAwal = patient?.diagnosis_array?.length
+      ? mapDiagnosisToPenyakit(patient.diagnosis_array)
+      : mapDiagnosisTextToPenyakit(patient?.diagnosis || "");
+
     return {
       ...initialAssessmentData,
       nama: patient?.nama || "",
       noRM: patient?.rm || "",
       umur: patient?.umur ? parseInt(patient.umur) : "",
       jenisKelamin: patient?.jk === "Perempuan" ? "P" : "L",
+      bb: patient?.bb || patient?.berat_badan || "",
+      tb: patient?.tb || patient?.tinggi_badan || "",
+      originalBb: patient?.bb || patient?.berat_badan || "",
+      originalTb: patient?.tb || patient?.tinggi_badan || "",
+      penyakit: penyakitAwal,
+      penyakitLainnya: patient?.penyakit_lainnya || "",
       tanggal_masuk: patient?.tanggal_masuk || patient?.dateISO || "",
+      ruangan: patient?.ruangan || "",
+      status_pulang: patient?.status_pulang || "",
       diagnosis: patient?.diagnosis || "",
       originalDiagnosis: patient?.diagnosis || "",
       isEditMode: isEditMode || false,

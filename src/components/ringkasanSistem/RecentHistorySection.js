@@ -8,6 +8,10 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import { getRiwayat } from "../../services/riwayat/riwayatApi";
+import {
+  formatMakronutrienGram,
+  getEnergiTotal,
+} from "../../utils/makronutrien";
 
 import SummaryPanel from "./SummaryPanel";
 
@@ -285,20 +289,20 @@ export default function RecentHistorySection({
                         text-slate-900
                       "
                     >
-                      {item.energi || 0} kkal
+                      {getEnergiTotal(item)?.toLocaleString("id-ID") || 0} kkal
                     </td>
 
                     {/* MAKRONUTRIEN */}
                     <td className="py-4 pr-4">
                       <div className="flex flex-col gap-1 text-xs">
                         <span className="font-semibold text-blue-600">
-                          P: {item.makronutrien?.protein ?? "-"}%
+                          P: {formatMakronutrienGram(item, "protein")}
                         </span>
                         <span className="font-semibold text-yellow-600">
-                          L: {item.makronutrien?.lemak ?? "-"}%
+                          L: {formatMakronutrienGram(item, "lemak")}
                         </span>
                         <span className="font-semibold text-emerald-600">
-                          K: {item.makronutrien?.karbohidrat ?? "-"}%
+                          K: {formatMakronutrienGram(item, "karbohidrat")}
                         </span>
                       </div>
                     </td>

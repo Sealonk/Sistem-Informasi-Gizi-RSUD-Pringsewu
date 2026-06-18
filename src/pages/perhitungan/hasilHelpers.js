@@ -67,6 +67,7 @@ export const prepareSavePayload = (data, hasil) => {
     umur: Number(data?.umur),
     berat_badan: Number(data?.bb),
     tinggi_badan: Number(data?.tb),
+    ruang_bangsal: data?.ruangan || null,
     is_estimasi: data?.isEstimasi || false,
     lila_cm: data?.lila ? Number(data?.lila) : null,
     ulna_cm: data?.ulna ? Number(data?.ulna) : null,

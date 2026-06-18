@@ -7,6 +7,7 @@ import {
   getDiseaseValues,
 } from "../components/perhitungan/assessment/JenisPenyakit";
 import {
+  getSisaKarbohidrat,
   MACRO_CONFIGS,
   isExcludedCombination,
 } from "../components/perhitungan/assessment/PersentaseMakro";
@@ -108,7 +109,10 @@ export function useAssessmentHandlers(
         if (config.type === "three-sliders") {
           persen_protein = data.persen_protein ?? config.protein.defaultVal;
           persen_lemak = data.persen_lemak ?? config.lemak.defaultVal;
-          persen_karbohidrat = data.persen_karbohidrat ?? config.karbo.defaultVal;
+          persen_karbohidrat = getSisaKarbohidrat(
+            persen_protein,
+            persen_lemak
+          );
         } else if (config.type === "one-slider") {
           persen_lemak = data.persen_lemak ?? config.lemak.defaultVal;
         }
@@ -139,6 +143,7 @@ export function useAssessmentHandlers(
             : null,
         berat_badan: Number(data.bb),
         tinggi_badan: Number(data.tb),
+        ruang_bangsal: data.ruangan || patient?.ruangan || null,
         aktivitas_fisik: mappedAktivitas,
         faktor_stres: mappedStress,
         kategori_penambahan_energi: data.penambahanKalori

@@ -139,13 +139,19 @@ export default function PasienTable({
                 No. RM
               </th>
               <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Jenis Penyakit
+                Jenis Perhitungan
               </th>
               <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Umur
               </th>
               <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Jenis Kelamin
+              </th>
+              <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Ruangan
+              </th>
+              <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Status Pulang
               </th>
               <th className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Status Hitung
@@ -158,7 +164,7 @@ export default function PasienTable({
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="px-8 py-16 text-center">
+                <td colSpan={9} className="px-8 py-16 text-center">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <div className="w-8 h-8 rounded-full border-4 border-slate-100 border-t-emerald-600 animate-spin" />
                     <span className="text-xs font-bold text-slate-500">
@@ -169,7 +175,7 @@ export default function PasienTable({
               </tr>
             ) : error ? (
               <tr>
-                <td colSpan={7} className="px-8 py-16 text-center text-xs font-semibold text-rose-500">
+                <td colSpan={9} className="px-8 py-16 text-center text-xs font-semibold text-rose-500">
                   ❌ {error}
                 </td>
               </tr>
@@ -183,7 +189,7 @@ export default function PasienTable({
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="px-8 py-16 text-center text-xs font-semibold text-slate-400">
+                <td colSpan={9} className="px-8 py-16 text-center text-xs font-semibold text-slate-400">
                   Tidak ada data pasien yang sesuai filter.
                 </td>
               </tr>
