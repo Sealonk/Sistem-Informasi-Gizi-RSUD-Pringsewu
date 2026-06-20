@@ -2,7 +2,7 @@
 // CONTROLLER: pasienController.js
 // ==========================================
 
-const db = require('../config/database');
+const PasienModel = require('../models/pasienModel'); // Import Model Pengganti Query Langsung
 const { getKelompokUmur, hitungIMT } = require('../utils/sharedRumus');
 
 // ==========================================
@@ -10,9 +10,7 @@ const { getKelompokUmur, hitungIMT } = require('../utils/sharedRumus');
 // ==========================================
 const getDaftarRuangan = async (req, res, next) => {
     try {
-        const query = 'SELECT kd_bangsal, nm_bangsal FROM bangsal ORDER BY nm_bangsal ASC';
-        const [rows] = await db.execute(query);
-        
+        const rows = await PasienModel.getAllBangsal();
         res.status(200).json({
             status: 'success',
             message: 'Daftar ruangan berhasil diambil',
@@ -23,6 +21,9 @@ const getDaftarRuangan = async (req, res, next) => {
     }
 };
 
+// ==========================================
+// FUNGSI: LIST ALL PASIEN (DENGAN FILTER & BACK-CHECK DATA)
+// ==========================================
 const getAllPasien = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -34,12 +35,10 @@ const getAllPasien = async (req, res, next) => {
         const startDate = req.query.startDate || '';
         const endDate = req.query.endDate || '';
         const status_perhitungan = req.query.status_perhitungan || '';
-        
-        // PARAMETER: Ruangan & Status Pulang
         const ruangan = req.query.ruangan || '';
-        const status_pulang = req.query.status_pulang || ''; // 'sudah', 'belum', 'rawat_jalan'
+        const status_pulang = req.query.status_pulang || '';
 
-        // 1. Build Klausa WHERE Dinamis
+        // 1. Pembuatan parameter WHERE dinamis untuk diserahkan ke model
         let whereClause = '';
         const queryParams = [];
 
@@ -60,19 +59,17 @@ const getAllPasien = async (req, res, next) => {
             queryParams.push(startDate, endDate);
         }
 
-        // FILTER: Ruangan
         if (ruangan) {
             whereClause += ` AND b.nm_bangsal = ?`;
             queryParams.push(ruangan);
         }
 
-        // FILTER: Status Pulang
         if (status_pulang === 'sudah') {
             whereClause += ` AND ki.tgl_keluar IS NOT NULL`;
         } else if (status_pulang === 'belum') {
-            whereClause += ` AND ki.tgl_keluar IS NULL AND ki.no_rawat IS NOT NULL`; // Pasien nginap tapi belum pulang
+            whereClause += ` AND ki.tgl_keluar IS NULL AND ki.no_rawat IS NOT NULL`;
         } else if (status_pulang === 'rawat_jalan') {
-            whereClause += ` AND ki.no_rawat IS NULL`; // Tidak ada data di kamar_inap (Poli)
+            whereClause += ` AND ki.no_rawat IS NULL`;
         }
 
         let validPasienFilter = '';
@@ -82,104 +79,14 @@ const getAllPasien = async (req, res, next) => {
             validPasienFilter = 'WHERE id_perhitungan IS NULL';
         }
 
-        // =======================================================
-        // 2. CTE (Common Table Expression) dengan JOIN TAMBAHAN
-        // =======================================================
-        const cteQuery = `
-            WITH StatusHitung AS (
-                SELECT no_rawat, MAX(id_perhitungan) AS id_perhitungan, MAX(tanggal_perhitungan) AS waktu_pembaruan
-                FROM perhitungan_gizi
-                GROUP BY no_rawat
-            ),
-            ValidPasien AS (
-                SELECT 
-                    rp.no_rawat AS id_pasien,
-                    MAX(p.nm_pasien) AS nama_pasien,
-                    rp.no_rkm_medis AS no_rm,
-                    MAX(p.jk) AS jenis_kelamin,
-                    MAX(rp.umurdaftar) AS umurdaftar,
-                    MAX(rp.sttsumur) AS sttsumur,
-                    MAX(${dateColumn}) AS tanggal_masuk,
-                    
-                    -- PENGAMBILAN DATA RUANGAN & KEPULANGAN
-                    MAX(ki.tgl_masuk) AS tgl_masuk_inap,
-                    MAX(ki.tgl_keluar) AS tgl_keluar,
-                    MAX(b.nm_bangsal) AS ruangan,
-                    
-                    GROUP_CONCAT(DISTINCT py.nm_penyakit SEPARATOR ', ') AS nama_penyakit_asli,
-                    MAX(sh.id_perhitungan) AS id_perhitungan,
-                    MAX(sh.waktu_pembaruan) AS waktu_pembaruan,
-                    
-                    MAX(CASE WHEN dp.kd_penyakit LIKE 'E10%' OR dp.kd_penyakit LIKE 'E11%' OR dp.kd_penyakit LIKE 'E12%' OR dp.kd_penyakit LIKE 'E13%' OR dp.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
-                    MAX(CASE WHEN dp.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
-                    MAX(CASE WHEN dp.kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
-                    MAX(CASE WHEN dp.kd_penyakit LIKE 'I60%' OR dp.kd_penyakit LIKE 'I61%' OR dp.kd_penyakit LIKE 'I62%' OR dp.kd_penyakit LIKE 'I63%' OR dp.kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
-                    MAX(CASE WHEN dp.kd_penyakit LIKE 'K21%' OR dp.kd_penyakit LIKE 'K25%' OR dp.kd_penyakit LIKE 'K29%' OR dp.kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
-                    
-                    SUM(CASE WHEN 
-                        (dp.kd_penyakit NOT LIKE 'E10%' AND dp.kd_penyakit NOT LIKE 'E11%' AND dp.kd_penyakit NOT LIKE 'E12%' AND dp.kd_penyakit NOT LIKE 'E13%' AND dp.kd_penyakit NOT LIKE 'E14%') AND
-                        (dp.kd_penyakit NOT LIKE 'N18%') AND
-                        (dp.kd_penyakit NOT LIKE 'I50%') AND
-                        (dp.kd_penyakit NOT LIKE 'I60%' AND dp.kd_penyakit NOT LIKE 'I61%' AND dp.kd_penyakit NOT LIKE 'I62%' AND dp.kd_penyakit NOT LIKE 'I63%' AND dp.kd_penyakit NOT LIKE 'I64%') AND
-                        (dp.kd_penyakit NOT LIKE 'K21%' AND dp.kd_penyakit NOT LIKE 'K25%' AND dp.kd_penyakit NOT LIKE 'K29%' AND dp.kd_penyakit NOT LIKE 'K30%') AND
-                        dp.kd_penyakit IS NOT NULL AND dp.kd_penyakit != ''
-                    THEN 1 ELSE 0 END) AS count_other
-
-                FROM reg_periksa rp
-                INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
-                LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
-                LEFT JOIN kamar k ON ki.kd_kamar = k.kd_kamar
-                LEFT JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
-                LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
-                LEFT JOIN penyakit py ON dp.kd_penyakit = py.kd_penyakit
-                LEFT JOIN StatusHitung sh ON rp.no_rawat = sh.no_rawat
-                
-                WHERE 1=1 ${whereClause} 
-                AND NOT (LOWER(rp.sttsumur) LIKE '%bl%' OR LOWER(rp.sttsumur) LIKE '%hr%' OR (LOWER(rp.sttsumur) LIKE '%th%' AND rp.umurdaftar < 18))
-                
-                GROUP BY rp.no_rawat, rp.no_rkm_medis
-            )
-        `;
-
-        const queryStats = cteQuery + `
-            SELECT 
-                COUNT(*) AS total_pasien,
-                SUM(CASE WHEN jenis_kelamin = 'L' THEN 1 ELSE 0 END) AS total_laki_laki,
-                SUM(CASE WHEN jenis_kelamin = 'P' THEN 1 ELSE 0 END) AS total_perempuan,
-                SUM(CASE WHEN DATE(tanggal_masuk) = CURDATE() THEN 1 ELSE 0 END) AS pasien_hari_ini
-            FROM ValidPasien
-            ${validPasienFilter};
-        `;
-        
-        const queryCount = cteQuery + `SELECT COUNT(*) AS total FROM ValidPasien ${validPasienFilter};`;
-        
-        const queryList = cteQuery + `
-            SELECT * FROM ValidPasien
-            ${validPasienFilter}
-            ORDER BY tanggal_masuk DESC, id_pasien DESC
-            LIMIT ? OFFSET ?;
-        `;
-
-        const [[statsData]] = await db.execute(queryStats, queryParams);
-        const [[countData]] = await db.execute(queryCount, queryParams);
-        
-        const queryParamsList = [...queryParams, limit.toString(), offset.toString()];
-        const [rowsPasien] = await db.execute(queryList, queryParamsList);
+        // 2. Eksekusi query via pemanggilan Fungsi Model
+        const statsData = await PasienModel.getStats(whereClause, queryParams, validPasienFilter);
+        const totalDitemukan = await PasienModel.countAll(whereClause, queryParams, validPasienFilter);
+        const rowsPasien = await PasienModel.findAll(whereClause, queryParams, validPasienFilter, limit, offset);
 
         if (search && rowsPasien.length === 0) {
-            const checkQuery = `
-                SELECT MAX(rp.umurdaftar) AS umurdaftar, MAX(rp.sttsumur) AS sttsumur
-                FROM reg_periksa rp
-                INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
-                WHERE p.nm_pasien LIKE ? OR p.no_rkm_medis LIKE ?
-                GROUP BY rp.no_rawat
-                ORDER BY MAX(COALESCE(rp.tgl_registrasi)) DESC
-                LIMIT 1
-            `;
-            const [rawCheck] = await db.execute(checkQuery, [`%${search}%`, `%${search}%`]);
-
-            if (rawCheck.length > 0) {
-                const suspect = rawCheck[0];
+            const suspect = await PasienModel.checkPediatricSuspect(search);
+            if (suspect) {
                 const isBulanAtauHari = suspect.sttsumur.toLowerCase().includes('bl') || suspect.sttsumur.toLowerCase().includes('hr');
                 const isAnakAnak = isBulanAtauHari || (suspect.sttsumur.toLowerCase().includes('th') && parseInt(suspect.umurdaftar) < 18);
                 if (isAnakAnak) return res.status(403).json({ status: 'error', message: 'Pasien ditemukan, namun sistem belum mendukung kategori pediatri (anak-anak).' });
@@ -207,7 +114,6 @@ const getAllPasien = async (req, res, next) => {
                 waktu_pembaruan_rapi = `${tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}, ${tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
             }
 
-            // LOGIKA STATUS RAWAT & RUANGAN
             let status_pulang_text = '-';
             if (!item.tgl_masuk_inap) {
                 status_pulang_text = 'Rawat Jalan (Poli)';
@@ -224,19 +130,19 @@ const getAllPasien = async (req, res, next) => {
                 umur: `${item.umurdaftar} ${item.sttsumur}`,
                 jenis_kelamin: item.jenis_kelamin,
                 tanggal_masuk: item.tanggal_masuk,
-                
-                // FIELD BARU DIKIRIM KE FRONTEND
                 ruangan: item.ruangan || 'Poli / Rawat Jalan',
                 status_pulang: status_pulang_text,
                 tanggal_keluar: item.tgl_keluar || null,
-                
                 diagnosis: penyakitArr.join(' + '),
                 diagnosis_array: penyakitArr,
                 penyakit_lainnya: penyakitLainnya,
                 nama_penyakit_asli: item.nama_penyakit_asli,
                 status_perhitungan: item.id_perhitungan ? 'Sudah Dihitung' : 'Belum',
                 id_perhitungan: item.id_perhitungan || null, 
-                waktu_pembaruan: waktu_pembaruan_rapi
+                waktu_pembaruan: waktu_pembaruan_rapi,
+                
+                // [NILAI BARU]: Diperlukan frontend untuk mendeteksi apakah pasien punya kunjungan lama
+                total_riwayat_lampau: parseInt(item.total_riwayat_lampau) || 0
             };
         });
 
@@ -251,7 +157,7 @@ const getAllPasien = async (req, res, next) => {
                 },
                 pasien: listPasienFormatted,
                 pagination: {
-                    total_ditemukan: countData.total || 0,
+                    total_ditemukan: totalDitemukan,
                     halaman_sekarang: page,
                     limit_per_halaman: limit
                 }
@@ -262,73 +168,38 @@ const getAllPasien = async (req, res, next) => {
     }
 };
 
+// ==========================================
+// FUNGSI: GET DETAIL PASIEN BY NO_RAWAT
+// ==========================================
 const getPasienById = async (req, res, next) => {
     try {
         const { id } = req.params; 
 
-        const queryPasien = `
-            SELECT 
-                rp.no_rawat AS id_pasien, 
-                MAX(p.nm_pasien) AS nama_pasien, 
-                MAX(p.no_rkm_medis) AS no_rm, 
-                MAX(rp.umurdaftar) AS umurdaftar, 
-                MAX(rp.sttsumur) AS sttsumur,
-                MAX(p.jk) AS jenis_kelamin, 
-                MAX(COALESCE(pranap.tinggi, pralan.tinggi)) AS tinggi_badan, 
-                MAX(COALESCE(pranap.berat, pralan.berat)) AS berat_badan,
-                
-                -- PENGAMBILAN DATA RUANGAN & KEPULANGAN
-                MAX(ki.tgl_masuk) AS tgl_masuk_inap,
-                MAX(ki.tgl_keluar) AS tgl_keluar,
-                MAX(b.nm_bangsal) AS ruangan,
-                
-                GROUP_CONCAT(DISTINCT py.nm_penyakit SEPARATOR ', ') AS nama_penyakit_asli,
-                MAX(sh.id_perhitungan) AS id_perhitungan,
-                MAX(sh.waktu_pembaruan) AS waktu_pembaruan,
+        // Eksekusi fungsi pencarian data detail via model
+        const pasien = await PasienModel.findById(id);
 
-                MAX(CASE WHEN dp.kd_penyakit LIKE 'E10%' OR dp.kd_penyakit LIKE 'E11%' OR dp.kd_penyakit LIKE 'E12%' OR dp.kd_penyakit LIKE 'E13%' OR dp.kd_penyakit LIKE 'E14%' THEN 1 ELSE 0 END) AS has_dm,
-                MAX(CASE WHEN dp.kd_penyakit LIKE 'N18%' THEN 1 ELSE 0 END) AS has_ckd,
-                MAX(CASE WHEN dp.kd_penyakit LIKE 'I50%' THEN 1 ELSE 0 END) AS has_chf,
-                MAX(CASE WHEN dp.kd_penyakit LIKE 'I60%' OR dp.kd_penyakit LIKE 'I61%' OR dp.kd_penyakit LIKE 'I62%' OR dp.kd_penyakit LIKE 'I63%' OR dp.kd_penyakit LIKE 'I64%' THEN 1 ELSE 0 END) AS has_stroke,
-                MAX(CASE WHEN dp.kd_penyakit LIKE 'K21%' OR dp.kd_penyakit LIKE 'K25%' OR dp.kd_penyakit LIKE 'K29%' OR dp.kd_penyakit LIKE 'K30%' THEN 1 ELSE 0 END) AS has_lambung,
-                SUM(CASE WHEN 
-                    (dp.kd_penyakit NOT LIKE 'E10%' AND dp.kd_penyakit NOT LIKE 'E11%' AND dp.kd_penyakit NOT LIKE 'E12%' AND dp.kd_penyakit NOT LIKE 'E13%' AND dp.kd_penyakit NOT LIKE 'E14%') AND
-                    (dp.kd_penyakit NOT LIKE 'N18%') AND
-                    (dp.kd_penyakit NOT LIKE 'I50%') AND
-                    (dp.kd_penyakit NOT LIKE 'I60%' AND dp.kd_penyakit NOT LIKE 'I61%' AND dp.kd_penyakit NOT LIKE 'I62%' AND dp.kd_penyakit NOT LIKE 'I63%' AND dp.kd_penyakit NOT LIKE 'I64%') AND
-                    (dp.kd_penyakit NOT LIKE 'K21%' AND dp.kd_penyakit NOT LIKE 'K25%' AND dp.kd_penyakit NOT LIKE 'K29%' AND dp.kd_penyakit NOT LIKE 'K30%') AND
-                    dp.kd_penyakit IS NOT NULL AND dp.kd_penyakit != ''
-                THEN 1 ELSE 0 END) AS count_other
-            
-            FROM reg_periksa rp
-            INNER JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
-            LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
-            LEFT JOIN kamar k ON ki.kd_kamar = k.kd_kamar
-            LEFT JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
-            LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
-            LEFT JOIN penyakit py ON dp.kd_penyakit = py.kd_penyakit
-            LEFT JOIN pemeriksaan_ralan pralan ON rp.no_rawat = pralan.no_rawat
-            LEFT JOIN pemeriksaan_ranap pranap ON rp.no_rawat = pranap.no_rawat
-            LEFT JOIN (
-                SELECT no_rawat, MAX(id_perhitungan) AS id_perhitungan, MAX(tanggal_perhitungan) AS waktu_pembaruan
-                FROM perhitungan_gizi
-                GROUP BY no_rawat
-            ) sh ON rp.no_rawat = sh.no_rawat
-            
-            WHERE rp.no_rawat = ?
-            GROUP BY rp.no_rawat
-        `;
-        
-        const [rows] = await db.execute(queryPasien, [id]);
-
-        if (rows.length === 0) return res.status(404).json({ status: 'error', message: 'Data pasien tidak ditemukan di SIMRS' });
-
-        const pasien = rows[0];
+        if (!pasien) return res.status(404).json({ status: 'error', message: 'Data pasien tidak ditemukan di SIMRS' });
 
         const isBulanAtauHari = pasien.sttsumur.toLowerCase().includes('bl') || pasien.sttsumur.toLowerCase().includes('hr');
         const isAnakAnak = isBulanAtauHari || (pasien.sttsumur.toLowerCase().includes('th') && parseInt(pasien.umurdaftar) < 18);
 
         if (isAnakAnak) return res.status(403).json({ status: 'error', message: 'Pasien ditemukan, namun sistem belum mendukung kategori pediatri.' });
+
+        // [LOGIKA INTERKONEKSI BARU]: Tarik rekam medis gizi lampau miliknya berdasarkan Nomor Rekam Medis
+        const riwayatLampauRaw = await PasienModel.findHistoryByNoRm(pasien.no_rm, id);
+        
+        const riwayatLampauFormatted = riwayatLampauRaw.map(h => {
+            const tglObj = new Date(h.tanggal_perhitungan);
+            return {
+                id_perhitungan: h.id_perhitungan,
+                no_rawat: h.no_rawat,
+                tanggal_hitung: tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+                status_gizi: h.status_gizi,
+                energi_kkal: Math.round(h.energi),
+                ruangan: h.ruangan || 'Poli / Rawat Jalan',
+                penyakit: h.penyakit
+            };
+        });
 
         let diagnosa_array = [];
         let penyakitLainnya = null;
@@ -379,19 +250,19 @@ const getPasienById = async (req, res, next) => {
                 berat_badan: berat > 0 ? berat : null,
                 imt: dataIMT.nilaiIMT,
                 status_gizi: dataIMT.statusGizi,
-                
-                // FIELD BARU DIKIRIM KE FRONTEND
                 ruangan: pasien.ruangan || 'Poli / Rawat Jalan',
                 status_pulang: status_pulang_text,
                 tanggal_keluar: pasien.tgl_keluar || null,
-                
                 diagnosis: diagnosa_array.length > 0 ? diagnosa_array.join(' + ') : '-',
                 diagnosa_kategori: diagnosa_array,
                 penyakit_lainnya: penyakitLainnya,
                 nama_penyakit_asli: pasien.nama_penyakit_asli,
                 status_perhitungan: pasien.id_perhitungan ? 'Sudah Dihitung' : 'Belum',
                 id_perhitungan: pasien.id_perhitungan || null,
-                waktu_pembaruan: waktu_pembaruan_rapi
+                waktu_pembaruan: waktu_pembaruan_rapi,
+                
+                // [ARRAY BARU]: Dikirim ke frontend untuk me-render riwayat rekam medis lama pasien
+                riwayat_perhitungan_lampau: riwayatLampauFormatted
             }
         });
     } catch (error) {
