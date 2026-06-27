@@ -9,9 +9,11 @@ export default function PortalHeader({
     <div className="bg-white border-b border-slate-200 mb-10">
       <div className="px-6 py-5 max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
-            R
-          </div>
+          <img
+            src="/img/logo-pringsewu.png"
+            alt="Logo RSUD Pringsewu"
+            className="w-12 h-12 object-contain"
+          />
           <div>
             <h1 className="text-sm font-semibold text-slate-700">
               RSUD PRINGSEWU
