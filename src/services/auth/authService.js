@@ -106,7 +106,6 @@ export const resetPasswordAdmin = async ({ token, newPassword }) => {
         newPassword,
       }
     );
-
     return response.data;
   } catch (error) {
     throw new Error(

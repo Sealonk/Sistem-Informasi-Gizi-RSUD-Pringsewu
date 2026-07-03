@@ -1,181 +1,529 @@
 {
-  "id": "f5d76c3a-8b9a-4c91-b3b4-ee1a5c6e8e89",
+  "id": "ringkasan-sistem-blackbox-suite",
   "version": "2.0",
   "name": "Blackbox Testing - Ringkasan Sistem",
   "url": "http://localhost:3000",
   "tests": [
     {
       "id": "tc-rs-001",
-      "name": "TC-RS-001 - Menampilkan Halaman Ringkasan Sistem",
+      "name": "TC-RS-001 - Inisialisasi & Tampilan Antarmuka Halaman Ringkasan Sistem",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc-rs-001-prep-1",
+          "comment": "Buka halaman root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-001-prep-2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-001-prep-3",
+          "comment": "Buka halaman Ringkasan Sistem",
           "command": "open",
           "target": "/ringkasan-sistem",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "assertElementPresent",
+          "id": "tc-rs-001-prep-4",
+          "comment": "Tunggu halaman selesai loading (judul Ringkasan Sistem muncul)",
+          "command": "waitForElementPresent",
           "target": "xpath=//h1[text()='Ringkasan Sistem']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc-rs-001-c1",
+          "comment": "Verifikasi breadcrumb tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[contains(text(),'Beranda')]",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-001-c2",
+          "comment": "Verifikasi badge Live Dashboard tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//*[contains(text(),'Live Dashboard')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-001-c3",
+          "comment": "Verifikasi bagian Aksi Cepat Pelayanan tampil",
           "command": "assertElementPresent",
           "target": "xpath=//h2[text()='Aksi Cepat Pelayanan']",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-001-c4",
+          "comment": "Verifikasi bagian Ringkasan Status Gizi tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Ringkasan Status Gizi']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-001-c5",
+          "comment": "Verifikasi bagian Rata-rata Hasil Perhitungan tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Rata-rata Hasil Perhitungan']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-001-c6",
+          "comment": "Verifikasi bagian Distribusi Penyakit tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Distribusi Penyakit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-001-c7",
+          "comment": "Verifikasi bagian Riwayat Perhitungan Terakhir tampil",
           "command": "assertElementPresent",
           "target": "xpath=//h2[text()='Riwayat Perhitungan Terakhir']",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-001-c8",
+          "comment": "Verifikasi tombol Kembali ke Portal tampil",
           "command": "assertElementPresent",
-          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "target": "xpath=//button[contains(text(),'Kembali ke Portal')]",
+          "targets": [],
           "value": ""
         }
       ]
     },
     {
       "id": "tc-rs-002",
-      "name": "TC-RS-002 - Tombol Kembali ke Portal dari Ringkasan Sistem",
+      "name": "TC-RS-002 - Kartu Statistik Dashboard (Total Perhitungan, Hari Ini, Total Riwayat)",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc-rs-002-prep-1",
+          "comment": "Buka halaman root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-002-prep-2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-002-prep-3",
+          "comment": "Buka halaman Ringkasan Sistem",
           "command": "open",
           "target": "/ringkasan-sistem",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "click",
-          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "id": "tc-rs-002-prep-4",
+          "comment": "Tunggu halaman selesai loading (judul Ringkasan Sistem muncul)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Ringkasan Sistem']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc-rs-002-c1",
+          "comment": "Verifikasi kartu Total Perhitungan tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Total Perhitungan']",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "waitForLocation",
-          "target": "glob:*/portal",
-          "value": "10000"
+          "id": "tc-rs-002-c2",
+          "comment": "Verifikasi caption Selama 1 bulan terakhir",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Selama 1 bulan terakhir']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-002-c3",
+          "comment": "Verifikasi kartu Perhitungan Hari Ini tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Perhitungan Hari Ini']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-002-c4",
+          "comment": "Verifikasi caption Data hari ini",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Data hari ini']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-002-c5",
+          "comment": "Verifikasi kartu Total Riwayat tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Total Riwayat']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-002-c6",
+          "comment": "Verifikasi caption Data tersimpan",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Data tersimpan']",
+          "targets": [],
+          "value": ""
         }
       ]
     },
     {
       "id": "tc-rs-003",
-      "name": "TC-RS-003 - Aksi Cepat: Mulai Perhitungan Gizi",
+      "name": "TC-RS-003 - Rata-rata Nutrisi & Distribusi Penyakit",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc-rs-003-prep-1",
+          "comment": "Buka halaman root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-003-prep-2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-003-prep-3",
+          "comment": "Buka halaman Ringkasan Sistem",
           "command": "open",
           "target": "/ringkasan-sistem",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "click",
-          "target": "xpath=//h3[text()='Mulai Perhitungan Gizi']",
+          "id": "tc-rs-003-prep-4",
+          "comment": "Tunggu halaman selesai loading (judul Ringkasan Sistem muncul)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Ringkasan Sistem']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc-rs-003-c1",
+          "comment": "Verifikasi label Energi tampil di panel Rata-rata",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Rata-rata Hasil Perhitungan']/ancestor::section//p[text()='Energi']",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "waitForLocation",
-          "target": "glob:*/perhitungan",
-          "value": "10000"
+          "id": "tc-rs-003-c2",
+          "comment": "Verifikasi label Protein tampil di panel Rata-rata",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Rata-rata Hasil Perhitungan']/ancestor::section//p[text()='Protein']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-003-c3",
+          "comment": "Verifikasi label Lemak tampil di panel Rata-rata",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Rata-rata Hasil Perhitungan']/ancestor::section//p[text()='Lemak']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-003-c4",
+          "comment": "Verifikasi label Karbohidrat tampil di panel Rata-rata",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Rata-rata Hasil Perhitungan']/ancestor::section//p[text()='Karbohidrat']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-003-c5",
+          "comment": "Verifikasi catatan Distribusi Penyakit tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Distribusi berdasarkan penyakit utama pasien.']",
+          "targets": [],
+          "value": ""
         }
       ]
     },
     {
       "id": "tc-rs-004",
-      "name": "TC-RS-004 - Aksi Cepat: Lihat Riwayat Asuhan",
+      "name": "TC-RS-004 - Navigasi Aksi Cepat (Perhitungan & Riwayat)",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc-rs-004-prep-1",
+          "comment": "Buka halaman root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-004-prep-2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-004-prep-3",
+          "comment": "Buka halaman Ringkasan Sistem",
           "command": "open",
           "target": "/ringkasan-sistem",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-004-prep-4",
+          "comment": "Tunggu halaman selesai loading (judul Ringkasan Sistem muncul)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Ringkasan Sistem']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc-rs-004-c1",
+          "comment": "Klik tombol Mulai Perhitungan Gizi",
           "command": "click",
-          "target": "xpath=//h3[text()='Lihat Riwayat Asuhan']",
+          "target": "xpath=//h3[text()='Mulai Perhitungan Gizi']/ancestor::button",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "waitForLocation",
-          "target": "glob:*/riwayat",
+          "id": "tc-rs-004-c2",
+          "comment": "Tunggu rute berubah ke /perhitungan",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-rs-004-c3",
+          "comment": "Kembali ke ringkasan-sistem",
+          "command": "open",
+          "target": "/ringkasan-sistem",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-004-c4",
+          "comment": "Tunggu halaman dimuat kembali",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Ringkasan Sistem']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc-rs-004-c5",
+          "comment": "Klik tombol Lihat Riwayat Asuhan",
+          "command": "click",
+          "target": "xpath=//h3[text()='Lihat Riwayat Asuhan']/ancestor::button",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-004-c6",
+          "comment": "Tunggu rute berubah ke /riwayat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": "10000"
         }
       ]
     },
     {
       "id": "tc-rs-005",
-      "name": "TC-RS-005 - Navigasi ke Detail Riwayat Terakhir",
+      "name": "TC-RS-005 - Tabel Riwayat Terakhir & Navigasi Detail",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc-rs-005-prep-1",
+          "comment": "Buka halaman root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-005-prep-2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-005-prep-3",
+          "comment": "Buka halaman Ringkasan Sistem",
           "command": "open",
           "target": "/ringkasan-sistem",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-005-prep-4",
+          "comment": "Tunggu halaman selesai loading (judul Ringkasan Sistem muncul)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Ringkasan Sistem']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc-rs-005-c1",
+          "comment": "Tunggu tabel riwayat terakhir ter-render (baris pertama muncul)",
           "command": "waitForElementPresent",
           "target": "xpath=//table//tbody//tr[1]//button",
+          "targets": [],
           "value": "10000"
         },
         {
+          "id": "tc-rs-005-c2",
+          "comment": "Verifikasi kolom header Pasien tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-005-c3",
+          "comment": "Verifikasi kolom header Energi tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='Energi']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-005-c4",
+          "comment": "Verifikasi kolom header Status Gizi tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='Status Gizi']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-005-c5",
+          "comment": "Klik tombol Detail pada baris pertama tabel",
           "command": "click",
           "target": "xpath=//table//tbody//tr[1]//button",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "waitForLocation",
-          "target": "glob:*/riwayat/*",
+          "id": "tc-rs-005-c6",
+          "comment": "Tunggu rute berubah ke halaman detail riwayat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//div[contains(.,'Data Valid')]",
+          "targets": [],
           "value": "10000"
-        },
-        {
-          "command": "assertElementPresent",
-          "target": "xpath=//div[contains(., 'Data Valid')]",
-          "value": ""
         }
       ]
     },
     {
       "id": "tc-rs-006",
-      "name": "TC-RS-006 - Navigasi ke Semua Riwayat",
+      "name": "TC-RS-006 - Tombol Kembali ke Portal & Lihat Semua Riwayat",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc-rs-006-prep-1",
+          "comment": "Buka halaman root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-006-prep-2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-006-prep-3",
+          "comment": "Buka halaman Ringkasan Sistem",
           "command": "open",
           "target": "/ringkasan-sistem",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc-rs-006-prep-4",
+          "comment": "Tunggu halaman selesai loading (judul Ringkasan Sistem muncul)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Ringkasan Sistem']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc-rs-006-c1",
+          "comment": "Klik tombol Kembali ke Portal",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Kembali ke Portal')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-006-c2",
+          "comment": "Tunggu rute berubah ke /portal",
+          "command": "waitForElementPresent",
+          "target": "xpath=//span[text()='Akses Portal Aktif']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc-rs-006-c3",
+          "comment": "Kembali ke ringkasan-sistem",
+          "command": "open",
+          "target": "/ringkasan-sistem",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-rs-006-c4",
+          "comment": "Tunggu halaman dimuat kembali",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Ringkasan Sistem']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc-rs-006-c5",
+          "comment": "Klik tombol Lihat Semua di bagian riwayat",
           "command": "click",
           "target": "xpath=//button[text()='Lihat Semua']",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "waitForLocation",
-          "target": "glob:*/riwayat",
+          "id": "tc-rs-006-c6",
+          "comment": "Tunggu rute berubah ke /riwayat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": "10000"
         }
       ]

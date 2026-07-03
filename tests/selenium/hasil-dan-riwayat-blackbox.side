@@ -1,0 +1,859 @@
+{
+  "id": "hasil-dan-riwayat-blackbox-suite",
+  "version": "2.0",
+  "name": "Blackbox Testing - Hasil & Simpan Riwayat",
+  "url": "http://localhost:3000",
+  "tests": [
+    {
+      "id": "tc-hr-001",
+      "name": "TC-HR-001 - Menampilkan Halaman Hasil Perhitungan & Antarmuka UI",
+      "commands": [
+        {
+          "id": "tc-hr-001-prep-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-001-prep-4",
+          "comment": "Simpan nama pasien yang akan dipilih ke variabel patientName",
+          "command": "storeText",
+          "target": "xpath=(//button[text()='Pilih'])[1]/ancestor::tr//h3",
+          "targets": [],
+          "value": "patientName"
+        },
+        {
+          "id": "tc-hr-001-prep-5",
+          "comment": "Klik Pilih pada pasien pertama yang belum dihitung",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-6",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-hr-001-prep-7",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-8",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-hr-001-prep-9",
+          "comment": "Tunggu detail pasien dimuat dari API (cek nama pasien tidak kosong)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//input[@placeholder='Masukkan nama pasien' and not(@value='')]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-001-prep-9a",
+          "comment": "Aktifkan Lambung jika belum aktif",
+          "command": "executeScript",
+          "target": "const lambungBtn = Array.from(document.querySelectorAll(\"button\")).find(b => b.textContent.includes(\"Lambung\")); if (lambungBtn && !lambungBtn.className.includes(\"border-emerald-500\")) { lambungBtn.click(); }",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-9b",
+          "comment": "Jeda render setelah Lambung diaktifkan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-hr-001-prep-9c",
+          "comment": "Matikan penyakit lain yang aktif (DM, CKD, CHF, Stroke, dll)",
+          "command": "executeScript",
+          "target": "const buttons = Array.from(document.querySelectorAll(\"button\")); const others = [\"Diabetes Mellitus\", \"CKD\", \"CHF\", \"Stroke\", \"Mifflin\", \"Critical Ill\"]; others.forEach(name => { const btn = buttons.find(b => b.textContent.includes(name)); if (btn && btn.className.includes(\"border-emerald-500\")) { btn.click(); } });",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-9d",
+          "comment": "Jeda render setelah penyakit lain dimatikan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-hr-001-prep-10",
+          "comment": "Masukkan data assessment valid via script (BB=60, TB=160, Aktivitas=Berbaring, Stress=Tidak ada) menggunakan React native value setter",
+          "command": "executeScript",
+          "target": "const bb = document.querySelector(\"input[placeholder='Masukkan BB']\");\nconst tb = document.querySelector(\"input[placeholder='Masukkan TB']\");\nconst setVal = (el, val) => {\n  const setter = Object.getOwnPropertyDescriptor(el.constructor.prototype, 'value').set;\n  setter.call(el, val);\n  el.dispatchEvent(new Event('input', { bubbles: true }));\n  el.dispatchEvent(new Event('change', { bubbles: true }));\n};\nsetVal(bb, \"60\");\nsetVal(tb, \"160\");\nconst selectA = document.querySelectorAll(\"select\")[0];\nconst selectS = document.querySelectorAll(\"select\")[1];\nconst selSetter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;\nselSetter.call(selectA, \"Berbaring di tempat tidur\");\nselectA.dispatchEvent(new Event('change', { bubbles: true }));\nselSetter.call(selectS, \"Tidak ada stress\");\nselectS.dispatchEvent(new Event('change', { bubbles: true }));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-11",
+          "comment": "Jeda agar state stabil",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc-hr-001-prep-12",
+          "comment": "Klik Simpan & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-13",
+          "comment": "Tunggu modal konfirmasi hitung muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-hr-001-prep-14",
+          "comment": "Klik Hitung & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-prep-15",
+          "comment": "Tunggu rute dialihkan ke /hasil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Status Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-001-c1",
+          "comment": "Verifikasi nama pasien di header sesuai nama pasien terpilih",
+          "command": "assertText",
+          "target": "css=h1",
+          "targets": [],
+          "value": "${patientName}"
+        },
+        {
+          "id": "tc-hr-001-c2",
+          "comment": "Verifikasi status gizi terhitung",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Status Gizi']/following-sibling::h4",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-001-c3",
+          "comment": "Verifikasi IMT terhitung",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='IMT']/following-sibling::h4",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-hr-002",
+      "name": "TC-HR-002 - Verifikasi Detail Faktor Perhitungan Gizi",
+      "commands": [
+        {
+          "id": "tc-hr-002-prep-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-002-prep-4",
+          "comment": "Simpan nama pasien yang akan dipilih ke variabel patientName",
+          "command": "storeText",
+          "target": "xpath=(//button[text()='Pilih'])[1]/ancestor::tr//h3",
+          "targets": [],
+          "value": "patientName"
+        },
+        {
+          "id": "tc-hr-002-prep-5",
+          "comment": "Klik Pilih pada pasien pertama yang belum dihitung",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-6",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-hr-002-prep-7",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-8",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-hr-002-prep-9",
+          "comment": "Tunggu detail pasien dimuat dari API (cek nama pasien tidak kosong)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//input[@placeholder='Masukkan nama pasien' and not(@value='')]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-002-prep-9a",
+          "comment": "Aktifkan Lambung jika belum aktif",
+          "command": "executeScript",
+          "target": "const lambungBtn = Array.from(document.querySelectorAll(\"button\")).find(b => b.textContent.includes(\"Lambung\")); if (lambungBtn && !lambungBtn.className.includes(\"border-emerald-500\")) { lambungBtn.click(); }",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-9b",
+          "comment": "Jeda render setelah Lambung diaktifkan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-hr-002-prep-9c",
+          "comment": "Matikan penyakit lain yang aktif (DM, CKD, CHF, Stroke, dll)",
+          "command": "executeScript",
+          "target": "const buttons = Array.from(document.querySelectorAll(\"button\")); const others = [\"Diabetes Mellitus\", \"CKD\", \"CHF\", \"Stroke\", \"Mifflin\", \"Critical Ill\"]; others.forEach(name => { const btn = buttons.find(b => b.textContent.includes(name)); if (btn && btn.className.includes(\"border-emerald-500\")) { btn.click(); } });",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-9d",
+          "comment": "Jeda render setelah penyakit lain dimatikan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-hr-002-prep-10",
+          "comment": "Masukkan data assessment valid via script (BB=60, TB=160, Aktivitas=Berbaring, Stress=Tidak ada) menggunakan React native value setter",
+          "command": "executeScript",
+          "target": "const bb = document.querySelector(\"input[placeholder='Masukkan BB']\");\nconst tb = document.querySelector(\"input[placeholder='Masukkan TB']\");\nconst setVal = (el, val) => {\n  const setter = Object.getOwnPropertyDescriptor(el.constructor.prototype, 'value').set;\n  setter.call(el, val);\n  el.dispatchEvent(new Event('input', { bubbles: true }));\n  el.dispatchEvent(new Event('change', { bubbles: true }));\n};\nsetVal(bb, \"60\");\nsetVal(tb, \"160\");\nconst selectA = document.querySelectorAll(\"select\")[0];\nconst selectS = document.querySelectorAll(\"select\")[1];\nconst selSetter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;\nselSetter.call(selectA, \"Berbaring di tempat tidur\");\nselectA.dispatchEvent(new Event('change', { bubbles: true }));\nselSetter.call(selectS, \"Tidak ada stress\");\nselectS.dispatchEvent(new Event('change', { bubbles: true }));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-11",
+          "comment": "Jeda agar state stabil",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc-hr-002-prep-12",
+          "comment": "Klik Simpan & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-13",
+          "comment": "Tunggu modal konfirmasi hitung muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-hr-002-prep-14",
+          "comment": "Klik Hitung & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-prep-15",
+          "comment": "Tunggu rute dialihkan ke /hasil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Status Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-002-c1",
+          "comment": "Verifikasi BBI terhitung",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='BBI']/following-sibling::h4",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-c2",
+          "comment": "Verifikasi BMR terhitung",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='BMR']/following-sibling::h4",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-002-c3",
+          "comment": "Verifikasi Faktor Aktivitas",
+          "command": "assertText",
+          "target": "xpath=//p[text()='Faktor Aktivitas']/following-sibling::h4",
+          "targets": [],
+          "value": "1.2"
+        },
+        {
+          "id": "tc-hr-002-c4",
+          "comment": "Verifikasi Faktor Stress",
+          "command": "assertText",
+          "target": "xpath=//p[text()='Faktor Stress']/following-sibling::h4",
+          "targets": [],
+          "value": "1.1"
+        }
+      ]
+    },
+    {
+      "id": "tc-hr-003",
+      "name": "TC-HR-003 - Simpan Perhitungan & Verifikasi Modul Riwayat",
+      "commands": [
+        {
+          "id": "tc-hr-003-prep-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-003-prep-4",
+          "comment": "Simpan nama pasien yang akan dipilih ke variabel patientName",
+          "command": "storeText",
+          "target": "xpath=(//button[text()='Pilih'])[1]/ancestor::tr//h3",
+          "targets": [],
+          "value": "patientName"
+        },
+        {
+          "id": "tc-hr-003-prep-5",
+          "comment": "Klik Pilih pada pasien pertama yang belum dihitung",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-6",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-hr-003-prep-7",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-8",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-hr-003-prep-9",
+          "comment": "Tunggu detail pasien dimuat dari API (cek nama pasien tidak kosong)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//input[@placeholder='Masukkan nama pasien' and not(@value='')]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-003-prep-9a",
+          "comment": "Aktifkan Lambung jika belum aktif",
+          "command": "executeScript",
+          "target": "const lambungBtn = Array.from(document.querySelectorAll(\"button\")).find(b => b.textContent.includes(\"Lambung\")); if (lambungBtn && !lambungBtn.className.includes(\"border-emerald-500\")) { lambungBtn.click(); }",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-9b",
+          "comment": "Jeda render setelah Lambung diaktifkan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-hr-003-prep-9c",
+          "comment": "Matikan penyakit lain yang aktif (DM, CKD, CHF, Stroke, dll)",
+          "command": "executeScript",
+          "target": "const buttons = Array.from(document.querySelectorAll(\"button\")); const others = [\"Diabetes Mellitus\", \"CKD\", \"CHF\", \"Stroke\", \"Mifflin\", \"Critical Ill\"]; others.forEach(name => { const btn = buttons.find(b => b.textContent.includes(name)); if (btn && btn.className.includes(\"border-emerald-500\")) { btn.click(); } });",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-9d",
+          "comment": "Jeda render setelah penyakit lain dimatikan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-hr-003-prep-10",
+          "comment": "Masukkan data assessment valid via script (BB=60, TB=160, Aktivitas=Berbaring, Stress=Tidak ada) menggunakan React native value setter",
+          "command": "executeScript",
+          "target": "const bb = document.querySelector(\"input[placeholder='Masukkan BB']\");\nconst tb = document.querySelector(\"input[placeholder='Masukkan TB']\");\nconst setVal = (el, val) => {\n  const setter = Object.getOwnPropertyDescriptor(el.constructor.prototype, 'value').set;\n  setter.call(el, val);\n  el.dispatchEvent(new Event('input', { bubbles: true }));\n  el.dispatchEvent(new Event('change', { bubbles: true }));\n};\nsetVal(bb, \"60\");\nsetVal(tb, \"160\");\nconst selectA = document.querySelectorAll(\"select\")[0];\nconst selectS = document.querySelectorAll(\"select\")[1];\nconst selSetter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;\nselSetter.call(selectA, \"Berbaring di tempat tidur\");\nselectA.dispatchEvent(new Event('change', { bubbles: true }));\nselSetter.call(selectS, \"Tidak ada stress\");\nselectS.dispatchEvent(new Event('change', { bubbles: true }));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-11",
+          "comment": "Jeda agar state stabil",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc-hr-003-prep-12",
+          "comment": "Klik Simpan & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-13",
+          "comment": "Tunggu modal konfirmasi hitung muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-hr-003-prep-14",
+          "comment": "Klik Hitung & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-prep-15",
+          "comment": "Tunggu rute dialihkan ke /hasil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Status Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-003-c1",
+          "comment": "Klik Simpan Hasil",
+          "command": "click",
+          "target": "xpath=//button[contains(.,'Simpan Hasil')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-c2",
+          "comment": "Tunggu modal konfirmasi simpan muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Simpan']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-hr-003-c3",
+          "comment": "Klik Simpan di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Simpan']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-c4",
+          "comment": "Jeda agar success modal muncul",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "2500"
+        },
+        {
+          "id": "tc-hr-003-c5",
+          "comment": "Verifikasi modal sukses",
+          "command": "assertText",
+          "target": "xpath=//h3[text()='Riwayat Berhasil Disimpan' or text()='Riwayat Berhasil Diperbarui']",
+          "targets": [],
+          "value": "Riwayat Berhasil Disimpan"
+        },
+        {
+          "id": "tc-hr-003-c6",
+          "comment": "Klik Riwayat di modal menggunakan JS click untuk stabilitas",
+          "command": "executeScript",
+          "target": "document.querySelectorAll(\"button\").forEach(b => { if(b.textContent === 'Riwayat') b.click(); });",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-003-c7",
+          "comment": "Tunggu rute dialihkan ke /riwayat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-003-c8",
+          "comment": "Tunggu record pasien terpilih ter-render di tabel riwayat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h4[text()='${patientName}']",
+          "targets": [],
+          "value": "15000"
+        }
+      ]
+    },
+    {
+      "id": "tc-hr-004",
+      "name": "TC-HR-004 - Tombol Kembali Ke Assessment dari Halaman Hasil",
+      "commands": [
+        {
+          "id": "tc-hr-004-prep-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-004-prep-4",
+          "comment": "Simpan nama pasien yang akan dipilih ke variabel patientName",
+          "command": "storeText",
+          "target": "xpath=(//button[text()='Pilih'])[1]/ancestor::tr//h3",
+          "targets": [],
+          "value": "patientName"
+        },
+        {
+          "id": "tc-hr-004-prep-5",
+          "comment": "Klik Pilih pada pasien pertama yang belum dihitung",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-6",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-hr-004-prep-7",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-8",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-hr-004-prep-9",
+          "comment": "Tunggu detail pasien dimuat dari API (cek nama pasien tidak kosong)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//input[@placeholder='Masukkan nama pasien' and not(@value='')]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-004-prep-9a",
+          "comment": "Aktifkan Lambung jika belum aktif",
+          "command": "executeScript",
+          "target": "const lambungBtn = Array.from(document.querySelectorAll(\"button\")).find(b => b.textContent.includes(\"Lambung\")); if (lambungBtn && !lambungBtn.className.includes(\"border-emerald-500\")) { lambungBtn.click(); }",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-9b",
+          "comment": "Jeda render setelah Lambung diaktifkan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-hr-004-prep-9c",
+          "comment": "Matikan penyakit lain yang aktif (DM, CKD, CHF, Stroke, dll)",
+          "command": "executeScript",
+          "target": "const buttons = Array.from(document.querySelectorAll(\"button\")); const others = [\"Diabetes Mellitus\", \"CKD\", \"CHF\", \"Stroke\", \"Mifflin\", \"Critical Ill\"]; others.forEach(name => { const btn = buttons.find(b => b.textContent.includes(name)); if (btn && btn.className.includes(\"border-emerald-500\")) { btn.click(); } });",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-9d",
+          "comment": "Jeda render setelah penyakit lain dimatikan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-hr-004-prep-10",
+          "comment": "Masukkan data assessment valid via script (BB=60, TB=160, Aktivitas=Berbaring, Stress=Tidak ada) menggunakan React native value setter",
+          "command": "executeScript",
+          "target": "const bb = document.querySelector(\"input[placeholder='Masukkan BB']\");\nconst tb = document.querySelector(\"input[placeholder='Masukkan TB']\");\nconst setVal = (el, val) => {\n  const setter = Object.getOwnPropertyDescriptor(el.constructor.prototype, 'value').set;\n  setter.call(el, val);\n  el.dispatchEvent(new Event('input', { bubbles: true }));\n  el.dispatchEvent(new Event('change', { bubbles: true }));\n};\nsetVal(bb, \"60\");\nsetVal(tb, \"160\");\nconst selectA = document.querySelectorAll(\"select\")[0];\nconst selectS = document.querySelectorAll(\"select\")[1];\nconst selSetter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;\nselSetter.call(selectA, \"Berbaring di tempat tidur\");\nselectA.dispatchEvent(new Event('change', { bubbles: true }));\nselSetter.call(selectS, \"Tidak ada stress\");\nselectS.dispatchEvent(new Event('change', { bubbles: true }));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-11",
+          "comment": "Jeda agar state stabil",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc-hr-004-prep-12",
+          "comment": "Klik Simpan & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-13",
+          "comment": "Tunggu modal konfirmasi hitung muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-hr-004-prep-14",
+          "comment": "Klik Hitung & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[text()='Hitung & Lanjut']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-prep-15",
+          "comment": "Tunggu rute dialihkan ke /hasil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Status Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-hr-004-c1",
+          "comment": "Klik Kembali",
+          "command": "click",
+          "target": "xpath=//button[contains(.,'Kembali')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-hr-004-c2",
+          "comment": "Tunggu dialihkan kembali ke /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-hr-004-c3-get-bb",
+          "comment": "Ambil nilai BB yang di-restore",
+          "command": "executeScript",
+          "target": "return document.querySelector(\"input[placeholder='Masukkan BB']\").value;",
+          "targets": [],
+          "value": "restoredBB"
+        },
+        {
+          "id": "tc-hr-004-c3-assert-bb",
+          "comment": "Pastikan BB bernilai 60",
+          "command": "assert",
+          "target": "restoredBB",
+          "targets": [],
+          "value": "60"
+        },
+        {
+          "id": "tc-hr-004-c4-get-tb",
+          "comment": "Ambil nilai TB yang di-restore",
+          "command": "executeScript",
+          "target": "return document.querySelector(\"input[placeholder='Masukkan TB']\").value;",
+          "targets": [],
+          "value": "restoredTB"
+        },
+        {
+          "id": "tc-hr-004-c4-assert-tb",
+          "comment": "Pastikan TB bernilai 160",
+          "command": "assert",
+          "target": "restoredTB",
+          "targets": [],
+          "value": "160"
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "hasil-riwayat-suite-id",
+      "name": "Kategori Hasil & Riwayat Gizi",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "tc-hr-001",
+        "tc-hr-002",
+        "tc-hr-003",
+        "tc-hr-004"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:3000"
+  ],
+  "plugins": []
+}

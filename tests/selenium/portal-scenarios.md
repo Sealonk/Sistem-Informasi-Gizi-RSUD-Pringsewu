@@ -151,3 +151,23 @@ Langkah:
 6. Verifikasi token di `localStorage` telah dihapus (bernilai `null`).
 
 Hasil yang diharapkan: Pengguna berhasil logout, token dihapus dari penyimpanan lokal, dan akses ke halaman portal ditutup (diarahkan kembali ke login).
+
+---
+
+## Hasil Eksekusi Pengujian Otomatis (PASS)
+
+Seluruh 7 skenario pengujian di atas telah dijalankan menggunakan runner Selenium IDE (`selenium-side-runner`) dengan hasil **100% SUKSES (7/7 passed)**:
+
+```bash
+PASS node_modules/selenium-side-runner/dist/main.test.js (27.478 s)
+  Running project Blackbox Testing - Portal
+    Running suite Kategori Portal
+      √ Running test TC-PT-001 - Menampilkan Halaman Portal dengan Elemen Utama (4942 ms)
+      √ Running test TC-PT-002 - Navigasi ke Modul Ringkasan Sistem (4752 ms)
+      √ Running test TC-PT-003 - Navigasi ke Modul Perhitungan Gizi (3376 ms)
+      √ Running test TC-PT-004 - Navigasi ke Modul Riwayat (3496 ms)
+      √ Running test TC-PT-005 - Mengubah Slide Tips Edukasi Klinis Hari Ini (3051 ms)
+      √ Running test TC-PT-006 - Membuka/Menutup Dropdown Menu User (3598 ms)
+      √ Running test TC-PT-007 - Proses Logout Melalui Menu User (2907 ms)
+```
+

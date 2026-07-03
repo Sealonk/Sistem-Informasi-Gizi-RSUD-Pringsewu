@@ -1,0 +1,688 @@
+{
+  "id": "manajemen-user-blackbox-suite",
+  "version": "2.0",
+  "name": "Blackbox Testing - Manajemen User",
+  "url": "http://localhost:3000",
+  "tests": [
+    {
+      "id": "tc-mu-001",
+      "name": "TC-MU-001 - Inisialisasi & Tampilan Antarmuka Halaman Manajemen User (Role Admin)",
+      "commands": [
+        {
+          "id": "tc01-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc01-p2",
+          "comment": "Suntikkan token JWT admin",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc01-p2b",
+          "comment": "Suntikkan user admin ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({\"id_user\":1,\"username\":\"admin\",\"nama_lengkap\":\"Administrator\",\"role\":\"admin\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc01-p3",
+          "comment": "Buka halaman Manajemen User",
+          "command": "open",
+          "target": "/manajemen-user",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc01-p4",
+          "comment": "Tunggu judul Manajemen User tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Manajemen User']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc01-c1",
+          "comment": "Verifikasi badge Administrator tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Administrator']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc01-c2",
+          "comment": "Verifikasi badge login Administrator tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//*[contains(.,'Login sebagai Administrator')]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc01-c3",
+          "comment": "Verifikasi summary panel Kelola akses petugas gizi tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h2[text()='Kelola akses petugas gizi']",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-mu-002",
+      "name": "TC-MU-002 - Penolakan Akses Halaman Manajemen User (Role Non-Admin / Petugas Gizi)",
+      "commands": [
+        {
+          "id": "tc02-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-p2",
+          "comment": "Suntikkan token JWT petugas",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-p2b",
+          "comment": "Suntikkan user petugas ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({\"id_user\":2,\"username\":\"gizi01\",\"nama_lengkap\":\"Petugas Gizi 1\",\"role\":\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-p3",
+          "comment": "Buka halaman Manajemen User",
+          "command": "open",
+          "target": "/manajemen-user",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-c1",
+          "comment": "Tunggu teks Akses khusus admin tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h2[text()='Akses khusus admin']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc02-c2",
+          "comment": "Verifikasi teks penjelasan penolakan akses tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[contains(text(),'Halaman ini hanya dapat digunakan oleh akun dengan role admin')]",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-mu-003",
+      "name": "TC-MU-003 - Tampilan Tabel User & Kolom Header",
+      "commands": [
+        {
+          "id": "tc03-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-p2",
+          "comment": "Suntikkan token JWT admin",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-p2b",
+          "comment": "Suntikkan user admin ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({\"id_user\":1,\"username\":\"admin\",\"nama_lengkap\":\"Administrator\",\"role\":\"admin\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-p3",
+          "comment": "Buka halaman Manajemen User",
+          "command": "open",
+          "target": "/manajemen-user",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-p4",
+          "comment": "Tunggu judul Manajemen User tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Manajemen User']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc03-c1",
+          "comment": "Tunggu tabel user dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc03-c2",
+          "comment": "Verifikasi kolom header ID",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='ID']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c3",
+          "comment": "Verifikasi kolom header Nama",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='Nama']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c4",
+          "comment": "Verifikasi kolom header Username",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='Username']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c5",
+          "comment": "Verifikasi kolom header Email",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='Email']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c6",
+          "comment": "Verifikasi kolom header Dibuat",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='Dibuat']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c7",
+          "comment": "Verifikasi kolom header Role",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='Role']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c8",
+          "comment": "Verifikasi kolom header Action",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[text()='Action']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c9",
+          "comment": "Verifikasi tombol Tambah User",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(.,'Tambah User')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c10",
+          "comment": "Verifikasi tombol Refresh",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(.,'Refresh')]",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-mu-004",
+      "name": "TC-MU-004 - Tambah User Baru (Input/Output & Fungsional)",
+      "commands": [
+        {
+          "id": "tc04-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-p2",
+          "comment": "Suntikkan token JWT admin",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-p2b",
+          "comment": "Suntikkan user admin ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({\"id_user\":1,\"username\":\"admin\",\"nama_lengkap\":\"Administrator\",\"role\":\"admin\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-p3",
+          "comment": "Buka halaman Manajemen User",
+          "command": "open",
+          "target": "/manajemen-user",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-p4",
+          "comment": "Tunggu judul Manajemen User tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Manajemen User']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc04-c0a",
+          "comment": "Generate random username",
+          "command": "executeScript",
+          "target": "return 'user_' + Math.floor(Math.random() * 1000000);",
+          "targets": [],
+          "value": "randomUsername"
+        },
+        {
+          "id": "tc04-c0b",
+          "comment": "Generate random email",
+          "command": "executeScript",
+          "target": "return 'email_' + Math.floor(Math.random() * 1000000) + '@rsudpringsewu.id';",
+          "targets": [],
+          "value": "randomEmail"
+        },
+        {
+          "id": "tc04-c1",
+          "comment": "Klik tombol Tambah User",
+          "command": "click",
+          "target": "xpath=//button[contains(.,'Tambah User')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-c2",
+          "comment": "Tunggu modal tambah user muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Tambah User']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc04-c3",
+          "comment": "Isi Nama Lengkap",
+          "command": "type",
+          "target": "xpath=//input[@placeholder='Contoh: Siti Aminah']",
+          "targets": [],
+          "value": "Tester Baru"
+        },
+        {
+          "id": "tc04-c4",
+          "comment": "Isi Username",
+          "command": "type",
+          "target": "xpath=//input[@placeholder='Contoh: siti.aminah']",
+          "targets": [],
+          "value": "${randomUsername}"
+        },
+        {
+          "id": "tc04-c5",
+          "comment": "Isi Email",
+          "command": "type",
+          "target": "xpath=//input[@placeholder='nama@rsudpringsewu.id']",
+          "targets": [],
+          "value": "${randomEmail}"
+        },
+        {
+          "id": "tc04-c6",
+          "comment": "Isi Password Awal",
+          "command": "type",
+          "target": "xpath=//input[@placeholder='Minimal 6 karakter']",
+          "targets": [],
+          "value": "tester123"
+        },
+        {
+          "id": "tc04-c7",
+          "comment": "Pilih Role Petugas Gizi",
+          "command": "select",
+          "target": "xpath=//select",
+          "targets": [],
+          "value": "label=Petugas Gizi"
+        },
+        {
+          "id": "tc04-c8",
+          "comment": "Klik Simpan",
+          "command": "click",
+          "target": "xpath=//button[@type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-c9",
+          "comment": "Tunggu feedback sukses muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//*[contains(text(),'berhasil didaftarkan')]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc04-c10",
+          "comment": "Klik tombol Batal untuk menutup modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Batal']",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-mu-005",
+      "name": "TC-MU-005 - Reset Password User (Input/Output & Fungsional)",
+      "commands": [
+        {
+          "id": "tc05-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc05-p2",
+          "comment": "Suntikkan token JWT admin",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc05-p2b",
+          "comment": "Suntikkan user admin ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({\"id_user\":1,\"username\":\"admin\",\"nama_lengkap\":\"Administrator\",\"role\":\"admin\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc05-p3",
+          "comment": "Buka halaman Manajemen User",
+          "command": "open",
+          "target": "/manajemen-user",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc05-p4",
+          "comment": "Tunggu judul Manajemen User tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Manajemen User']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc05-c1",
+          "comment": "Tunggu tabel user dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc05-c2",
+          "comment": "Klik tombol Reset pada baris pertama petugas gizi",
+          "command": "click",
+          "target": "xpath=//table//tbody//tr[contains(.,'Petugas Gizi')][1]//button[contains(.,'Reset')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc05-c3",
+          "comment": "Tunggu modal Reset Password muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Reset Password']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc05-c4",
+          "comment": "Isi Password Baru",
+          "command": "type",
+          "target": "xpath=//input[@placeholder='Masukkan password baru']",
+          "targets": [],
+          "value": "passwordbaru123"
+        },
+        {
+          "id": "tc05-c5",
+          "comment": "Klik tombol Reset di modal",
+          "command": "click",
+          "target": "xpath=//button[@type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc05-c6",
+          "comment": "Tunggu feedback sukses reset",
+          "command": "waitForElementPresent",
+          "target": "xpath=//*[contains(text(),'berhasil di-reset')]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc05-c7",
+          "comment": "Tutup modal reset",
+          "command": "click",
+          "target": "xpath=//button[text()='Batal']",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-mu-006",
+      "name": "TC-MU-006 - Batalkan Penghapusan User (Modal Cancel)",
+      "commands": [
+        {
+          "id": "tc06-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc06-p2",
+          "comment": "Suntikkan token JWT admin",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc06-p2b",
+          "comment": "Suntikkan user admin ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({\"id_user\":1,\"username\":\"admin\",\"nama_lengkap\":\"Administrator\",\"role\":\"admin\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc06-p3",
+          "comment": "Buka halaman Manajemen User",
+          "command": "open",
+          "target": "/manajemen-user",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc06-p4",
+          "comment": "Tunggu judul Manajemen User tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Manajemen User']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc06-c1",
+          "comment": "Tunggu tabel user dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc06-c2",
+          "comment": "Klik tombol Hapus pada baris pertama petugas gizi",
+          "command": "click",
+          "target": "xpath=//table//tbody//tr[contains(.,'Petugas Gizi')][1]//button[contains(.,'Hapus')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc06-c3",
+          "comment": "Tunggu modal konfirmasi Hapus User muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Hapus User']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc06-c4",
+          "comment": "Verifikasi pesan konfirmasi",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[contains(text(),'Apakah Anda yakin')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc06-c5",
+          "comment": "Klik Batal pada modal konfirmasi",
+          "command": "click",
+          "target": "xpath=//button[text()='Batal']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc06-c6",
+          "comment": "Tunggu modal tertutup",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "500"
+        },
+        {
+          "id": "tc06-c7",
+          "comment": "Verifikasi tabel user tetap tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-mu-007",
+      "name": "TC-MU-007 - Navigasi Kembali ke Portal",
+      "commands": [
+        {
+          "id": "tc07-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc07-p2",
+          "comment": "Suntikkan token JWT admin",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc07-p2b",
+          "comment": "Suntikkan user admin ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({\"id_user\":1,\"username\":\"admin\",\"nama_lengkap\":\"Administrator\",\"role\":\"admin\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc07-p3",
+          "comment": "Buka halaman Manajemen User",
+          "command": "open",
+          "target": "/manajemen-user",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc07-p4",
+          "comment": "Tunggu judul Manajemen User tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Manajemen User']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc07-c1",
+          "comment": "Klik tombol Portal di header",
+          "command": "click",
+          "target": "xpath=//button[contains(.,'Portal')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc07-c2",
+          "comment": "Tunggu halaman portal dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//span[text()='Akses Portal Aktif']",
+          "targets": [],
+          "value": "15000"
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "suite-manajemen-user",
+      "name": "Suite Manajemen User",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "tc-mu-001",
+        "tc-mu-002",
+        "tc-mu-003",
+        "tc-mu-004",
+        "tc-mu-005",
+        "tc-mu-006",
+        "tc-mu-007"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:3000"
+  ],
+  "plugins": []
+}
