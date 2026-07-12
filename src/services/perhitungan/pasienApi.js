@@ -34,6 +34,7 @@ export function mapPasien(item) {
       item.metode_perhitungan ||
       item.jenisPerhitungan ||
       item.metodePerhitungan ||
+      item.diagnosis ||
       "",
     diagnosis_array: item.diagnosis_array || item.diagnosa_kategori || [],
     penyakit_lainnya: item.penyakit_lainnya || "",

@@ -9,6 +9,7 @@ import {
   getEnergiTotal,
   hasMakronutrienData,
 } from "../../../utils/makronutrien";
+import { getUser } from "../../../services/auth/authService";
 
 const formatIndonesianDate = (dateStr) => {
   if (!dateStr) return "-";
@@ -32,6 +33,9 @@ export default function RiwayatRow({
   const navigate = useNavigate();
   const energiTotal = getEnergiTotal(item);
   const hasMakro = hasMakronutrienData(item);
+  const user = getUser();
+  const isAdmin = user?.role === "admin";
+  const canModify = item.is_mine || isAdmin;
 
   return (
     <tr
@@ -207,7 +211,7 @@ export default function RiwayatRow({
             <Eye size={16} />
           </button>
 
-          {item.is_mine && (
+          {canModify && (
             <>
               {/* EDIT */}
               <button

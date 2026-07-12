@@ -1,6 +1,12 @@
 const childProcess = require("child_process");
 const path = require("path");
 
+try {
+  require("chromedriver");
+} catch {
+  // Selenium Manager can still resolve ChromeDriver when chromedriver is absent.
+}
+
 const runnerJestBin = path.join(
   __dirname,
   "..",

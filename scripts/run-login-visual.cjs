@@ -84,6 +84,14 @@ async function runCommand(driver, command, variables) {
       variables[value] = target;
       break;
 
+    case "storeAttribute": {
+      const atIndex = target.lastIndexOf("@");
+      const locator = target.slice(0, atIndex);
+      const attribute = target.slice(atIndex + 1);
+      variables[value] = await (await findElement(driver, locator, variables)).getAttribute(attribute);
+      break;
+    }
+
     case "executeScript": {
       if (target.includes("localStorage")) {
         const currentUrl = await driver.getCurrentUrl();
@@ -101,8 +109,12 @@ async function runCommand(driver, command, variables) {
     }
 
     case "assert": {
-      if (target !== value) {
-        throw new Error(`Assert gagal: nilai "${target}" tidak sama dengan "${value}"`);
+      const actual = Object.prototype.hasOwnProperty.call(variables, target)
+        ? variables[target]
+        : target;
+
+      if (String(actual) !== value) {
+        throw new Error(`Assert gagal: nilai "${actual}" tidak sama dengan "${value}"`);
       }
       break;
     }

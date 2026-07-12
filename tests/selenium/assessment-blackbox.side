@@ -1,0 +1,1222 @@
+{
+  "id": "assessment-blackbox-suite",
+  "version": "2.0",
+  "name": "Blackbox Testing - Assessment Gizi",
+  "url": "http://localhost:3000",
+  "tests": [
+    {
+      "id": "tc-as-001",
+      "name": "TC-AS-001 - Menampilkan Halaman Assessment Gizi & Identitas Pasien",
+      "commands": [
+        {
+          "id": "tc-as-001-l-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-001-l-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-001-l-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-001-l-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-as-001-l-4",
+          "comment": "Klik Pilih pada pasien pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-001-l-5",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-001-l-6",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-001-l-7",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-as-001-l-8",
+          "comment": "Tunggu 3 detik agar pengambilan detail pasien selesai dan data ter-populate",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "tc-as-001-c1",
+          "comment": "Verifikasi judul halaman",
+          "command": "assertText",
+          "target": "css=h1",
+          "targets": [],
+          "value": "Assessment Gizi"
+        },
+        {
+          "id": "tc-as-001-c2-get",
+          "comment": "Ambil status readOnly Nama Pasien",
+          "command": "executeScript",
+          "target": "return document.querySelector(\"input[placeholder='Masukkan nama pasien']\").readOnly;",
+          "targets": [],
+          "value": "isNameReadOnly"
+        },
+        {
+          "id": "tc-as-001-c2-assert",
+          "comment": "Pastikan Nama Pasien readOnly",
+          "command": "assert",
+          "target": "isNameReadOnly",
+          "targets": [],
+          "value": "true"
+        },
+        {
+          "id": "tc-as-001-c3-get",
+          "comment": "Ambil status readOnly No RM",
+          "command": "executeScript",
+          "target": "return document.querySelector(\"input[placeholder='Masukkan nomor RM']\").readOnly;",
+          "targets": [],
+          "value": "isRMReadOnly"
+        },
+        {
+          "id": "tc-as-001-c3-assert",
+          "comment": "Pastikan No RM readOnly",
+          "command": "assert",
+          "target": "isRMReadOnly",
+          "targets": [],
+          "value": "true"
+        },
+        {
+          "id": "tc-as-001-c4-get",
+          "comment": "Ambil status readOnly Umur",
+          "command": "executeScript",
+          "target": "return document.querySelector(\"input[placeholder='Masukkan umur']\").readOnly;",
+          "targets": [],
+          "value": "isAgeReadOnly"
+        },
+        {
+          "id": "tc-as-001-c4-assert",
+          "comment": "Pastikan Umur readOnly",
+          "command": "assert",
+          "target": "isAgeReadOnly",
+          "targets": [],
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "id": "tc-as-002",
+      "name": "TC-AS-002 - Validasi Input Berat Badan dan Tinggi Badan",
+      "commands": [
+        {
+          "id": "tc-as-002-l-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-002-l-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-002-l-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-002-l-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-as-002-l-4",
+          "comment": "Klik Pilih pada pasien pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-002-l-5",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-002-l-6",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-002-l-7",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-as-002-l-8",
+          "comment": "Tunggu 3 detik agar pengambilan detail pasien selesai dan data ter-populate",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "tc-as-002-c1",
+          "comment": "Kosongkan Berat Badan (BB)",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan BB']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-002-c2",
+          "comment": "Kosongkan Tinggi Badan (TB)",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan TB']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-002-c3",
+          "comment": "Klik Simpan & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-002-c4",
+          "comment": "Verifikasi error Berat Badan wajib diisi",
+          "command": "waitForElementPresent",
+          "target": "xpath=//p[contains(.,'Berat badan wajib diisi')]",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-002-c5",
+          "comment": "Verifikasi error Tinggi Badan wajib diisi",
+          "command": "waitForElementPresent",
+          "target": "xpath=//p[contains(.,'Tinggi badan wajib diisi')]",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-002-c6",
+          "comment": "Isi BB dengan nilai valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan BB']",
+          "targets": [],
+          "value": "65"
+        },
+        {
+          "id": "tc-as-002-c7",
+          "comment": "Isi TB dengan nilai valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan TB']",
+          "targets": [],
+          "value": "168"
+        }
+      ]
+    },
+    {
+      "id": "tc-as-003",
+      "name": "TC-AS-003 - Estimasi Antropometri Menggunakan LILA & ULNA",
+      "commands": [
+        {
+          "id": "tc-as-003-l-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-003-l-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-003-l-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-003-l-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-as-003-l-4",
+          "comment": "Klik Pilih pada pasien pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-003-l-5",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-003-l-6",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-003-l-7",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-as-003-l-8",
+          "comment": "Tunggu 3 detik agar pengambilan detail pasien selesai dan data ter-populate",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "tc-as-003-c1",
+          "comment": "Aktifkan toggle Estimasi",
+          "command": "click",
+          "target": "xpath=//input[@type='checkbox']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-003-c2",
+          "comment": "Tunggu input LILA muncul",
+          "command": "waitForElementPresent",
+          "target": "css=input[placeholder='Masukkan LILA']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-003-c3",
+          "comment": "Tunggu input ULNA muncul",
+          "command": "waitForElementPresent",
+          "target": "css=input[placeholder='Masukkan ULNA']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-003-c4",
+          "comment": "Kosongkan LILA",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan LILA']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-003-c5",
+          "comment": "Kosongkan ULNA",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan ULNA']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-003-c6",
+          "comment": "Klik Simpan & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-003-c7",
+          "comment": "Verifikasi error LILA wajib diisi",
+          "command": "waitForElementPresent",
+          "target": "xpath=//p[contains(.,'LILA wajib diisi untuk estimasi')]",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-003-c8",
+          "comment": "Verifikasi error ULNA wajib diisi",
+          "command": "waitForElementPresent",
+          "target": "xpath=//p[contains(.,'ULNA wajib diisi untuk estimasi')]",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-003-c9",
+          "comment": "Isi LILA valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan LILA']",
+          "targets": [],
+          "value": "28"
+        },
+        {
+          "id": "tc-as-003-c10",
+          "comment": "Isi ULNA valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan ULNA']",
+          "targets": [],
+          "value": "24"
+        }
+      ]
+    },
+    {
+      "id": "tc-as-004",
+      "name": "TC-AS-004 - Penyakit CKD dan Validasi Hemodialisa",
+      "commands": [
+        {
+          "id": "tc-as-004-l-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-004-l-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-004-l-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-004-l-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-as-004-l-4",
+          "comment": "Klik Pilih pada pasien pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-004-l-5",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-004-l-6",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-004-l-7",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-as-004-l-8",
+          "comment": "Tunggu 3 detik agar pengambilan detail pasien selesai dan data ter-populate",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "tc-as-004-c1",
+          "comment": "Pilih penyakit CKD",
+          "command": "click",
+          "target": "xpath=//button[contains(., 'CKD')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-004-c2",
+          "comment": "Tunggu card Hemodialisa aktif",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h2[text()='Hemodialisa']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-004-c3",
+          "comment": "Klik Simpan & Lanjut untuk memicu error hemodialisa",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-004-c4",
+          "comment": "Verifikasi error status hemodialisa wajib dipilih",
+          "command": "waitForElementPresent",
+          "target": "xpath=//p[contains(.,'Status hemodialisa wajib dipilih')]",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-004-c5",
+          "comment": "Pilih Ya Hemodialisa",
+          "command": "click",
+          "target": "xpath=//button[contains(., 'Ya Hemodialisa')]",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-as-005",
+      "name": "TC-AS-005 - Aturan Logika Penyakit Terhadap Aktivitas Fisik & Faktor Stress",
+      "commands": [
+        {
+          "id": "tc-as-005-l-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-005-l-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-005-l-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-005-l-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-as-005-l-4",
+          "comment": "Klik Pilih pada pasien pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-005-l-5",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-005-l-6",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-005-l-7",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-as-005-l-8",
+          "comment": "Tunggu 3 detik agar pengambilan detail pasien selesai dan data ter-populate",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "tc-as-005-c1-setup1",
+          "comment": "Aktifkan Stroke jika belum aktif",
+          "command": "executeScript",
+          "target": "const strokeBtn = Array.from(document.querySelectorAll(\"button\")).find(b => b.textContent.includes(\"Stroke\")); if (strokeBtn && !strokeBtn.className.includes(\"border-emerald-500\")) { strokeBtn.click(); }",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-005-c1-pause1",
+          "comment": "Jeda render setelah Stroke diaktifkan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-as-005-c1-setup2",
+          "comment": "Matikan penyakit lain yang aktif",
+          "command": "executeScript",
+          "target": "const buttons = Array.from(document.querySelectorAll(\"button\")); const others = [\"Diabetes Mellitus\", \"CKD\", \"CHF\", \"Lambung\", \"Mifflin\"]; others.forEach(name => { const btn = buttons.find(b => b.textContent.includes(name)); if (btn && btn.className.includes(\"border-emerald-500\")) { btn.click(); } });",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-005-c1-pause2",
+          "comment": "Jeda render setelah penyakit lain dimatikan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-as-005-c1",
+          "comment": "Pastikan select disabled untuk Stroke (default active)",
+          "command": "executeScript",
+          "target": "return document.querySelector(\"select\").disabled;",
+          "targets": [],
+          "value": "isSelectDisabledInitial"
+        },
+        {
+          "id": "tc-as-005-c2",
+          "comment": "Assert select disabled awal",
+          "command": "assert",
+          "target": "isSelectDisabledInitial",
+          "targets": [],
+          "value": "true"
+        },
+        {
+          "id": "tc-as-005-c3",
+          "comment": "Aktifkan Diabetes Mellitus",
+          "command": "click",
+          "target": "xpath=//button[contains(., 'Diabetes Mellitus')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-005-c4",
+          "comment": "Jeda render",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-as-005-c5",
+          "comment": "Ambil status disabled select setelah DM diaktifkan",
+          "command": "executeScript",
+          "target": "return document.querySelector(\"select\").disabled;",
+          "targets": [],
+          "value": "isSelectDisabledDM"
+        },
+        {
+          "id": "tc-as-005-c6",
+          "comment": "Pastikan select aktif (disabled: false) setelah DM aktif",
+          "command": "assert",
+          "target": "isSelectDisabledDM",
+          "targets": [],
+          "value": "false"
+        },
+        {
+          "id": "tc-as-005-c7",
+          "comment": "Matikan kembali Diabetes Mellitus",
+          "command": "click",
+          "target": "xpath=//button[contains(., 'Diabetes Mellitus')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-005-c8",
+          "comment": "Jeda render",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-as-005-c9",
+          "comment": "Ambil status disabled select setelah DM dimatikan",
+          "command": "executeScript",
+          "target": "return document.querySelector(\"select\").disabled;",
+          "targets": [],
+          "value": "isSelectDisabledFinal"
+        },
+        {
+          "id": "tc-as-005-c10",
+          "comment": "Pastikan select kembali disabled",
+          "command": "assert",
+          "target": "isSelectDisabledFinal",
+          "targets": [],
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "id": "tc-as-006",
+      "name": "TC-AS-006 - Validasi Sliders Makronutrien",
+      "commands": [
+        {
+          "id": "tc-as-006-l-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-006-l-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-006-l-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-006-l-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-as-006-l-4",
+          "comment": "Klik Pilih pada pasien pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-006-l-5",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-006-l-6",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-006-l-7",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-as-006-l-8",
+          "comment": "Tunggu 3 detik agar pengambilan detail pasien selesai dan data ter-populate",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "tc-as-006-c1-setup1",
+          "comment": "Aktifkan Diabetes Mellitus jika belum aktif",
+          "command": "executeScript",
+          "target": "const dmBtn = Array.from(document.querySelectorAll(\"button\")).find(b => b.textContent.includes(\"Diabetes Mellitus\")); if (dmBtn && !dmBtn.className.includes(\"border-emerald-500\")) { dmBtn.click(); }",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-006-c1-pause1",
+          "comment": "Jeda render setelah DM diaktifkan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-as-006-c1-setup2",
+          "comment": "Matikan penyakit lain yang aktif",
+          "command": "executeScript",
+          "target": "const buttons = Array.from(document.querySelectorAll(\"button\")); const others = [\"CKD\", \"CHF\", \"Stroke\", \"Lambung\", \"Mifflin\"]; others.forEach(name => { const btn = buttons.find(b => b.textContent.includes(name)); if (btn && btn.className.includes(\"border-emerald-500\")) { btn.click(); } });",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-006-c1-pause2",
+          "comment": "Jeda render setelah penyakit lain dimatikan",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-as-006-c2",
+          "comment": "Tunggu slider makronutrien muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//input[@type='range'])[2]",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-006-c3",
+          "comment": "Ubah slider lemak menjadi 20% via React native value tracker setter",
+          "command": "executeScript",
+          "target": "const el = document.querySelectorAll(\"input[type='range']\")[1]; const valueSetter = Object.getOwnPropertyDescriptor(el.constructor.prototype, 'value').set; valueSetter.call(el, 20); el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true }));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-006-c4",
+          "comment": "Klik Simpan & Lanjut",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Simpan')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-006-c5",
+          "comment": "Verifikasi error rentang karbohidrat muncul (karena protein 10% + lemak 20% = karbohidrat 70% di luar batas max 65%)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//p[contains(.,'Karbohidrat harus berada di antara')]",
+          "targets": [],
+          "value": "5000"
+        }
+      ]
+    },
+    {
+      "id": "tc-as-007",
+      "name": "TC-AS-007 - Tombol Kembali dari Halaman Assessment",
+      "commands": [
+        {
+          "id": "tc-as-007-l-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-007-l-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-007-l-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-007-l-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-as-007-l-4",
+          "comment": "Klik Pilih pada pasien pertama",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-007-l-5",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-007-l-6",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-007-l-7",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-as-007-l-8",
+          "comment": "Tunggu 3 detik agar pengambilan detail pasien selesai dan data ter-populate",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "tc-as-007-c1",
+          "comment": "Klik tombol Kembali",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Kembali')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-007-c2",
+          "comment": "Tunggu kembali ke rute /perhitungan",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Perhitungan Gizi']",
+          "targets": [],
+          "value": "5000"
+        }
+      ]
+    },
+    {
+      "id": "tc-as-008",
+      "name": "TC-AS-008 - Penambahan Energi untuk Pasien Laki-laki (Disabled)",
+      "commands": [
+        {
+          "id": "tc-as-008-l-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-008-l-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-008-l-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-008-l-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-as-008-l-4",
+          "comment": "Klik Pilih pada pasien kedua (laki-laki M. YUSUF)",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[2]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-008-l-5",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-008-l-6",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-008-l-7",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-as-008-l-8",
+          "comment": "Tunggu 3 detik agar pengambilan detail pasien selesai dan data ter-populate",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "tc-as-008-c1",
+          "comment": "Verifikasi info penambahan energi tidak tersedia untuk laki-laki",
+          "command": "waitForElementPresent",
+          "target": "xpath=//div[contains(.,'Penambahan energi tidak tersedia untuk pasien laki-laki')]",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-008-c2-get",
+          "comment": "Ambil status disabled tombol Trimester 1",
+          "command": "executeScript",
+          "target": "return document.evaluate(\"//button[text()='Trimester 1']\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.disabled;",
+          "targets": [],
+          "value": "isTrimester1Disabled"
+        },
+        {
+          "id": "tc-as-008-c2-assert",
+          "comment": "Pastikan tombol Trimester 1 disabled untuk laki-laki",
+          "command": "assert",
+          "target": "isTrimester1Disabled",
+          "targets": [],
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "id": "tc-as-009",
+      "name": "TC-AS-009 - Penambahan Energi untuk Pasien Perempuan (Enabled)",
+      "commands": [
+        {
+          "id": "tc-as-009-l-0",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-009-l-1",
+          "comment": "Suntikkan token",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-009-l-2",
+          "comment": "Buka halaman perhitungan",
+          "command": "open",
+          "target": "/perhitungan",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-009-l-3",
+          "comment": "Tunggu tombol Pilih pasien pertama muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=(//button[text()='Pilih'])[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-as-009-l-4",
+          "comment": "Klik Pilih pada pasien keempat (perempuan MASKAH)",
+          "command": "click",
+          "target": "xpath=(//button[text()='Pilih'])[4]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-009-l-5",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-009-l-6",
+          "comment": "Klik konfirmasi 'Pilih Pasien' button di modal",
+          "command": "click",
+          "target": "xpath=//button[text()='Pilih Pasien']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-009-l-7",
+          "comment": "Tunggu elemen indikator halaman: /assessment",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Assessment Gizi']",
+          "targets": [],
+          "value": "8000"
+        },
+        {
+          "id": "tc-as-009-l-8",
+          "comment": "Tunggu 3 detik agar pengambilan detail pasien selesai dan data ter-populate",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "3000"
+        },
+        {
+          "id": "tc-as-009-c1",
+          "comment": "Tunggu teks penjelasan penambahan energi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//p[contains(.,'Pilihan penambahan energi')]",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-as-009-c2",
+          "comment": "Klik tombol Trimester 1",
+          "command": "click",
+          "target": "xpath=//button[text()='Trimester 1']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-009-c3",
+          "comment": "Jeda klik",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1000"
+        },
+        {
+          "id": "tc-as-009-c4",
+          "comment": "Verifikasi tombol Trimester 1 terpilih (class active/blue)",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Trimester 1'][contains(@class,'bg-blue-50')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-as-009-c5",
+          "comment": "Verifikasi deskripsi penambahan kalori berubah",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[contains(text(),'Trimester 1 — Penambahan energi sebesar')]",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "assessment-suite-id",
+      "name": "Kategori Assessment Gizi",
+      "persistSession": false,
+      "parallel": false,
+      "timeout": 300,
+      "tests": [
+        "tc-as-001",
+        "tc-as-002",
+        "tc-as-003",
+        "tc-as-004",
+        "tc-as-005",
+        "tc-as-006",
+        "tc-as-007",
+        "tc-as-008",
+        "tc-as-009"
+      ]
+    }
+  ],
+  "urls": [
+    "http://localhost:3000"
+  ],
+  "plugins": []
+}

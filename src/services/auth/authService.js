@@ -106,7 +106,6 @@ export const resetPasswordAdmin = async ({ token, newPassword }) => {
         newPassword,
       }
     );
-
     return response.data;
   } catch (error) {
     throw new Error(
@@ -160,10 +159,11 @@ export const isAuthenticated = () => {
 };
 
 /**
- * AMBIL USER
- * Mengambil data user dari localStorage
- * @returns {object|null} Data user jika ada, null jika tidak ada
+ 
+ 
+  @returns {object|null} 
  */
+
 export const getUser = () => {
   const user = localStorage.getItem(USER_KEY);
 
@@ -178,10 +178,7 @@ export const getUser = () => {
   }
 };
 
-/**
- * HAPUS DATA AUTH
- * Membersihkan semua data auth dari localStorage
- */
+
 export const clearAuthData = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);

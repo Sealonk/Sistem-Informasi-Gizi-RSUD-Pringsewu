@@ -9,10 +9,18 @@
       "name": "TC-PT-001 - Menampilkan Halaman Portal dengan Elemen Utama",
       "commands": [
         {
+          "id": "e01a1820-21db-46a4-8452-f47285bf81a1-open-pre",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
           "id": "e01a1820-21db-46a4-8452-f47285bf81a1",
           "comment": "Suntikkan token dummy agar lolos ProtectedRoute",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
           "targets": [],
           "value": ""
         },
@@ -122,10 +130,18 @@
       "name": "TC-PT-002 - Navigasi ke Modul Ringkasan Sistem",
       "commands": [
         {
+          "id": "01d01f11-7eb1-4682-8bc1-12c8230b561c-open-pre",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
           "id": "01d01f11-7eb1-4682-8bc1-12c8230b561c",
           "comment": "Suntikkan token",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
           "targets": [],
           "value": ""
         },
@@ -151,12 +167,28 @@
           "value": ""
         },
         {
-          "id": "e1f01f44-aeb4-4985-bc43-43c8230b564f",
-          "comment": "Verifikasi mengarah ke ringkasan sistem",
-          "command": "waitForLocation",
-          "target": "glob:*/ringkasan-sistem",
+          "id": "e1f01f44-aeb4-4985-bc43-43c8230b564f-wait-el",
+          "comment": "Tunggu elemen indikator halaman: /ringkasan-sistem",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Ringkasan Sistem']",
           "targets": [],
           "value": "5000"
+        },
+        {
+          "id": "e1f01f44-aeb4-4985-bc43-43c8230b564f-get-path",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "e1f01f44-aeb4-4985-bc43-43c8230b564f-assert-path",
+          "comment": "Pastikan berada di rute: /ringkasan-sistem",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/ringkasan-sistem"
         }
       ]
     },
@@ -165,10 +197,18 @@
       "name": "TC-PT-003 - Navigasi ke Modul Perhitungan Gizi",
       "commands": [
         {
+          "id": "11f01f11-beb1-4682-8bc1-12c8230b561c-open-pre",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
           "id": "11f01f11-beb1-4682-8bc1-12c8230b561c",
           "comment": "Suntikkan token",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
           "targets": [],
           "value": ""
         },
@@ -194,12 +234,28 @@
           "value": ""
         },
         {
-          "id": "11f01f44-eeb4-4985-bc43-43c8230b564f",
-          "comment": "Verifikasi mengarah ke perhitungan gizi (pilih pasien)",
-          "command": "waitForLocation",
-          "target": "glob:*/perhitungan",
+          "id": "11f01f44-eeb4-4985-bc43-43c8230b564f-wait-el",
+          "comment": "Tunggu elemen indikator halaman: /perhitungan",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Perhitungan Gizi']",
           "targets": [],
           "value": "5000"
+        },
+        {
+          "id": "11f01f44-eeb4-4985-bc43-43c8230b564f-get-path",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "11f01f44-eeb4-4985-bc43-43c8230b564f-assert-path",
+          "comment": "Pastikan berada di rute: /perhitungan",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/perhitungan"
         }
       ]
     },
@@ -208,10 +264,18 @@
       "name": "TC-PT-004 - Navigasi ke Modul Riwayat",
       "commands": [
         {
+          "id": "22f01f11-feb1-4682-8bc1-12c8230b561c-open-pre",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
           "id": "22f01f11-feb1-4682-8bc1-12c8230b561c",
           "comment": "Suntikkan token",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
           "targets": [],
           "value": ""
         },
@@ -237,12 +301,28 @@
           "value": ""
         },
         {
-          "id": "22f01f44-2eb4-4985-bc43-43c8230b564f",
-          "comment": "Verifikasi mengarah ke riwayat",
-          "command": "waitForLocation",
-          "target": "glob:*/riwayat",
+          "id": "22f01f44-2eb4-4985-bc43-43c8230b564f-wait-el",
+          "comment": "Tunggu elemen indikator halaman: /riwayat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
           "targets": [],
           "value": "5000"
+        },
+        {
+          "id": "22f01f44-2eb4-4985-bc43-43c8230b564f-get-path",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "22f01f44-2eb4-4985-bc43-43c8230b564f-assert-path",
+          "comment": "Pastikan berada di rute: /riwayat",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/riwayat"
         }
       ]
     },
@@ -251,10 +331,18 @@
       "name": "TC-PT-005 - Mengubah Slide Tips Edukasi Klinis Hari Ini",
       "commands": [
         {
+          "id": "33f01f11-3eb1-4682-8bc1-12c8230b561c-open-pre",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
           "id": "33f01f11-3eb1-4682-8bc1-12c8230b561c",
           "comment": "Suntikkan token",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
           "targets": [],
           "value": ""
         },
@@ -299,10 +387,18 @@
       "name": "TC-PT-006 - Membuka/Menutup Dropdown Menu User",
       "commands": [
         {
+          "id": "44f01f11-7eb1-4682-8bc1-12c8230b561c-open-pre",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
           "id": "44f01f11-7eb1-4682-8bc1-12c8230b561c",
           "comment": "Suntikkan token",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
           "targets": [],
           "value": ""
         },
@@ -368,10 +464,18 @@
       "name": "TC-PT-007 - Proses Logout Melalui Menu User",
       "commands": [
         {
+          "id": "55f01f11-7eb1-4682-8bc1-12c8230b561c-open-pre",
+          "comment": "Buka halaman login agar browser berada di domain localhost sebelum executeScript",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
           "id": "55f01f11-7eb1-4682-8bc1-12c8230b561c",
           "comment": "Suntikkan token",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY2NjkzNywiZXhwIjoxODE0MjAyOTM3fQ.sO3IY8IipaRqyxQuYQYTIwlFhI82qiOJ-jfRcLFHNB8');",
           "targets": [],
           "value": ""
         },
@@ -423,12 +527,28 @@
           "value": ""
         },
         {
-          "id": "55f01f66-ceb6-4987-bc45-63c8230b5651",
-          "comment": "Pastikan diarahkan kembali ke login page",
-          "command": "waitForLocation",
-          "target": "glob:*/",
+          "id": "55f01f66-ceb6-4987-bc45-63c8230b5651-wait-el",
+          "comment": "Tunggu elemen indikator halaman: /",
+          "command": "waitForElementPresent",
+          "target": "css=input[placeholder='Masukkan username']",
           "targets": [],
           "value": "10000"
+        },
+        {
+          "id": "55f01f66-ceb6-4987-bc45-63c8230b5651-get-path",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "55f01f66-ceb6-4987-bc45-63c8230b5651-assert-path",
+          "comment": "Pastikan berada di rute: /",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/"
         },
         {
           "id": "55f01f77-deb7-4988-bc46-73c8230b5652",
@@ -442,7 +562,7 @@
           "id": "55f01f88-eeb8-4989-bc47-83c8230b5653",
           "comment": "Verifikasi token null",
           "command": "assert",
-          "target": "${isTokenDeleted}",
+          "target": "isTokenDeleted",
           "targets": [],
           "value": "true"
         }

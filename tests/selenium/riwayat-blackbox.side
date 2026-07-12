@@ -1,340 +1,1457 @@
 {
-  "id": "e2a7b82f-da56-4c33-a3d8-e3db982b6b23",
+  "id": "riwayat-blackbox-suite",
   "version": "2.0",
-  "name": "Blackbox Testing - Riwayat",
+  "name": "Blackbox Testing - Riwayat Perhitungan Gizi",
   "url": "http://localhost:3000",
   "tests": [
     {
       "id": "tc-rw-001",
-      "name": "TC-RW-001 - Menampilkan Halaman Riwayat Perhitungan",
+      "name": "TC-RW-001 - Inisialisasi & Tampilan Antarmuka Halaman Riwayat",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc01-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc01-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc01-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc01-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "assertElementPresent",
+          "id": "tc01-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
+          "command": "waitForElementPresent",
           "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc01-c1",
+          "comment": "Verifikasi breadcrumb tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//div[contains(text(),'Beranda')]",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc01-c2",
+          "comment": "Verifikasi deskripsi halaman tampil",
           "command": "assertElementPresent",
-          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "target": "xpath=//p[contains(text(),'Daftar hasil perhitungan kebutuhan gizi pasien')]",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc01-c3",
+          "comment": "Verifikasi badge Database Sinkron tampil",
           "command": "assertElementPresent",
-          "target": "xpath=//input[@placeholder='Cari nama pasien atau No. RM...']",
+          "target": "xpath=//*[contains(text(),'Database Sinkron')]",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc01-c4",
+          "comment": "Verifikasi badge Tersimpan Otomatis tampil",
           "command": "assertElementPresent",
-          "target": "xpath=//select",
+          "target": "xpath=//*[contains(text(),'Tersimpan Otomatis')]",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc01-c5",
+          "comment": "Verifikasi badge Petugas tampil",
           "command": "assertElementPresent",
-          "target": "xpath=//input[@type='date']",
+          "target": "xpath=//span[contains(text(),'Petugas Gizi')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc01-c6",
+          "comment": "Verifikasi tab Perhitungan Gizi tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(text(),'Perhitungan Gizi')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc01-c7",
+          "comment": "Verifikasi tombol Kembali ke Portal tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[contains(text(),'Kembali ke Portal')]",
+          "targets": [],
           "value": ""
         }
       ]
     },
     {
       "id": "tc-rw-002",
-      "name": "TC-RW-002 - Pencarian Riwayat Berdasarkan Nama",
+      "name": "TC-RW-002 - Tampilan Filter & Form Pencarian",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc02-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc02-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "type",
-          "target": "xpath=//input[@placeholder='Cari nama pasien atau No. RM...']",
-          "value": "Pasien"
+          "id": "tc02-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc02-c1",
+          "comment": "Verifikasi label Cari Pasien tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//label[contains(text(),'Cari Pasien')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-c2",
+          "comment": "Verifikasi input pencarian tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//input[@placeholder='Nama pasien atau No. RM...']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-c3",
+          "comment": "Verifikasi label Filter Penyakit tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//label[contains(text(),'Filter Penyakit')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-c4",
+          "comment": "Verifikasi dropdown penyakit tampil dengan default Semua Penyakit",
+          "command": "assertElementPresent",
+          "target": "xpath=//select//option[text()='Semua Penyakit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-c5",
+          "comment": "Verifikasi label Filter Tanggal tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//label[contains(text(),'Filter Tanggal')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-c6",
+          "comment": "Verifikasi input date tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//input[@type='date']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-c7",
+          "comment": "Verifikasi label Filter Pembuat tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//label[contains(text(),'Filter Pembuat')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc02-c8",
+          "comment": "Verifikasi dropdown pembuat tampil dengan default Semua User",
+          "command": "assertElementPresent",
+          "target": "xpath=//select//option[text()='Semua User']",
+          "targets": [],
+          "value": ""
         }
       ]
     },
     {
       "id": "tc-rw-003",
-      "name": "TC-RW-003 - Filter Riwayat Berdasarkan Penyakit",
+      "name": "TC-RW-003 - Tampilan Tabel Riwayat & Kolom Header",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc03-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc03-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "click",
-          "target": "xpath=//select",
+          "id": "tc03-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc03-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc03-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc03-c1",
+          "comment": "Verifikasi judul tabel tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "click",
-          "target": "xpath=//option[@value='DM']",
+          "id": "tc03-c2",
+          "comment": "Verifikasi kolom Pasien tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[contains(text(),'Pasien')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c3",
+          "comment": "Verifikasi kolom JK tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[contains(text(),'JK')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c4",
+          "comment": "Verifikasi kolom Kode Penyakit tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[contains(text(),'Kode Penyakit')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c5",
+          "comment": "Verifikasi kolom Energi & Makronutrien tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[contains(text(),'Energi')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c6",
+          "comment": "Verifikasi kolom Tanggal tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[contains(text(),'Tanggal')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c7",
+          "comment": "Verifikasi kolom Pembuat tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[contains(text(),'Pembuat')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c8",
+          "comment": "Verifikasi kolom Aksi tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//th[contains(text(),'Aksi')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc03-c9",
+          "comment": "Verifikasi baris data pertama berisi No. RM",
+          "command": "assertElementPresent",
+          "target": "xpath=//table//tbody//tr[1]//p[contains(text(),'No. RM')]",
+          "targets": [],
           "value": ""
         }
       ]
     },
     {
       "id": "tc-rw-004",
-      "name": "TC-RW-004 - Filter Riwayat Berdasarkan Tanggal",
+      "name": "TC-RW-004 - Pencarian Riwayat (Input/Output)",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc04-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc04-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc04-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc04-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc04-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc04-c1",
+          "comment": "Masukkan kata kunci pencarian 'Pasien'",
           "command": "type",
-          "target": "xpath=//input[@type='date']",
-          "value": "2026-06-08"
+          "target": "xpath=//input[@placeholder='Nama pasien atau No. RM...']",
+          "targets": [],
+          "value": "Pasien"
+        },
+        {
+          "id": "tc04-c2",
+          "comment": "Tunggu tabel diperbarui (debounce)",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc04-c3",
+          "comment": "Verifikasi halaman tidak crash (judul masih ada)",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-c4",
+          "comment": "Bersihkan field pencarian",
+          "command": "type",
+          "target": "xpath=//input[@placeholder='Nama pasien atau No. RM...']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc04-c5",
+          "comment": "Tunggu tabel kembali ke data awal",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc04-c6",
+          "comment": "Verifikasi tabel kembali tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": ""
         }
       ]
     },
     {
       "id": "tc-rw-005",
-      "name": "TC-RW-005 - Navigasi ke Detail Riwayat",
+      "name": "TC-RW-005 - Filter Riwayat Berdasarkan Penyakit (Input/Output)",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc05-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc05-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc05-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc05-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc05-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
           "command": "waitForElementPresent",
-          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc05-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": "10000"
         },
         {
-          "command": "click",
-          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
+          "id": "tc05-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc05-c1",
+          "comment": "Pilih filter penyakit DM",
+          "command": "select",
+          "target": "xpath=(//select)[1]",
+          "targets": [],
+          "value": "label=DM (Diabetes Melitus)"
+        },
+        {
+          "id": "tc05-c2",
+          "comment": "Tunggu tabel diperbarui",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc05-c3",
+          "comment": "Verifikasi halaman tidak crash",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "waitForLocation",
-          "target": "glob:*/riwayat/*",
-          "value": "10000"
+          "id": "tc05-c4",
+          "comment": "Kembalikan ke Semua Penyakit",
+          "command": "select",
+          "target": "xpath=(//select)[1]",
+          "targets": [],
+          "value": "label=Semua Penyakit"
         },
         {
+          "id": "tc05-c5",
+          "comment": "Tunggu tabel kembali",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc05-c6",
+          "comment": "Verifikasi tabel tampil kembali",
           "command": "assertElementPresent",
-          "target": "xpath=//div[contains(., 'Data Valid')]",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": ""
         }
       ]
     },
     {
       "id": "tc-rw-006",
-      "name": "TC-RW-006 - Tombol Kembali ke Riwayat dari Halaman Detail",
+      "name": "TC-RW-006 - Filter Riwayat Berdasarkan Tanggal (Input/Output)",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc06-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc06-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc06-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc06-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc06-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
           "command": "waitForElementPresent",
-          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
-          "value": "10000"
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
         },
         {
-          "command": "click",
-          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
-          "value": ""
-        },
-        {
-          "command": "waitForLocation",
-          "target": "glob:*/riwayat/*",
-          "value": "10000"
-        },
-        {
+          "id": "tc06-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
           "command": "waitForElementPresent",
-          "target": "xpath=//button[contains(text(), 'Kembali ke Riwayat')]",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": "10000"
         },
         {
-          "command": "click",
-          "target": "xpath=//button[contains(text(), 'Kembali ke Riwayat')]",
+          "id": "tc06-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc06-c1",
+          "comment": "Isi field filter tanggal",
+          "command": "type",
+          "target": "xpath=//input[@type='date']",
+          "targets": [],
+          "value": "2026-06-28"
+        },
+        {
+          "id": "tc06-c2",
+          "comment": "Tunggu tabel diperbarui",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc06-c3",
+          "comment": "Verifikasi halaman tidak crash setelah filter tanggal",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": ""
-        },
-        {
-          "command": "waitForLocation",
-          "target": "glob:*/riwayat",
-          "value": "10000"
         }
       ]
     },
     {
       "id": "tc-rw-007",
-      "name": "TC-RW-007 - Tombol Kembali ke Portal dari Halaman Detail",
+      "name": "TC-RW-007 - Filter Riwayat Berdasarkan Pembuat (Input/Output)",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc07-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc07-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc07-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc07-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc07-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
           "command": "waitForElementPresent",
-          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
-          "value": "10000"
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
         },
         {
-          "command": "click",
-          "target": "xpath=(//table//tbody//tr[1]//button)[1]",
-          "value": ""
-        },
-        {
-          "command": "waitForLocation",
-          "target": "glob:*/riwayat/*",
-          "value": "10000"
-        },
-        {
+          "id": "tc07-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
           "command": "waitForElementPresent",
-          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": "10000"
         },
         {
-          "command": "click",
-          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
+          "id": "tc07-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc07-c1",
+          "comment": "Pilih filter pembuat Hanya Saya",
+          "command": "select",
+          "target": "xpath=(//select)[2]",
+          "targets": [],
+          "value": "label=Hanya Saya"
+        },
+        {
+          "id": "tc07-c2",
+          "comment": "Tunggu tabel diperbarui",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc07-c3",
+          "comment": "Verifikasi halaman tidak crash",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "waitForLocation",
-          "target": "glob:*/portal",
-          "value": "10000"
+          "id": "tc07-c4",
+          "comment": "Kembalikan ke Semua User",
+          "command": "select",
+          "target": "xpath=(//select)[2]",
+          "targets": [],
+          "value": "label=Semua User"
+        },
+        {
+          "id": "tc07-c5",
+          "comment": "Tunggu tabel kembali",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "1500"
+        },
+        {
+          "id": "tc07-c6",
+          "comment": "Verifikasi tabel tampil kembali",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": ""
         }
       ]
     },
     {
       "id": "tc-rw-008",
-      "name": "TC-RW-008 - Tombol Kembali ke Portal dari Halaman Riwayat",
+      "name": "TC-RW-008 - Navigasi ke Detail Riwayat",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc08-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc08-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc08-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc08-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "click",
-          "target": "xpath=//button[contains(text(), 'Kembali ke Portal')]",
-          "value": ""
+          "id": "tc08-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
         },
         {
-          "command": "waitForLocation",
-          "target": "glob:*/portal",
+          "id": "tc08-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": "10000"
+        },
+        {
+          "id": "tc08-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc08-nd1",
+          "comment": "Klik tombol Detail (Eye) pada baris pertama",
+          "command": "click",
+          "target": "xpath=//table//tbody//tr[1]//button[@title='Lihat Detail']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc08-nd2",
+          "comment": "Tunggu halaman detail dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Kembali ke Riwayat']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc08-c1",
+          "comment": "Verifikasi halaman detail riwayat tampil (tombol Kembali ke Riwayat ada)",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Kembali ke Riwayat']",
+          "targets": [],
+          "value": ""
         }
       ]
     },
     {
       "id": "tc-rw-009",
-      "name": "TC-RW-009 - Membatalkan Penghapusan Riwayat",
+      "name": "TC-RW-009 - Tampilan Halaman Detail Riwayat",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc09-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc09-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc09-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc09-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc09-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
           "command": "waitForElementPresent",
-          "target": "xpath=(//table//tbody//tr[1]//button)[2]",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc09-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": "10000"
         },
         {
-          "command": "chooseCancelOnNextConfirmation",
-          "target": "",
-          "value": ""
+          "id": "tc09-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
         },
         {
+          "id": "tc09-nd1",
+          "comment": "Klik tombol Detail (Eye) pada baris pertama",
           "command": "click",
-          "target": "xpath=(//table//tbody//tr[1]//button)[2]",
+          "target": "xpath=//table//tbody//tr[1]//button[@title='Lihat Detail']",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "assertConfirmation",
-          "target": "Apakah Anda yakin ingin menghapus data riwayat perhitungan ini?",
+          "id": "tc09-nd2",
+          "comment": "Tunggu halaman detail dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Kembali ke Riwayat']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc09-c1",
+          "comment": "Verifikasi bagian Status Gizi tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[contains(text(),'Status Gizi')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc09-c2",
+          "comment": "Verifikasi kartu Energi tampil (SummaryCard)",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[text()='Energi']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc09-c3",
+          "comment": "Verifikasi bagian Grafik Kebutuhan Nutrisi tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[contains(text(),'Grafik Kebutuhan Nutrisi')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc09-c4",
+          "comment": "Verifikasi bagian Faktor Perhitungan tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[contains(text(),'Faktor Perhitungan')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc09-c5",
+          "comment": "Verifikasi tombol Kembali ke Portal tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Kembali ke Portal']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc09-c6",
+          "comment": "Verifikasi tombol Kembali ke Riwayat tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Kembali ke Riwayat']",
+          "targets": [],
           "value": ""
         }
       ]
     },
     {
       "id": "tc-rw-010",
-      "name": "TC-RW-010 - Menghapus Riwayat",
+      "name": "TC-RW-010 - Navigasi Kembali dari Detail ke Riwayat",
       "commands": [
         {
-          "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'dummy-token-for-testing');",
+          "id": "tc10-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc10-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc10-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc10-p3",
+          "comment": "Buka halaman Riwayat",
           "command": "open",
           "target": "/riwayat",
+          "targets": [],
           "value": ""
         },
         {
+          "id": "tc10-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
           "command": "waitForElementPresent",
-          "target": "xpath=(//table//tbody//tr[1]//button)[2]",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc10-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
           "value": "10000"
         },
         {
-          "command": "chooseOkOnNextConfirmation",
-          "target": "",
-          "value": ""
+          "id": "tc10-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
         },
         {
+          "id": "tc10-nd1",
+          "comment": "Klik tombol Detail (Eye) pada baris pertama",
           "command": "click",
-          "target": "xpath=(//table//tbody//tr[1]//button)[2]",
+          "target": "xpath=//table//tbody//tr[1]//button[@title='Lihat Detail']",
+          "targets": [],
           "value": ""
         },
         {
-          "command": "assertConfirmation",
-          "target": "Apakah Anda yakin ingin menghapus data riwayat perhitungan ini?",
+          "id": "tc10-nd2",
+          "comment": "Tunggu halaman detail dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Kembali ke Riwayat']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc10-c1",
+          "comment": "Klik tombol Kembali ke Riwayat",
+          "command": "click",
+          "target": "xpath=//button[text()='Kembali ke Riwayat']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc10-c2",
+          "comment": "Tunggu halaman riwayat dimuat kembali",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc10-c3",
+          "comment": "Verifikasi halaman riwayat tampil (tabel muncul)",
+          "command": "assertElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-011",
+      "name": "TC-RW-011 - Navigasi Kembali dari Detail ke Portal",
+      "commands": [
+        {
+          "id": "tc11-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc11-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc11-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc11-p3",
+          "comment": "Buka halaman Riwayat",
+          "command": "open",
+          "target": "/riwayat",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc11-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc11-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc11-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc11-nd1",
+          "comment": "Klik tombol Detail (Eye) pada baris pertama",
+          "command": "click",
+          "target": "xpath=//table//tbody//tr[1]//button[@title='Lihat Detail']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc11-nd2",
+          "comment": "Tunggu halaman detail dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//button[text()='Kembali ke Riwayat']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc11-c1",
+          "comment": "Klik tombol Kembali ke Portal",
+          "command": "click",
+          "target": "xpath=//button[text()='Kembali ke Portal']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc11-c2",
+          "comment": "Tunggu halaman portal dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//span[text()='Akses Portal Aktif']",
+          "targets": [],
+          "value": "15000"
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-012",
+      "name": "TC-RW-012 - Tombol Kembali ke Portal dari Halaman Riwayat",
+      "commands": [
+        {
+          "id": "tc12-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc12-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc12-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc12-p3",
+          "comment": "Buka halaman Riwayat",
+          "command": "open",
+          "target": "/riwayat",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc12-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc12-c1",
+          "comment": "Klik tombol Kembali ke Portal dari header riwayat",
+          "command": "click",
+          "target": "xpath=//button[contains(text(),'Kembali ke Portal')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc12-c2",
+          "comment": "Tunggu halaman portal dimuat",
+          "command": "waitForElementPresent",
+          "target": "xpath=//span[text()='Akses Portal Aktif']",
+          "targets": [],
+          "value": "15000"
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-013",
+      "name": "TC-RW-013 - Membatalkan Penghapusan Riwayat (Modal Cancel)",
+      "commands": [
+        {
+          "id": "tc13-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-p3",
+          "comment": "Buka halaman Riwayat",
+          "command": "open",
+          "target": "/riwayat",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc13-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc13-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc13-c1",
+          "comment": "Klik tombol Hapus (Trash) pada baris pertama",
+          "command": "click",
+          "target": "xpath=//table//tbody//tr[1]//button[@title='Hapus Perhitungan']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-c2",
+          "comment": "Tunggu modal konfirmasi muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Hapus Riwayat Perhitungan']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc13-c3",
+          "comment": "Verifikasi pesan konfirmasi tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//p[contains(text(),'Apakah Anda yakin')]",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-c4",
+          "comment": "Verifikasi tombol Ya, Hapus tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Ya, Hapus']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-c5",
+          "comment": "Verifikasi tombol Batal tampil",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[text()='Batal']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-c6",
+          "comment": "Klik tombol Batal",
+          "command": "click",
+          "target": "xpath=//button[text()='Batal']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-c7",
+          "comment": "Tunggu modal tertutup",
+          "command": "pause",
+          "target": "",
+          "targets": [],
+          "value": "500"
+        },
+        {
+          "id": "tc13-c8",
+          "comment": "Verifikasi halaman tetap di riwayat",
+          "command": "assertElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc13-c9",
+          "comment": "Verifikasi baris pertama tabel masih ada",
+          "command": "assertElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-rw-014",
+      "name": "TC-RW-014 - Tombol Aksi pada Tabel (Detail, Edit, Hapus)",
+      "commands": [
+        {
+          "id": "tc14-p1",
+          "comment": "Buka root untuk inject token",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc14-p2",
+          "comment": "Suntikkan token JWT valid",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc14-p2b",
+          "comment": "Suntikkan user object ke localStorage",
+          "command": "executeScript",
+          "target": "window.localStorage.setItem('user', JSON.stringify({id_user:2,username:\"gizi01\",nama_lengkap:\"Petugas Gizi 1\",role:\"petugas_gizi\"}));",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc14-p3",
+          "comment": "Buka halaman Riwayat",
+          "command": "open",
+          "target": "/riwayat",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc14-p4",
+          "comment": "Tunggu judul Riwayat Perhitungan tampil",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h1[text()='Riwayat Perhitungan']",
+          "targets": [],
+          "value": "15000"
+        },
+        {
+          "id": "tc14-wt1",
+          "comment": "Tunggu tabel riwayat dimuat (h3 title)",
+          "command": "waitForElementPresent",
+          "target": "xpath=//h3[text()='Riwayat Perhitungan Gizi']",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc14-wt2",
+          "comment": "Tunggu baris pertama tabel muncul",
+          "command": "waitForElementPresent",
+          "target": "xpath=//table//tbody//tr[1]",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc14-c1",
+          "comment": "Verifikasi tombol Detail (Lihat Detail) ada",
+          "command": "assertElementPresent",
+          "target": "xpath=//table//tbody//tr[1]//button[@title='Lihat Detail']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc14-c2",
+          "comment": "Verifikasi tombol Edit (Edit Perhitungan) ada",
+          "command": "assertElementPresent",
+          "target": "xpath=//table//tbody//tr[1]//button[@title='Edit Perhitungan']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc14-c3",
+          "comment": "Verifikasi tombol Hapus (Hapus Perhitungan) ada",
+          "command": "assertElementPresent",
+          "target": "xpath=//table//tbody//tr[1]//button[@title='Hapus Perhitungan']",
+          "targets": [],
           "value": ""
         }
       ]
@@ -343,7 +1460,7 @@
   "suites": [
     {
       "id": "suite-riwayat",
-      "name": "Suite Riwayat",
+      "name": "Suite Riwayat Perhitungan Gizi",
       "persistSession": false,
       "parallel": false,
       "timeout": 300,
@@ -357,7 +1474,11 @@
         "tc-rw-007",
         "tc-rw-008",
         "tc-rw-009",
-        "tc-rw-010"
+        "tc-rw-010",
+        "tc-rw-011",
+        "tc-rw-012",
+        "tc-rw-013",
+        "tc-rw-014"
       ]
     }
   ],

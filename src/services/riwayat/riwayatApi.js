@@ -31,9 +31,7 @@ export const getRiwayat = async ({
   }
 };
 
-/* ========================================
-   DETAIL RIWAYAT
- ======================================== */
+
 export const getRiwayatDetail = async (id) => {
   try {
     const response = await axiosInstance.get(
@@ -48,9 +46,6 @@ export const getRiwayatDetail = async (id) => {
   }
 };
 
-/* ========================================
-   DELETE RIWAYAT
- ======================================== */
 export const deleteRiwayat = async (id) => {
   try {
     const response = await axiosInstance.delete(
@@ -65,9 +60,7 @@ export const deleteRiwayat = async (id) => {
   }
 };
 
-/* ========================================
-   UPDATE RIWAYAT
- ======================================== */
+
 export const updateRiwayat = async (id, payload) => {
   try {
     const response = await axiosInstance.put(

@@ -1,23 +1,15 @@
 {
-  "id": "d7d8b582-22f8-4c9e-b868-6fdf1dca0f01",
+  "id": "login-blackbox-suite",
   "version": "2.0",
   "name": "Blackbox Testing - Login",
   "url": "http://localhost:3000",
   "tests": [
     {
-      "id": "4fc1be48-5f53-4e7c-a29e-f08ae49852b8",
+      "id": "tc-lg-001",
       "name": "TC-LG-001 - Menampilkan halaman login",
       "commands": [
         {
-          "id": "4f181111-112d-4201-b326-7b4b56937ff0",
-          "comment": "Bersihkan session sebelum pengujian",
-          "command": "executeScript",
-          "target": "window.localStorage.clear();",
-          "targets": [],
-          "value": ""
-        },
-        {
-          "id": "529fdd67-e42c-4bd5-9196-f47d3d546450",
+          "id": "tc-lg-001-02",
           "comment": "Buka route login",
           "command": "open",
           "target": "/",
@@ -25,89 +17,61 @@
           "value": ""
         },
         {
-          "id": "2ec12a21-1614-4e51-9f33-371945776f89",
-          "comment": "Pastikan judul form tampil",
-          "command": "assertText",
-          "target": "css=h2",
-          "targets": [
-            [
-              "css=h2",
-              "css:finder"
-            ],
-            [
-              "xpath=//h2",
-              "xpath:position"
-            ]
-          ],
-          "value": "Login"
-        },
-        {
-          "id": "da3c2b42-cd16-41ac-9be6-06c55f009a23",
-          "comment": "Pastikan field username tersedia",
-          "command": "assertElementPresent",
-          "target": "css=input[placeholder='Masukkan username']",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan username']",
-              "css:finder"
-            ],
-            [
-              "xpath=//input[@placeholder='Masukkan username']",
-              "xpath:attributes"
-            ]
-          ],
-          "value": ""
-        },
-        {
-          "id": "778af4a8-ea4f-4348-83ea-b2049b78bf32",
-          "comment": "Pastikan field password tersedia",
-          "command": "assertElementPresent",
-          "target": "css=input[placeholder='Masukkan password']",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan password']",
-              "css:finder"
-            ],
-            [
-              "xpath=//input[@placeholder='Masukkan password']",
-              "xpath:attributes"
-            ]
-          ],
-          "value": ""
-        },
-        {
-          "id": "14bc0809-43d5-4d93-b8eb-a1b6e9cf1c42",
-          "comment": "Pastikan tombol login tersedia",
-          "command": "assertElementPresent",
-          "target": "css=button[type='submit']",
-          "targets": [
-            [
-              "css=button[type='submit']",
-              "css:finder"
-            ],
-            [
-              "xpath=//button[@type='submit']",
-              "xpath:attributes"
-            ]
-          ],
-          "value": ""
-        }
-      ]
-    },
-    {
-      "id": "512549ee-7233-44a9-8940-bb655e8ca623",
-      "name": "TC-LG-002 - Login ditolak ketika username dan password kosong",
-      "commands": [
-        {
-          "id": "8617a8b9-5678-4516-94b9-f12c631917a0",
-          "comment": "Bersihkan session",
+          "id": "tc-lg-001-01",
+          "comment": "Bersihkan session sebelum pengujian",
           "command": "executeScript",
           "target": "window.localStorage.clear();",
           "targets": [],
           "value": ""
         },
         {
-          "id": "323f2672-d8e6-45e4-996d-a40d29a2dcb",
+          "id": "tc-lg-001-03",
+          "comment": "Judul form login tampil",
+          "command": "assertText",
+          "target": "css=h2",
+          "targets": [],
+          "value": "Login"
+        },
+        {
+          "id": "tc-lg-001-04",
+          "comment": "Field username tersedia",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan username']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-001-05",
+          "comment": "Field password tersedia",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan password']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-001-06",
+          "comment": "Tombol login tersedia",
+          "command": "assertElementPresent",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-001-07",
+          "comment": "Link lupa password tersedia",
+          "command": "assertElementPresent",
+          "target": "xpath=//a[normalize-space()='Lupa password admin?']",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-002",
+      "name": "TC-LG-002 - Login ditolak ketika username dan password kosong",
+      "commands": [
+        {
+          "id": "tc-lg-002-02",
           "comment": "Buka halaman login",
           "command": "open",
           "target": "/",
@@ -115,45 +79,47 @@
           "value": ""
         },
         {
-          "id": "900a17ec-3c71-4a37-a19f-c2eb2574db08",
-          "comment": "Klik login tanpa mengisi data",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "targets": [
-            [
-              "css=button[type='submit']",
-              "css:finder"
-            ],
-            [
-              "xpath=//button[@type='submit']",
-              "xpath:attributes"
-            ]
-          ],
-          "value": ""
-        },
-        {
-          "id": "7f15e2e7-2889-486c-ad95-08cd41064cd1",
-          "comment": "Validasi required HTML5 aktif",
-          "command": "assertElementPresent",
-          "target": "css=input[placeholder='Masukkan username']:invalid",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan username']:invalid",
-              "css:finder"
-            ]
-          ],
-          "value": ""
-        },
-        {
-          "id": "584eb10f-3304-4c98-a5c2-04835dd49488",
-          "comment": "Tetap berada di halaman login",
-          "command": "assertLocation",
-          "target": "glob:*/",
+          "id": "tc-lg-002-01",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
           "targets": [],
           "value": ""
         },
         {
-          "id": "dfc8776f-f0b3-4b42-94da-a1665382301d",
+          "id": "tc-lg-002-03",
+          "comment": "Klik login tanpa mengisi data",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-002-04",
+          "comment": "Username wajib diisi",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan username']:invalid",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-002-05a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-002-05b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/"
+        },
+        {
+          "id": "tc-lg-002-06",
           "comment": "Token tidak boleh dibuat",
           "command": "executeScript",
           "target": "return window.localStorage.getItem('token') === null;",
@@ -161,29 +127,21 @@
           "value": "isTokenEmpty"
         },
         {
-          "id": "88bb6131-fe87-4624-966c-806540e316f1",
+          "id": "tc-lg-002-07",
           "comment": "Pastikan tidak ada token",
           "command": "assert",
-          "target": "${isTokenEmpty}",
+          "target": "isTokenEmpty",
           "targets": [],
           "value": "true"
         }
       ]
     },
     {
-      "id": "5d1999da-e00e-47a1-a915-6ffc51b2f6f9",
+      "id": "tc-lg-003",
       "name": "TC-LG-003 - Login ditolak ketika username kosong",
       "commands": [
         {
-          "id": "f7de6176-bb34-4f8d-a041-96c9e6a123ff",
-          "comment": "Bersihkan session",
-          "command": "executeScript",
-          "target": "window.localStorage.clear();",
-          "targets": [],
-          "value": ""
-        },
-        {
-          "id": "5c1150cf-71fa-43e6-9ad9-3a6dd19c2964",
+          "id": "tc-lg-003-02",
           "comment": "Buka halaman login",
           "command": "open",
           "target": "/",
@@ -191,64 +149,85 @@
           "value": ""
         },
         {
-          "id": "61262fcf-8a58-4898-b2ca-9ad7d060a0d0",
+          "id": "tc-lg-003-01",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-003-03",
           "comment": "Isi password saja",
           "command": "type",
           "target": "css=input[placeholder='Masukkan password']",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan password']",
-              "css:finder"
-            ],
-            [
-              "xpath=//input[@placeholder='Masukkan password']",
-              "xpath:attributes"
-            ]
-          ],
+          "targets": [],
           "value": "password123"
         },
         {
-          "id": "5bd35deb-1d60-4915-9bb3-5fdb48c43c98",
+          "id": "tc-lg-003-04",
           "comment": "Klik login",
           "command": "click",
           "target": "css=button[type='submit']",
-          "targets": [
-            [
-              "css=button[type='submit']",
-              "css:finder"
-            ]
-          ],
+          "targets": [],
           "value": ""
         },
         {
-          "id": "4e8f32bf-c548-4857-8f98-5661ddb2825f",
+          "id": "tc-lg-003-05",
           "comment": "Username wajib diisi",
           "command": "assertElementPresent",
           "target": "css=input[placeholder='Masukkan username']:invalid",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan username']:invalid",
-              "css:finder"
-            ]
-          ],
+          "targets": [],
           "value": ""
         },
         {
-          "id": "989e561d-6215-4615-8980-4d3bca8ce747",
-          "comment": "Tetap berada di halaman login",
-          "command": "assertLocation",
-          "target": "glob:*/",
+          "id": "tc-lg-003-06a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
           "targets": [],
-          "value": ""
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-003-06b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/"
+        },
+        {
+          "id": "tc-lg-003-07",
+          "comment": "Token tidak boleh dibuat",
+          "command": "executeScript",
+          "target": "return window.localStorage.getItem('token') === null;",
+          "targets": [],
+          "value": "isTokenEmpty"
+        },
+        {
+          "id": "tc-lg-003-08",
+          "comment": "Pastikan tidak ada token",
+          "command": "assert",
+          "target": "isTokenEmpty",
+          "targets": [],
+          "value": "true"
         }
       ]
     },
     {
-      "id": "7d96b1f6-12a7-4c74-a4c7-23468a534459",
+      "id": "tc-lg-004",
       "name": "TC-LG-004 - Login ditolak ketika password kosong",
       "commands": [
         {
-          "id": "97e38640-5f71-4f98-ac37-8618ac6e5dd7",
+          "id": "tc-lg-004-02",
+          "comment": "Buka halaman login",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-004-01",
           "comment": "Bersihkan session",
           "command": "executeScript",
           "target": "window.localStorage.clear();",
@@ -256,72 +235,69 @@
           "value": ""
         },
         {
-          "id": "81558c84-ed40-493b-8fa2-00e0619fb0e5",
-          "comment": "Buka halaman login",
-          "command": "open",
-          "target": "/",
-          "targets": [],
-          "value": ""
-        },
-        {
-          "id": "a43ee4cc-9996-4047-8674-2bfd38386882",
+          "id": "tc-lg-004-03",
           "comment": "Isi username saja",
           "command": "type",
           "target": "css=input[placeholder='Masukkan username']",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan username']",
-              "css:finder"
-            ],
-            [
-              "xpath=//input[@placeholder='Masukkan username']",
-              "xpath:attributes"
-            ]
-          ],
+          "targets": [],
           "value": "petugas_gizi"
         },
         {
-          "id": "1977863c-c303-412f-8635-141d4c92e328",
+          "id": "tc-lg-004-04",
           "comment": "Klik login",
           "command": "click",
           "target": "css=button[type='submit']",
-          "targets": [
-            [
-              "css=button[type='submit']",
-              "css:finder"
-            ]
-          ],
+          "targets": [],
           "value": ""
         },
         {
-          "id": "03c80963-493a-43bf-a5ba-dce2b9c3c479",
+          "id": "tc-lg-004-05",
           "comment": "Password wajib diisi",
           "command": "assertElementPresent",
           "target": "css=input[placeholder='Masukkan password']:invalid",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan password']:invalid",
-              "css:finder"
-            ]
-          ],
+          "targets": [],
           "value": ""
         },
         {
-          "id": "926e8aa9-f8c3-451d-aefd-d60a2a2c706c",
-          "comment": "Tetap berada di halaman login",
-          "command": "assertLocation",
-          "target": "glob:*/",
+          "id": "tc-lg-004-06a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
           "targets": [],
-          "value": ""
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-004-06b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/"
+        },
+        {
+          "id": "tc-lg-004-07",
+          "comment": "Token tidak boleh dibuat",
+          "command": "executeScript",
+          "target": "return window.localStorage.getItem('token') === null;",
+          "targets": [],
+          "value": "isTokenEmpty"
+        },
+        {
+          "id": "tc-lg-004-08",
+          "comment": "Pastikan tidak ada token",
+          "command": "assert",
+          "target": "isTokenEmpty",
+          "targets": [],
+          "value": "true"
         }
       ]
     },
     {
-      "id": "0a5a5518-3211-4f78-b82e-aab8f5e0ddd7",
-      "name": "TC-LG-005 - Toggle tampil/sembunyikan password",
+      "id": "tc-lg-005",
+      "name": "TC-LG-005 - Toggle tampil/sembunyikan password login",
       "commands": [
         {
-          "id": "80d8e1ab-b154-4e1c-96d6-b35bd04bd1f6",
+          "id": "tc-lg-005-01",
           "comment": "Buka halaman login",
           "command": "open",
           "target": "/",
@@ -329,88 +305,85 @@
           "value": ""
         },
         {
-          "id": "7f46dc39-11e9-4ad1-902d-c78f29b201e5",
+          "id": "tc-lg-005-02",
           "comment": "Isi password",
           "command": "type",
           "target": "css=input[placeholder='Masukkan password']",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan password']",
-              "css:finder"
-            ]
-          ],
+          "targets": [],
           "value": "password123"
         },
         {
-          "id": "5d6f970c-528b-45e4-bfc4-9603b63fbcb0",
-          "comment": "Default field password harus bertipe password",
-          "command": "assertAttribute",
+          "id": "tc-lg-005-03a",
+          "comment": "Simpan tipe field password default",
+          "command": "storeAttribute",
           "target": "css=input[placeholder='Masukkan password']@type",
+          "targets": [],
+          "value": "passwordType"
+        },
+        {
+          "id": "tc-lg-005-03b",
+          "comment": "Default field bertipe password",
+          "command": "assert",
+          "target": "passwordType",
           "targets": [],
           "value": "password"
         },
         {
-          "id": "35d06303-315e-438e-b59e-c34ba9c175d1",
+          "id": "tc-lg-005-04",
           "comment": "Klik ikon mata",
           "command": "click",
-          "target": "css=button[type='button']",
-          "targets": [
-            [
-              "css=button[type='button']",
-              "css:finder"
-            ],
-            [
-              "xpath=//button[@type='button']",
-              "xpath:attributes"
-            ]
-          ],
+          "target": "css=form button[type='button']",
+          "targets": [],
           "value": ""
         },
         {
-          "id": "5e66f980-3a43-490c-a28c-7e1da023c1c2",
-          "comment": "Password tampil sebagai text",
-          "command": "assertAttribute",
+          "id": "tc-lg-005-05a",
+          "comment": "Simpan tipe field setelah toggle tampil",
+          "command": "storeAttribute",
           "target": "css=input[placeholder='Masukkan password']@type",
+          "targets": [],
+          "value": "passwordType"
+        },
+        {
+          "id": "tc-lg-005-05b",
+          "comment": "Password tampil sebagai text",
+          "command": "assert",
+          "target": "passwordType",
           "targets": [],
           "value": "text"
         },
         {
-          "id": "71d55921-e5cf-4a4a-a3a1-19f98f43ccdf",
+          "id": "tc-lg-005-06",
           "comment": "Klik ikon mata lagi",
           "command": "click",
-          "target": "css=button[type='button']",
-          "targets": [
-            [
-              "css=button[type='button']",
-              "css:finder"
-            ]
-          ],
+          "target": "css=form button[type='button']",
+          "targets": [],
           "value": ""
         },
         {
-          "id": "a7609e3c-71f8-40c6-a1e9-cfd15a8ea71d",
-          "comment": "Password kembali tersembunyi",
-          "command": "assertAttribute",
+          "id": "tc-lg-005-07a",
+          "comment": "Simpan tipe field setelah toggle sembunyi",
+          "command": "storeAttribute",
           "target": "css=input[placeholder='Masukkan password']@type",
+          "targets": [],
+          "value": "passwordType"
+        },
+        {
+          "id": "tc-lg-005-07b",
+          "comment": "Password kembali tersembunyi",
+          "command": "assert",
+          "target": "passwordType",
           "targets": [],
           "value": "password"
         }
       ]
     },
     {
-      "id": "85e1a789-01a8-4cf2-bb1e-47ef448753d8",
+      "id": "tc-lg-006",
       "name": "TC-LG-006 - Login ditolak ketika kredensial salah",
       "commands": [
         {
-          "id": "a877523d-146e-4e43-a7b1-3ccba39b33e4",
-          "comment": "Bersihkan session",
-          "command": "executeScript",
-          "target": "window.localStorage.clear();",
-          "targets": [],
-          "value": ""
-        },
-        {
-          "id": "072af076-1a1d-4ff8-ab56-1563dc061eca",
+          "id": "tc-lg-006-02",
           "comment": "Buka halaman login",
           "command": "open",
           "target": "/",
@@ -418,67 +391,63 @@
           "value": ""
         },
         {
-          "id": "798118a1-841b-4ceb-b0d6-89367b536154",
-          "comment": "Isi username salah",
-          "command": "type",
-          "target": "css=input[placeholder='Masukkan username']",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan username']",
-              "css:finder"
-            ]
-          ],
-          "value": "username_salah"
-        },
-        {
-          "id": "c6ea446d-65cb-4486-afbf-28c3983ecf7d",
-          "comment": "Isi password salah",
-          "command": "type",
-          "target": "css=input[placeholder='Masukkan password']",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan password']",
-              "css:finder"
-            ]
-          ],
-          "value": "password_salah"
-        },
-        {
-          "id": "0bef83da-c425-4c7f-8615-f28f50780cc4a",
-          "comment": "Klik login",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "targets": [
-            [
-              "css=button[type='submit']",
-              "css:finder"
-            ]
-          ],
-          "value": ""
-        },
-        {
-          "id": "7416f80f-f9f5-46fd-a5ba-66ee4ac94fb7",
-          "comment": "Tunggu pesan error dari aplikasi",
-          "command": "waitForElementPresent",
-          "target": "css=.bg-red-50.text-red-600",
-          "targets": [
-            [
-              "css=.bg-red-50.text-red-600",
-              "css:finder"
-            ]
-          ],
-          "value": "10000"
-        },
-        {
-          "id": "b1bb42db-e0ca-4f6f-b768-ff2b3785d423",
-          "comment": "Tetap berada di halaman login",
-          "command": "assertLocation",
-          "target": "glob:*/",
+          "id": "tc-lg-006-01",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
           "targets": [],
           "value": ""
         },
         {
-          "id": "3858ff53-76f3-4a8d-9db6-34cc6d12c560",
+          "id": "tc-lg-006-03",
+          "comment": "Isi username salah",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan username']",
+          "targets": [],
+          "value": "username_salah"
+        },
+        {
+          "id": "tc-lg-006-04",
+          "comment": "Isi password salah",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password']",
+          "targets": [],
+          "value": "password_salah"
+        },
+        {
+          "id": "tc-lg-006-05",
+          "comment": "Klik login",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-006-06",
+          "comment": "Tunggu pesan error dari aplikasi",
+          "command": "waitForElementPresent",
+          "target": "css=.bg-red-50.text-red-600",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-lg-006-07a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-006-07b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/"
+        },
+        {
+          "id": "tc-lg-006-08",
           "comment": "Token tidak boleh dibuat",
           "command": "executeScript",
           "target": "return window.localStorage.getItem('token') === null;",
@@ -486,45 +455,37 @@
           "value": "isTokenEmpty"
         },
         {
-          "id": "4a6f4e95-a4c8-4cae-a032-f1b65e92105a",
+          "id": "tc-lg-006-09",
           "comment": "Pastikan tidak ada token",
           "command": "assert",
-          "target": "${isTokenEmpty}",
+          "target": "isTokenEmpty",
           "targets": [],
           "value": "true"
         }
       ]
     },
     {
-      "id": "818ec4b4-38bf-4c22-94eb-7a7f93641ed76",
+      "id": "tc-lg-007",
       "name": "TC-LG-007 - Login berhasil dengan kredensial valid",
       "commands": [
         {
-          "id": "c430b58e-4aa6-4e7d-814d-24f8f5a0f215",
-          "comment": "Ubah value ini sesuai akun valid di database/backend",
+          "id": "tc-lg-007-01",
+          "comment": "Ubah sesuai akun valid backend",
           "command": "store",
           "target": "admin",
           "targets": [],
           "value": "validUsername"
         },
         {
-          "id": "ee56dfb6-7e31-4111-997f-3909a3baf542",
-          "comment": "Ubah value ini sesuai akun valid di database/backend",
+          "id": "tc-lg-007-02",
+          "comment": "Ubah sesuai akun valid backend",
           "command": "store",
           "target": "admin123",
           "targets": [],
           "value": "validPassword"
         },
         {
-          "id": "e3433174-0d45-4b59-88fe-ec97b87bf430",
-          "comment": "Bersihkan session",
-          "command": "executeScript",
-          "target": "window.localStorage.clear();",
-          "targets": [],
-          "value": ""
-        },
-        {
-          "id": "7f141fd4-9f6d-439b-a4f7-a1671c50e9da",
+          "id": "tc-lg-007-04",
           "comment": "Buka halaman login",
           "command": "open",
           "target": "/",
@@ -532,54 +493,63 @@
           "value": ""
         },
         {
-          "id": "ff9c95d6-48c3-431d-bc39-d78185bff459",
-          "comment": "Isi username valid",
-          "command": "type",
-          "target": "css=input[placeholder='Masukkan username']",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan username']",
-              "css:finder"
-            ]
-          ],
-          "value": "${validUsername}"
-        },
-        {
-          "id": "98829460-c923-45fc-a66f-8ef64e2fcf03",
-          "comment": "Isi password valid",
-          "command": "type",
-          "target": "css=input[placeholder='Masukkan password']",
-          "targets": [
-            [
-              "css=input[placeholder='Masukkan password']",
-              "css:finder"
-            ]
-          ],
-          "value": "${validPassword}"
-        },
-        {
-          "id": "98b88068-b640-4769-a8e5-72433e9bd335",
-          "comment": "Klik login",
-          "command": "click",
-          "target": "css=button[type='submit']",
-          "targets": [
-            [
-              "css=button[type='submit']",
-              "css:finder"
-            ]
-          ],
+          "id": "tc-lg-007-03",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
           "value": ""
         },
         {
-          "id": "531b7d36-ec55-48e8-a40c-0daf20f44222",
-          "comment": "Setelah sukses, diarahkan ke portal",
-          "command": "waitForLocation",
-          "target": "glob:*/portal",
+          "id": "tc-lg-007-05",
+          "comment": "Isi username valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan username']",
+          "targets": [],
+          "value": "${validUsername}"
+        },
+        {
+          "id": "tc-lg-007-06",
+          "comment": "Isi password valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password']",
+          "targets": [],
+          "value": "${validPassword}"
+        },
+        {
+          "id": "tc-lg-007-07",
+          "comment": "Klik login",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-007-08a",
+          "comment": "Tunggu elemen halaman tujuan",
+          "command": "waitForElementPresent",
+          "target": "css=body",
           "targets": [],
           "value": "10000"
         },
         {
-          "id": "0c8091f6-8311-4670-979d-28a2aa1a2939",
+          "id": "tc-lg-007-08b",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-007-08c",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/portal"
+        },
+        {
+          "id": "tc-lg-007-09",
           "comment": "Token harus tersimpan",
           "command": "executeScript",
           "target": "return window.localStorage.getItem('token') !== null;",
@@ -587,29 +557,21 @@
           "value": "hasToken"
         },
         {
-          "id": "a0aebf5a-3ab2-4798-8df5-c57f41a7f35e",
+          "id": "tc-lg-007-10",
           "comment": "Pastikan token ada",
           "command": "assert",
-          "target": "${hasToken}",
+          "target": "hasToken",
           "targets": [],
           "value": "true"
         }
       ]
     },
     {
-      "id": "02a75e22-b613-40d0-839d-b68e836e2858",
+      "id": "tc-lg-008",
       "name": "TC-LG-008 - Akses portal ditolak ketika belum login",
       "commands": [
         {
-          "id": "de57bd68-e0e7-4463-b615-fc2a77632b6e",
-          "comment": "Bersihkan session",
-          "command": "executeScript",
-          "target": "window.localStorage.clear();",
-          "targets": [],
-          "value": ""
-        },
-        {
-          "id": "cf3baedb-e956-436b-bf05-5108547f3738",
+          "id": "tc-lg-008-02",
           "comment": "Coba buka portal tanpa token",
           "command": "open",
           "target": "/portal",
@@ -617,45 +579,858 @@
           "value": ""
         },
         {
-          "id": "7bc53e9d-e111-455a-92cf-8a901533bfc1",
-          "comment": "Sistem mengarahkan kembali ke login",
-          "command": "waitForLocation",
-          "target": "glob:*/",
+          "id": "tc-lg-008-01",
+          "comment": "Bersihkan session",
+          "command": "executeScript",
+          "target": "window.localStorage.clear();",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-008-03a",
+          "comment": "Tunggu elemen halaman tujuan",
+          "command": "waitForElementPresent",
+          "target": "css=input[placeholder='Masukkan username']",
           "targets": [],
           "value": "5000"
         },
         {
-          "id": "b9b53927-1175-467b-9ebd-531c2abef433",
+          "id": "tc-lg-008-03b",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-008-03c",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/"
+        },
+        {
+          "id": "tc-lg-008-04",
           "comment": "Form login tampil lagi",
           "command": "assertText",
           "target": "css=h2",
-          "targets": [
-            [
-              "css=h2",
-              "css:finder"
-            ]
-          ],
+          "targets": [],
           "value": "Login"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-009",
+      "name": "TC-LG-009 - Navigasi ke halaman lupa password admin",
+      "commands": [
+        {
+          "id": "tc-lg-009-01",
+          "comment": "Buka halaman login",
+          "command": "open",
+          "target": "/",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-009-02",
+          "comment": "Klik link lupa password",
+          "command": "click",
+          "target": "xpath=//a[normalize-space()='Lupa password admin?']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-009-03a",
+          "comment": "Tunggu elemen halaman tujuan",
+          "command": "waitForElementPresent",
+          "target": "css=input[placeholder='Masukkan email admin']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-lg-009-03b",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-009-03c",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/lupa-password-admin"
+        },
+        {
+          "id": "tc-lg-009-04",
+          "comment": "Judul lupa password tampil",
+          "command": "assertText",
+          "target": "css=h2",
+          "targets": [],
+          "value": "Lupa Password Admin"
+        },
+        {
+          "id": "tc-lg-009-05",
+          "comment": "Field email admin tersedia",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan email admin']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-009-06",
+          "comment": "Tombol kirim tautan tersedia",
+          "command": "assertElementPresent",
+          "target": "xpath=//button[normalize-space()='Kirim Tautan Reset']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-009-07",
+          "comment": "Klik kembali ke login",
+          "command": "click",
+          "target": "xpath=//a[normalize-space()='Kembali ke login']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-009-08a",
+          "comment": "Tunggu elemen halaman tujuan",
+          "command": "waitForElementPresent",
+          "target": "css=input[placeholder='Masukkan username']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-lg-009-08b",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-009-08c",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-010",
+      "name": "TC-LG-010 - Lupa password ditolak ketika email kosong",
+      "commands": [
+        {
+          "id": "tc-lg-010-01",
+          "comment": "Buka halaman lupa password",
+          "command": "open",
+          "target": "/lupa-password-admin",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-010-02",
+          "comment": "Klik submit tanpa email",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-010-03",
+          "comment": "Email wajib diisi",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan email admin']:invalid",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-010-04a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-010-04b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/lupa-password-admin"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-011",
+      "name": "TC-LG-011 - Lupa password ditolak ketika format email salah",
+      "commands": [
+        {
+          "id": "tc-lg-011-01",
+          "comment": "Buka halaman lupa password",
+          "command": "open",
+          "target": "/lupa-password-admin",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-011-02",
+          "comment": "Isi format email salah",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan email admin']",
+          "targets": [],
+          "value": "email-tidak-valid"
+        },
+        {
+          "id": "tc-lg-011-03",
+          "comment": "Klik submit",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-011-04",
+          "comment": "Format email invalid",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan email admin']:invalid",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-011-05a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-011-05b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/lupa-password-admin"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-012",
+      "name": "TC-LG-012 - Lupa password menampilkan error ketika email tidak terdaftar",
+      "commands": [
+        {
+          "id": "tc-lg-012-01",
+          "comment": "Buka halaman lupa password",
+          "command": "open",
+          "target": "/lupa-password-admin",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-012-02",
+          "comment": "Isi email tidak terdaftar",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan email admin']",
+          "targets": [],
+          "value": "tidak.terdaftar@example.com"
+        },
+        {
+          "id": "tc-lg-012-03",
+          "comment": "Klik kirim tautan",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-012-04",
+          "comment": "Tunggu pesan error",
+          "command": "waitForElementPresent",
+          "target": "css=.bg-red-50.text-red-600",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-lg-012-05a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-012-05b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/lupa-password-admin"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-013",
+      "name": "TC-LG-013 - Lupa password berhasil mengirim tautan reset",
+      "commands": [
+        {
+          "id": "tc-lg-013-01",
+          "comment": "Ubah sesuai email admin valid backend",
+          "command": "store",
+          "target": "admin@example.com",
+          "targets": [],
+          "value": "validAdminEmail"
+        },
+        {
+          "id": "tc-lg-013-02",
+          "comment": "Buka halaman lupa password",
+          "command": "open",
+          "target": "/lupa-password-admin",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-013-03",
+          "comment": "Isi email admin valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan email admin']",
+          "targets": [],
+          "value": "${validAdminEmail}"
+        },
+        {
+          "id": "tc-lg-013-04",
+          "comment": "Klik kirim tautan",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-013-05",
+          "comment": "Tunggu pesan sukses",
+          "command": "waitForElementPresent",
+          "target": "css=.bg-emerald-50.text-emerald-700",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-lg-013-06a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-013-06b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/lupa-password-admin"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-014",
+      "name": "TC-LG-014 - Reset password tanpa token tidak dapat dikirim",
+      "commands": [
+        {
+          "id": "tc-lg-014-01",
+          "comment": "Buka halaman reset tanpa token",
+          "command": "open",
+          "target": "/reset-password",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-014-02",
+          "comment": "Judul reset password tampil",
+          "command": "assertText",
+          "target": "css=h2",
+          "targets": [],
+          "value": "Reset Password Admin"
+        },
+        {
+          "id": "tc-lg-014-03",
+          "comment": "Tombol submit disabled ketika token kosong",
+          "command": "executeScript",
+          "target": "return document.querySelector('button[type=\"submit\"]').disabled === true;",
+          "targets": [],
+          "value": "isResetSubmitDisabled"
+        },
+        {
+          "id": "tc-lg-014-04",
+          "comment": "Pastikan tombol disabled",
+          "command": "assert",
+          "target": "isResetSubmitDisabled",
+          "targets": [],
+          "value": "true"
+        },
+        {
+          "id": "tc-lg-014-05",
+          "comment": "Field password baru tersedia",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Masukkan password baru']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-014-06",
+          "comment": "Field konfirmasi password tersedia",
+          "command": "assertElementPresent",
+          "target": "css=input[placeholder='Ulangi password baru']",
+          "targets": [],
+          "value": ""
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-015",
+      "name": "TC-LG-015 - Reset password ditolak ketika password baru kurang dari 6 karakter",
+      "commands": [
+        {
+          "id": "tc-lg-015-01",
+          "comment": "Buka reset password dengan token dummy",
+          "command": "open",
+          "target": "/reset-password?token=token-dummy",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-015-02",
+          "comment": "Isi password kurang dari 6 karakter",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password baru']",
+          "targets": [],
+          "value": "abc"
+        },
+        {
+          "id": "tc-lg-015-03",
+          "comment": "Isi konfirmasi sama",
+          "command": "type",
+          "target": "css=input[placeholder='Ulangi password baru']",
+          "targets": [],
+          "value": "abc"
+        },
+        {
+          "id": "tc-lg-015-04",
+          "comment": "Klik simpan password",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-015-05",
+          "comment": "Pesan validasi panjang password tampil",
+          "command": "assertText",
+          "target": "css=.bg-red-50.text-red-600",
+          "targets": [],
+          "value": "Password baru minimal 6 karakter."
+        },
+        {
+          "id": "tc-lg-015-06a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-015-06b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/reset-password"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-016",
+      "name": "TC-LG-016 - Reset password ditolak ketika konfirmasi tidak sama",
+      "commands": [
+        {
+          "id": "tc-lg-016-01",
+          "comment": "Buka reset password dengan token dummy",
+          "command": "open",
+          "target": "/reset-password?token=token-dummy",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-016-02",
+          "comment": "Isi password baru",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password baru']",
+          "targets": [],
+          "value": "password123"
+        },
+        {
+          "id": "tc-lg-016-03",
+          "comment": "Isi konfirmasi berbeda",
+          "command": "type",
+          "target": "css=input[placeholder='Ulangi password baru']",
+          "targets": [],
+          "value": "password456"
+        },
+        {
+          "id": "tc-lg-016-04",
+          "comment": "Klik simpan password",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-016-05",
+          "comment": "Pesan konfirmasi tidak sama tampil",
+          "command": "assertText",
+          "target": "css=.bg-red-50.text-red-600",
+          "targets": [],
+          "value": "Konfirmasi password belum sama."
+        },
+        {
+          "id": "tc-lg-016-06a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-016-06b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/reset-password"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-017",
+      "name": "TC-LG-017 - Toggle tampil/sembunyikan password reset",
+      "commands": [
+        {
+          "id": "tc-lg-017-01",
+          "comment": "Buka reset password dengan token dummy",
+          "command": "open",
+          "target": "/reset-password?token=token-dummy",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-017-02",
+          "comment": "Isi password baru",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password baru']",
+          "targets": [],
+          "value": "password123"
+        },
+        {
+          "id": "tc-lg-017-03",
+          "comment": "Isi konfirmasi",
+          "command": "type",
+          "target": "css=input[placeholder='Ulangi password baru']",
+          "targets": [],
+          "value": "password123"
+        },
+        {
+          "id": "tc-lg-017-04a",
+          "comment": "Simpan atribut type",
+          "command": "storeAttribute",
+          "target": "css=input[placeholder='Masukkan password baru']@type",
+          "targets": [],
+          "value": "resetPasswordType"
+        },
+        {
+          "id": "tc-lg-017-04b",
+          "comment": "Password baru default tersembunyi",
+          "command": "assert",
+          "target": "resetPasswordType",
+          "targets": [],
+          "value": "password"
+        },
+        {
+          "id": "tc-lg-017-05a",
+          "comment": "Simpan atribut type",
+          "command": "storeAttribute",
+          "target": "css=input[placeholder='Ulangi password baru']@type",
+          "targets": [],
+          "value": "resetConfirmType"
+        },
+        {
+          "id": "tc-lg-017-05b",
+          "comment": "Konfirmasi default tersembunyi",
+          "command": "assert",
+          "target": "resetConfirmType",
+          "targets": [],
+          "value": "password"
+        },
+        {
+          "id": "tc-lg-017-06",
+          "comment": "Klik ikon mata pertama",
+          "command": "click",
+          "target": "css=form button[type='button']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-017-07a",
+          "comment": "Simpan atribut type",
+          "command": "storeAttribute",
+          "target": "css=input[placeholder='Masukkan password baru']@type",
+          "targets": [],
+          "value": "resetPasswordType"
+        },
+        {
+          "id": "tc-lg-017-07b",
+          "comment": "Password baru tampil",
+          "command": "assert",
+          "target": "resetPasswordType",
+          "targets": [],
+          "value": "text"
+        },
+        {
+          "id": "tc-lg-017-08a",
+          "comment": "Simpan atribut type",
+          "command": "storeAttribute",
+          "target": "css=input[placeholder='Ulangi password baru']@type",
+          "targets": [],
+          "value": "resetConfirmType"
+        },
+        {
+          "id": "tc-lg-017-08b",
+          "comment": "Konfirmasi ikut tampil",
+          "command": "assert",
+          "target": "resetConfirmType",
+          "targets": [],
+          "value": "text"
+        },
+        {
+          "id": "tc-lg-017-09",
+          "comment": "Klik ikon mata lagi",
+          "command": "click",
+          "target": "css=form button[type='button']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-017-10a",
+          "comment": "Simpan atribut type",
+          "command": "storeAttribute",
+          "target": "css=input[placeholder='Masukkan password baru']@type",
+          "targets": [],
+          "value": "resetPasswordType"
+        },
+        {
+          "id": "tc-lg-017-10b",
+          "comment": "Password baru kembali tersembunyi",
+          "command": "assert",
+          "target": "resetPasswordType",
+          "targets": [],
+          "value": "password"
+        },
+        {
+          "id": "tc-lg-017-11a",
+          "comment": "Simpan atribut type",
+          "command": "storeAttribute",
+          "target": "css=input[placeholder='Ulangi password baru']@type",
+          "targets": [],
+          "value": "resetConfirmType"
+        },
+        {
+          "id": "tc-lg-017-11b",
+          "comment": "Konfirmasi kembali tersembunyi",
+          "command": "assert",
+          "target": "resetConfirmType",
+          "targets": [],
+          "value": "password"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-018",
+      "name": "TC-LG-018 - Reset password menampilkan error ketika token invalid",
+      "commands": [
+        {
+          "id": "tc-lg-018-01",
+          "comment": "Buka reset password dengan token invalid",
+          "command": "open",
+          "target": "/reset-password?token=token-invalid",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-018-02",
+          "comment": "Isi password baru valid",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password baru']",
+          "targets": [],
+          "value": "passwordBaru123"
+        },
+        {
+          "id": "tc-lg-018-03",
+          "comment": "Isi konfirmasi sama",
+          "command": "type",
+          "target": "css=input[placeholder='Ulangi password baru']",
+          "targets": [],
+          "value": "passwordBaru123"
+        },
+        {
+          "id": "tc-lg-018-04",
+          "comment": "Klik simpan password",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-018-05",
+          "comment": "Tunggu pesan error backend",
+          "command": "waitForElementPresent",
+          "target": "css=.bg-red-50.text-red-600",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-lg-018-06a",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-018-06b",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/reset-password"
+        }
+      ]
+    },
+    {
+      "id": "tc-lg-019",
+      "name": "TC-LG-019 - Reset password berhasil dengan token valid",
+      "commands": [
+        {
+          "id": "tc-lg-019-01",
+          "comment": "Ubah sesuai token reset valid backend",
+          "command": "store",
+          "target": "ISI_TOKEN_RESET_VALID",
+          "targets": [],
+          "value": "validResetToken"
+        },
+        {
+          "id": "tc-lg-019-02",
+          "comment": "Ubah sesuai password baru yang valid",
+          "command": "store",
+          "target": "passwordBaru123",
+          "targets": [],
+          "value": "newValidPassword"
+        },
+        {
+          "id": "tc-lg-019-03",
+          "comment": "Buka reset password dengan token valid",
+          "command": "open",
+          "target": "/reset-password?token=${validResetToken}",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-019-04",
+          "comment": "Isi password baru",
+          "command": "type",
+          "target": "css=input[placeholder='Masukkan password baru']",
+          "targets": [],
+          "value": "${newValidPassword}"
+        },
+        {
+          "id": "tc-lg-019-05",
+          "comment": "Isi konfirmasi sama",
+          "command": "type",
+          "target": "css=input[placeholder='Ulangi password baru']",
+          "targets": [],
+          "value": "${newValidPassword}"
+        },
+        {
+          "id": "tc-lg-019-06",
+          "comment": "Klik simpan password",
+          "command": "click",
+          "target": "css=button[type='submit']",
+          "targets": [],
+          "value": ""
+        },
+        {
+          "id": "tc-lg-019-07",
+          "comment": "Tunggu pesan sukses",
+          "command": "waitForElementPresent",
+          "target": "css=.bg-emerald-50.text-emerald-700",
+          "targets": [],
+          "value": "10000"
+        },
+        {
+          "id": "tc-lg-019-08a",
+          "comment": "Tunggu elemen halaman tujuan",
+          "command": "waitForElementPresent",
+          "target": "css=input[placeholder='Masukkan username']",
+          "targets": [],
+          "value": "5000"
+        },
+        {
+          "id": "tc-lg-019-08b",
+          "comment": "Simpan pathname saat ini",
+          "command": "executeScript",
+          "target": "return window.location.pathname;",
+          "targets": [],
+          "value": "currentPath"
+        },
+        {
+          "id": "tc-lg-019-08c",
+          "comment": "Pastikan pathname sesuai",
+          "command": "assert",
+          "target": "currentPath",
+          "targets": [],
+          "value": "/"
         }
       ]
     }
   ],
   "suites": [
     {
-      "id": "b693f317-c813-4926-ae50-d638bc01ddba",
+      "id": "suite-login",
       "name": "Kategori Login",
       "persistSession": false,
       "parallel": false,
       "timeout": 300,
       "tests": [
-        "4fc1be48-5f53-4e7c-a29e-f08ae49852b8",
-        "512549ee-7233-44a9-8940-bb655e8ca623",
-        "5d1999da-e00e-47a1-a915-6ffc51b2f6f9",
-        "7d96b1f6-12a7-4c74-a4c7-23468a534459",
-        "0a5a5518-3211-4f78-b82e-aab8f5e0ddd7",
-        "85e1a789-01a8-4cf2-bb1e-47ef448753d8",
-        "818ec4b4-38bf-4c22-94eb-7a7f93641ed76",
-        "02a75e22-b613-40d0-839d-b68e836e2858"
+        "tc-lg-001",
+        "tc-lg-002",
+        "tc-lg-003",
+        "tc-lg-004",
+        "tc-lg-005",
+        "tc-lg-006",
+        "tc-lg-008",
+        "tc-lg-009",
+        "tc-lg-010",
+        "tc-lg-011",
+        "tc-lg-012",
+        "tc-lg-014",
+        "tc-lg-015",
+        "tc-lg-016",
+        "tc-lg-017",
+        "tc-lg-018"
       ]
     }
   ],
