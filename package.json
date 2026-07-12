@@ -36,7 +36,8 @@
     "test:selenium:ringkasan": "node scripts/run-selenium-side.cjs -c \"browserName=chrome\" tests/selenium/ringkasan-blackbox.side",
     "test:selenium:ringkasan:preview": "node scripts/run-selenium-side.cjs -c \"browserName=chrome goog:chromeOptions.detach=true goog:chromeOptions.args=[start-maximized,disable-gpu]\" tests/selenium/ringkasan-blackbox.side",
     "test:selenium:ringkasan:visual": "node scripts/run-ringkasan-visual.cjs --delay=1200 --hold=20000",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "gcp-build": ""
   },
   "eslintConfig": {
     "extends": [

@@ -1,0 +1,18 @@
+service: frontend
+runtime: nodejs22
+env: standard
+
+handlers:
+# Melayani file statis dari folder build/static
+- url: /static
+  static_dir: build/static
+
+# Melayani tipe file statis lainnya di dalam folder build
+- url: /(.*\.(json|ico|js|css|png|jpg|jpeg|gif|txt|md|svg))$
+  static_files: build/\1
+  upload: build/.*\.(json|ico|js|css|png|jpg|jpeg|gif|txt|md|svg)$
+
+# Fallback untuk React Router (Single Page Application)
+- url: /.*
+  static_files: build/index.html
+  upload: build/index.html
