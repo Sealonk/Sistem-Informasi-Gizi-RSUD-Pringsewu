@@ -5,9 +5,6 @@
 const db = require('../config/database');
 
 const Pasien = {
-    /**
-     * Mengambil data statistik ringkasan pasien untuk header/cards halaman pasien
-     */
     getStats: async (whereClause, queryParams, validPasienFilter) => {
         const query = `
             WITH StatusHitung AS (
@@ -42,9 +39,6 @@ const Pasien = {
         return res;
     },
 
-    /**
-     * Menghitung total baris pasien yang sesuai filter untuk keperluan pagination
-     */
     countAll: async (whereClause, queryParams, validPasienFilter) => {
         const query = `
             WITH StatusHitung AS (
@@ -71,9 +65,6 @@ const Pasien = {
         return res.total;
     },
 
-    /**
-     * Menampilkan semua data kunjungan pasien aktif lengkap beserta counter riwayat lampau
-     */
     findAll: async (whereClause, queryParams, validPasienFilter, limit, offset) => {
         const query = `
             WITH StatusHitung AS (
@@ -112,7 +103,8 @@ const Pasien = {
                         dp.kd_penyakit IS NOT NULL AND dp.kd_penyakit != ''
                     THEN 1 ELSE 0 END) AS count_other,
 
-                    (SELECT COUNT(*) 
+                    -- [DIPERBARUI]: Mencegah versi lama ikut terhitung
+                    (SELECT COUNT(DISTINCT rp_old.no_rawat) 
                      FROM perhitungan_gizi pg_old 
                      JOIN reg_periksa rp_old ON pg_old.no_rawat = rp_old.no_rawat 
                      WHERE rp_old.no_rkm_medis = rp.no_rkm_medis AND rp_old.no_rawat <> rp.no_rawat
@@ -136,15 +128,11 @@ const Pasien = {
             LIMIT ? OFFSET ?
         `;
 
-        // PERBAIKAN: Gunakan toString() pada limit dan offset agar mysql2 execute tidak error
         const params = [...queryParams, limit.toString(), offset.toString()];
         const [rows] = await db.execute(query, params);
         return rows;
     },
 
-    /**
-     * Mengambil detail lengkap pasien berdasarkan No. Rawat spesifik
-     */
     findById: async (no_rawat) => {
         const query = `
             SELECT 
@@ -197,13 +185,14 @@ const Pasien = {
     },
 
     /**
-     * Menarik seluruh riwayat gizi lampau miliknya berdasarkan Nomor Rekam Medis
+     * Menarik seluruh riwayat gizi lampau (Hanya Menampilkan Versi Terbaru Tiap Kunjungan)
      */
     findHistoryByNoRm: async (no_rm, current_no_rawat) => {
         const query = `
             SELECT 
                 pg.id_perhitungan,
                 pg.no_rawat,
+                pg.versi,
                 pg.tanggal_perhitungan,
                 pg.status_gizi_saat_dihitung AS status_gizi,
                 pg.kebutuhan_energi_total AS energi,
@@ -212,6 +201,13 @@ const Pasien = {
             FROM perhitungan_gizi pg
             INNER JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
             WHERE rp.no_rkm_medis = ? AND rp.no_rawat <> ?
+            AND pg.id_perhitungan IN (
+                SELECT max_id FROM (
+                    SELECT MAX(id_perhitungan) AS max_id 
+                    FROM perhitungan_gizi 
+                    GROUP BY COALESCE(parent_id, id_perhitungan)
+                ) AS temp
+            )
             ORDER BY pg.tanggal_perhitungan DESC
         `;
         const [rows] = await db.execute(query, [no_rm, current_no_rawat]);
@@ -232,9 +228,6 @@ const Pasien = {
         return rows[0];
     },
 
-    /**
-     * PERBAIKAN: Fungsi ini telah ditambahkan kembali agar filter dropdown frontend tidak error
-     */
     getAllBangsal: async () => {
         const query = 'SELECT kd_bangsal, nm_bangsal FROM bangsal ORDER BY nm_bangsal ASC';
         const [rows] = await db.execute(query);

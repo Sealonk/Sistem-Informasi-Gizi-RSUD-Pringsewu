@@ -39,9 +39,19 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Proteksi Khusus Role Admin
+// Proteksi Khusus untuk Memblokir Akses Read-Only Manajemen (Untuk fungsi Simpan/Edit/Hapus)
+const isPetugasOrAdmin = (req, res, next) => {
+    if (!req.user || req.user.role === 'manajemen') {
+        return res.status(403).json({
+            status: 'error',
+            message: 'Akses Ditolak! Akun Manajemen hanya memiliki hak akses Lihat Data (Read-Only).'
+        });
+    }
+    next();
+};
+
+// Proteksi Khusus Role Admin (Manajemen User)
 const isAdmin = (req, res, next) => {
-    // Dipasang SETELAH rute melewati authenticateToken
     if (!req.user || req.user.role !== 'admin') {
         return res.status(403).json({
             status: 'error',
@@ -51,4 +61,4 @@ const isAdmin = (req, res, next) => {
     next();
 };
 
-module.exports = { authenticateToken, isAdmin };
+module.exports = { authenticateToken, isPetugasOrAdmin, isAdmin };

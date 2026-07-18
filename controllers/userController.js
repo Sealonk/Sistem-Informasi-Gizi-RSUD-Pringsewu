@@ -15,6 +15,14 @@ const tambahUser = async (req, res, next) => {
         if (!nama_lengkap || !username || !password || !role || !email) {
             return res.status(400).json({ status: 'error', message: 'Semua data wajib diisi!' });
         }
+        
+        const allowedRoles = ['admin', 'petugas_gizi', 'manajemen'];
+        if (!allowedRoles.includes(role)) {
+            return res.status(400).json({ 
+                status: 'error', 
+                message: 'Role tidak valid! Pilihan yang tersedia hanya: admin, petugas_gizi, atau manajemen.' 
+            });
+        }
 
         const userSama = await User.findByUsername(username);
         if (userSama.length > 0) {
@@ -130,7 +138,7 @@ const hapusUser = async (req, res, next) => {
 
         res.status(200).json({
             status: 'success',
-            message: `Akun atas nama ${userTarget[0].nama_lengkap} berhasil dihapus permanen.`
+            message: `Akun atas nama ${userTarget[0].nama_lengkap} berhasil dihapus dari sistem.`
         });
 
     } catch (error) {

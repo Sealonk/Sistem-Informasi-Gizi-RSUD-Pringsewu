@@ -189,7 +189,9 @@ const simpanPerhitungan = async (req, res, next) => {
             protein_persen: protein_persen || null,
             lemak_persen: lemak_persen || null,
             karbohidrat_persen: karbohidrat_persen || null,
-            protein_gram, lemak_gram, karbohidrat_gram
+            protein_gram, lemak_gram, karbohidrat_gram,
+            parent_id: null,
+            versi: 1
         };
 
         const insertId = await PerhitunganModel.simpan(dataPerhitungan);

@@ -2,7 +2,7 @@
 // CONTROLLER: pasienController.js
 // ==========================================
 
-const PasienModel = require('../models/pasienModel'); // Import Model Pengganti Query Langsung
+const PasienModel = require('../models/pasienModel');
 const { getKelompokUmur, hitungIMT } = require('../utils/sharedRumus');
 
 // ==========================================
@@ -32,13 +32,14 @@ const getAllPasien = async (req, res, next) => {
         
         const search = req.query.search || '';
         const periode = req.query.periode || ''; 
-        const startDate = req.query.startDate || '';
-        const endDate = req.query.endDate || '';
+        // [DIPERBARUI]: Konsistensi penamaan tanggal range
+        const tanggal_awal = req.query.tanggal_awal || req.query.startDate || '';
+        const tanggal_akhir = req.query.tanggal_akhir || req.query.endDate || '';
+        
         const status_perhitungan = req.query.status_perhitungan || '';
         const ruangan = req.query.ruangan || '';
         const status_pulang = req.query.status_pulang || '';
 
-        // 1. Pembuatan parameter WHERE dinamis untuk diserahkan ke model
         let whereClause = '';
         const queryParams = [];
 
@@ -54,9 +55,15 @@ const getAllPasien = async (req, res, next) => {
             whereClause += ` AND YEARWEEK(${dateColumn}, 1) = YEARWEEK(CURDATE(), 1)`;
         } else if (periode === 'bulan_ini') {
             whereClause += ` AND MONTH(${dateColumn}) = MONTH(CURDATE()) AND YEAR(${dateColumn}) = YEAR(CURDATE())`;
-        } else if (periode === 'custom' && startDate && endDate) {
-            whereClause += ` AND DATE(${dateColumn}) BETWEEN ? AND ?`;
-            queryParams.push(startDate, endDate);
+        } else if (periode === 'custom') {
+            // [DIPERBARUI]: Range Tanggal Custom
+            if (tanggal_awal && tanggal_akhir) {
+                whereClause += ` AND DATE(${dateColumn}) BETWEEN ? AND ?`;
+                queryParams.push(tanggal_awal, tanggal_akhir);
+            } else if (tanggal_awal) {
+                whereClause += ` AND DATE(${dateColumn}) = ?`;
+                queryParams.push(tanggal_awal);
+            }
         }
 
         if (ruangan) {
@@ -68,8 +75,6 @@ const getAllPasien = async (req, res, next) => {
             whereClause += ` AND ki.tgl_keluar IS NOT NULL`;
         } else if (status_pulang === 'belum') {
             whereClause += ` AND ki.tgl_keluar IS NULL AND ki.no_rawat IS NOT NULL`;
-        } else if (status_pulang === 'rawat_jalan') {
-            whereClause += ` AND ki.no_rawat IS NULL`;
         }
 
         let validPasienFilter = '';
@@ -79,7 +84,6 @@ const getAllPasien = async (req, res, next) => {
             validPasienFilter = 'WHERE id_perhitungan IS NULL';
         }
 
-        // 2. Eksekusi query via pemanggilan Fungsi Model
         const statsData = await PasienModel.getStats(whereClause, queryParams, validPasienFilter);
         const totalDitemukan = await PasienModel.countAll(whereClause, queryParams, validPasienFilter);
         const rowsPasien = await PasienModel.findAll(whereClause, queryParams, validPasienFilter, limit, offset);
@@ -111,7 +115,7 @@ const getAllPasien = async (req, res, next) => {
             let waktu_pembaruan_rapi = null;
             if (item.waktu_pembaruan) {
                 const tglObj = new Date(item.waktu_pembaruan);
-                waktu_pembaruan_rapi = `${tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}, ${tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+                waktu_pembaruan_rapi = `${tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}, ${tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(/\./g, ':')}`;
             }
 
             let status_pulang_text = '-';
@@ -140,8 +144,6 @@ const getAllPasien = async (req, res, next) => {
                 status_perhitungan: item.id_perhitungan ? 'Sudah Dihitung' : 'Belum',
                 id_perhitungan: item.id_perhitungan || null, 
                 waktu_pembaruan: waktu_pembaruan_rapi,
-                
-                // [NILAI BARU]: Diperlukan frontend untuk mendeteksi apakah pasien punya kunjungan lama
                 total_riwayat_lampau: parseInt(item.total_riwayat_lampau) || 0
             };
         });
@@ -159,6 +161,7 @@ const getAllPasien = async (req, res, next) => {
                 pagination: {
                     total_ditemukan: totalDitemukan,
                     halaman_sekarang: page,
+                    total_halaman: Math.ceil(totalDitemukan / limit),
                     limit_per_halaman: limit
                 }
             }
@@ -175,7 +178,6 @@ const getPasienById = async (req, res, next) => {
     try {
         const { id } = req.params; 
 
-        // Eksekusi fungsi pencarian data detail via model
         const pasien = await PasienModel.findById(id);
 
         if (!pasien) return res.status(404).json({ status: 'error', message: 'Data pasien tidak ditemukan di SIMRS' });
@@ -185,7 +187,6 @@ const getPasienById = async (req, res, next) => {
 
         if (isAnakAnak) return res.status(403).json({ status: 'error', message: 'Pasien ditemukan, namun sistem belum mendukung kategori pediatri.' });
 
-        // [LOGIKA INTERKONEKSI BARU]: Tarik rekam medis gizi lampau miliknya berdasarkan Nomor Rekam Medis
         const riwayatLampauRaw = await PasienModel.findHistoryByNoRm(pasien.no_rm, id);
         
         const riwayatLampauFormatted = riwayatLampauRaw.map(h => {
@@ -193,6 +194,7 @@ const getPasienById = async (req, res, next) => {
             return {
                 id_perhitungan: h.id_perhitungan,
                 no_rawat: h.no_rawat,
+                versi: h.versi || 1,
                 tanggal_hitung: tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
                 status_gizi: h.status_gizi,
                 energi_kkal: Math.round(h.energi),
@@ -225,7 +227,7 @@ const getPasienById = async (req, res, next) => {
         let waktu_pembaruan_rapi = null;
         if (pasien.waktu_pembaruan) {
             const tglObj = new Date(pasien.waktu_pembaruan);
-            waktu_pembaruan_rapi = `${tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}, ${tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+            waktu_pembaruan_rapi = `${tglObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}, ${tglObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(/\./g, ':')}`;
         }
         
         let status_pulang_text = '-';
@@ -260,8 +262,6 @@ const getPasienById = async (req, res, next) => {
                 status_perhitungan: pasien.id_perhitungan ? 'Sudah Dihitung' : 'Belum',
                 id_perhitungan: pasien.id_perhitungan || null,
                 waktu_pembaruan: waktu_pembaruan_rapi,
-                
-                // [ARRAY BARU]: Dikirim ke frontend untuk me-render riwayat rekam medis lama pasien
                 riwayat_perhitungan_lampau: riwayatLampauFormatted
             }
         });

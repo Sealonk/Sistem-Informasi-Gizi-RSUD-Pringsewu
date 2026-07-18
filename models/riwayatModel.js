@@ -6,7 +6,21 @@ const db = require('../config/database');
 
 const Riwayat = {
     /**
-     * Update data riwayat berdasarkan ID
+     * Memasukkan data sebagai VERSI BARU (Update GitHub-style)
+     */
+    insertNewVersion: async (data) => {
+        const keys = Object.keys(data);
+        // Ganti nilai undefined menjadi null agar diterima oleh mysql2
+        const values = Object.values(data).map(val => val === undefined ? null : val);
+        const placeholders = keys.map(() => '?').join(', ');
+
+        const sql = `INSERT INTO perhitungan_gizi (${keys.join(', ')}) VALUES (${placeholders})`;
+        const [result] = await db.execute(sql, values);
+        return result.insertId;
+    },
+
+    /**
+     * Update data riwayat berdasarkan ID (Bisa digunakan untuk hal lain jika perlu)
      */
     updateById: async (id, data) => {
         const keys = Object.keys(data);
@@ -59,7 +73,6 @@ const Riwayat = {
 
     /**
      * Mengambil detail satu riwayat spesifik
-     * Menarik informasi Ruangan/Bangsal]
      */
     findDetailById: async (id_perhitungan) => {
         const query = `
@@ -83,6 +96,33 @@ const Riwayat = {
         `;
         const [rows] = await db.execute(query, [id_perhitungan]);
         return rows[0]; 
+    },
+
+    /**
+     * Mengambil seluruh versi dari satu perhitungan (Berdasarkan Parent ID)
+     */
+    findVersionsByParentId: async (parent_id) => {
+        const query = `
+            SELECT 
+                pg.*, 
+                MAX(p.nm_pasien) AS nama_pasien, 
+                MAX(p.no_rkm_medis) AS no_rm,
+                MAX(p.jk) AS jenis_kelamin, 
+                GROUP_CONCAT(DISTINCT dp.kd_penyakit SEPARATOR ', ') AS kode_penyakit,
+                MAX(u.nama_lengkap) AS nama_pembuat,
+                COALESCE(MAX(ki.tgl_masuk), MAX(rp.tgl_registrasi)) AS tanggal_masuk
+            FROM perhitungan_gizi pg
+            JOIN reg_periksa rp ON pg.no_rawat = rp.no_rawat
+            JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+            JOIN users u ON pg.id_user = u.id_user
+            LEFT JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+            LEFT JOIN diagnosa_pasien dp ON rp.no_rawat = dp.no_rawat
+            WHERE pg.parent_id = ? OR pg.id_perhitungan = ?
+            GROUP BY pg.id_perhitungan
+            ORDER BY pg.versi DESC, pg.tanggal_perhitungan DESC
+        `;
+        const [rows] = await db.execute(query, [parent_id, parent_id]);
+        return rows;
     },
 
     /**

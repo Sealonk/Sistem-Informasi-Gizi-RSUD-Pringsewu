@@ -5,20 +5,28 @@
 const express = require('express');
 const router = express.Router();
 
-// Pastikan mengimpor controller yang baru saja kita buat
 const riwayatController = require('../controllers/riwayatController');
-const { authenticateToken } = require('../middlewares/auth');
+const { authenticateToken, isPetugasOrAdmin } = require('../middlewares/auth');
 
-// Route untuk mengambil daftar riwayat (dilengkapi pagination & filter)
+// ==========================================
+// AKSES PUBLIK INTERNAL (Admin, Petugas, Manajemen)
+// ==========================================
+// Route untuk mengambil daftar riwayat utama
 router.get('/', authenticateToken, riwayatController.getRiwayat);
 
-// Route untuk mengambil detail riwayat spesifik berdasarkan ID perhitungan
-router.get('/:id', authenticateToken, riwayatController.getRiwayatDetail);
+// Route untuk mengambil DAFTAR VERSI dari sebuah grup perhitungan
+router.get('/:id', authenticateToken, riwayatController.getRiwayatVersions);
 
-// Route untuk memperbarui/mengedit riwayat perhitungan
-router.put('/:id', authenticateToken, riwayatController.updateRiwayat);
+// Route untuk mengambil DETAIL SPESIFIK dari satu versi riwayat
+router.get('/detail/:id', authenticateToken, riwayatController.getRiwayatDetail);
 
-// Route untuk menghapus riwayat
-router.delete('/:id', authenticateToken, riwayatController.deleteRiwayat);
+// ==========================================
+// AKSES TERBATAS (Hanya Admin & Petugas)
+// ==========================================
+// Route untuk memperbarui riwayat (Blokir Manajemen)
+router.put('/:id', authenticateToken, isPetugasOrAdmin, riwayatController.updateRiwayat);
+
+// Route untuk menghapus riwayat (Blokir Manajemen)
+router.delete('/:id', authenticateToken, isPetugasOrAdmin, riwayatController.deleteRiwayat);
 
 module.exports = router;

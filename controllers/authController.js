@@ -28,7 +28,7 @@ const login = async (req, res, next) => {
             });
         }
 
-        const [users] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
+const [users] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
 
         if (users.length === 0) {
             return res.status(401).json({
@@ -38,6 +38,13 @@ const login = async (req, res, next) => {
         }
 
         const user = users[0];
+
+        if (user.is_active === 0) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Akses Ditolak! Akun ini telah dihapus oleh Administrator dan tidak dapat digunakan lagi.'
+            });
+        }
 
         // Validasi password murni menggunakan Bcrypt compare
         const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -97,6 +104,16 @@ const forgotPasswordAdmin = async (req, res, next) => {
         }
 
         const user = users[0];
+
+        // ========================================================
+        // BLOKIR JIKA AKUN ADMIN TERSEBUT SUDAH DIHAPUS
+        // ========================================================
+        if (user.is_active === 0) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Akses Ditolak! Akun Administrator ini telah dinonaktifkan/dihapus.'
+            });
+        }
 
         // PROSES BLOKIR: Jika permohonan bukan datang dari role admin
         if (user.role !== 'admin') {

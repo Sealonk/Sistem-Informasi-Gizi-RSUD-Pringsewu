@@ -6,7 +6,7 @@ const db = require('../config/database');
 
 const Perhitungan = {
     /**
-     * Menyimpan data riwayat perhitungan gizi ke database (Snapshot)
+     * Menyimpan data riwayat perhitungan gizi ke database (Snapshot Versi 1)
      */
     simpan: async (data) => {
         const queryInsert = `
@@ -18,8 +18,8 @@ const Perhitungan = {
                 kategori_penambahan_energi, metode_perhitungan, faktor_stres, 
                 bmr, faktor_aktivitas_nilai, faktor_stres_nilai, penambahan_kalori,
                 kebutuhan_energi_total, protein_persen, lemak_persen, karbohidrat_persen, 
-                protein_gram, lemak_gram, karbohidrat_gram
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                protein_gram, lemak_gram, karbohidrat_gram, parent_id, versi
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const values = [
@@ -30,7 +30,8 @@ const Perhitungan = {
             data.kategori_penambahan_energi, data.metode_perhitungan, data.faktor_stres,
             data.bmr, data.faktor_aktivitas_nilai, data.faktor_stres_nilai, data.penambahan_kalori,
             data.kebutuhan_energi_total, data.protein_persen, data.lemak_persen, data.karbohidrat_persen, 
-            data.protein_gram, data.lemak_gram, data.karbohidrat_gram
+            data.protein_gram, data.lemak_gram, data.karbohidrat_gram,
+            data.parent_id, data.versi
         ];
 
         const [result] = await db.execute(queryInsert, values);
