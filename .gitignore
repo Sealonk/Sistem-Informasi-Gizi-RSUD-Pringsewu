@@ -17,3 +17,5 @@ pids
 *.pid.lock
 
 db.sql
+
+app.yaml
