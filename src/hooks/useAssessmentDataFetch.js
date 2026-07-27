@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { getDetailPasien } from "../services/perhitungan/detailPasienApi";
+import { getDetailPasien } from "../services/perhitungan/detailPasienAPI";
 import { getRiwayatDetail } from "../services/riwayat/riwayatApi";
 import {
   mapDiagnosisTextToPenyakit,
