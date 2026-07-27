@@ -111,6 +111,16 @@ export default function AppRoutes() {
           }
         />
 
+        {/* DETAIL PERHITUNGAN DARI VERSI RIWAYAT */}
+        <Route
+          path="/riwayat/:id/detail/:detailId"
+          element={
+            <ProtectedRoute>
+              <DetailRiwayat />
+            </ProtectedRoute>
+          }
+        />
+
         {/* PREDIKSI PASIEN */}
         <Route
           path="/prediksi-pasien"

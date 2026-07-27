@@ -22,6 +22,10 @@ export default function RingkasanSistem() {
   const [error, setError] =
     useState(null);
 
+  const [diseaseStartDate, setDiseaseStartDate] = useState("");
+  const [diseaseEndDate, setDiseaseEndDate] = useState("");
+  const [diseaseLoading, setDiseaseLoading] = useState(false);
+
   useEffect(() => {
 
     async function fetchDashboard() {
@@ -65,6 +69,34 @@ export default function RingkasanSistem() {
     fetchDashboard();
 
   }, []);
+
+  const handleDiseaseDateChange = async (start, end) => {
+    setDiseaseStartDate(start);
+    setDiseaseEndDate(end);
+
+    try {
+      setDiseaseLoading(true);
+      const params = {};
+      if (start) params.tanggal_awal = start;
+      if (end) params.tanggal_akhir = end;
+
+      const response = await getDashboardStats(params);
+      if (response.status === "success" && response.data?.distribusi_penyakit) {
+        setDashboardData((prev) => ({
+          ...prev,
+          distribusi_penyakit: response.data.distribusi_penyakit,
+        }));
+      }
+    } catch (err) {
+      console.error("Gagal memuat distribusi penyakit terfilter:", err);
+    } finally {
+      setDiseaseLoading(false);
+    }
+  };
+
+  const handleDiseaseReset = () => {
+    handleDiseaseDateChange("", "");
+  };
 
   if (loading) {
     return (
@@ -119,8 +151,8 @@ export default function RingkasanSistem() {
 
         <QuickActionSection />
 
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_0.86fr_1.15fr]">
-
+        {/* ROW 1: STATUS GIZI & RATA-RATA (PIE CHART) */}
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <StatusSummarySection
             data={dashboardData?.status_gizi}
           />
@@ -128,13 +160,20 @@ export default function RingkasanSistem() {
           <AverageNutritionSection
             data={dashboardData?.rata_rata}
           />
-
-          <DiseaseDistributionSection
-            data={dashboardData?.distribusi_penyakit}
-          />
-
         </div>
 
+        {/* ROW 2: DISTRIBUSI PENYAKIT (DIAGRAM BATANG & DATE FILTER) */}
+        <DiseaseDistributionSection
+          data={dashboardData?.distribusi_penyakit}
+          riwayatData={dashboardData?.riwayat_terakhir}
+          startDate={diseaseStartDate}
+          endDate={diseaseEndDate}
+          onDateChange={handleDiseaseDateChange}
+          onReset={handleDiseaseReset}
+          loading={diseaseLoading}
+        />
+
+        {/* ROW 3: RIWAYAT TERAKHIR */}
         <RecentHistorySection
           data={dashboardData?.riwayat_terakhir}
         />

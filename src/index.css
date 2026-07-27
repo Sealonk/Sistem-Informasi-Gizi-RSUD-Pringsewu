@@ -7,3 +7,84 @@ body {
   font-family: "Inter", sans-serif;
   background: #f8fbff;
 }
+
+@page {
+  size: A4 portrait;
+  margin: 8mm 10mm;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+
+  .max-w-7xl,
+  .max-w-5xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Compact spacing for print layout */
+  .print-compact-gap {
+    gap: 0.75rem !important;
+  }
+
+  .print-compact-space > * + * {
+    margin-top: 0.75rem !important;
+  }
+
+  /* Force 4 columns on print for nutrient summary cards */
+  .print-grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Force 2 columns on print for side-by-side chart & factors */
+  .print-grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  /* Fix bg-clip-text transparent gradient text in print engines */
+  .bg-clip-text {
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+    color: #0f172a !important;
+  }
+
+  /* Force clean page break before element */
+  .print-break-before-page {
+    break-before: page !important;
+    page-break-before: always !important;
+  }
+
+  .print-break-inside-avoid,
+  section,
+  .rounded-\[28px\],
+  .rounded-\[32px\],
+  .rounded-3xl {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .backdrop-blur-md,
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-2xl {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+}

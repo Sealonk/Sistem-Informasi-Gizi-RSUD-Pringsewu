@@ -9,7 +9,8 @@ export default function PilihPasien() {
   const {
     periode,
     search,
-    selectedDate,
+    startDate,
+    endDate,
     statusPerhitungan,
     ruangan,
     statusPulang,
@@ -31,7 +32,8 @@ export default function PilihPasien() {
     handleConfirmSelect,
     handlePeriodeChange,
     handleSearchChange,
-    handleDateChange,
+    handleStartDateChange,
+    handleEndDateChange,
     handleStatusPerhitunganChange,
     handleRuanganChange,
     handleStatusPulangChange,
@@ -52,8 +54,10 @@ export default function PilihPasien() {
         <FilterCard
           periode={periode}
           setPeriode={handlePeriodeChange}
-          selectedDate={selectedDate}
-          setSelectedDate={handleDateChange}
+          startDate={startDate}
+          setStartDate={handleStartDateChange}
+          endDate={endDate}
+          setEndDate={handleEndDateChange}
           search={search}
           setSearch={handleSearchChange}
           statusPerhitungan={statusPerhitungan}

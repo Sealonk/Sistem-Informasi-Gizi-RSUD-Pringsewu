@@ -11,8 +11,10 @@ import {
 export default function FilterCard({
   periode,
   setPeriode,
-  selectedDate,
-  setSelectedDate,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
   search,
   setSearch,
   statusPerhitungan,
@@ -45,8 +47,12 @@ export default function FilterCard({
     { label: "Semua", value: "" },
     { label: "Belum Pulang", value: "belum" },
     { label: "Sudah Pulang", value: "sudah" },
-    { label: "Rawat Jalan", value: "rawat_jalan" },
   ];
+
+  const isCustomPeriod = periode === "Custom" || periode === "custom";
+  const isCustomRangeIncomplete = isCustomPeriod && (!startDate || !endDate);
+  const isInvalidCustomRange = isCustomPeriod && startDate && endDate && startDate > endDate;
+  const isSearchDisabled = isCustomRangeIncomplete || isInvalidCustomRange;
 
   const optionButtonClass = (isActive) => `
     h-10
@@ -95,6 +101,11 @@ export default function FilterCard({
                 placeholder="Cari nama pasien atau No. RM"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isSearchDisabled) {
+                    onSearch();
+                  }
+                }}
                 className="
                   h-12
                   w-full
@@ -117,7 +128,7 @@ export default function FilterCard({
               <button
                 type="button"
                 onClick={onSearch}
-                disabled={periode === "Custom" && !selectedDate}
+                disabled={isSearchDisabled}
                 className={`
                   flex
                   h-12
@@ -135,9 +146,9 @@ export default function FilterCard({
                   duration-300
                   sm:min-w-[116px]
                   ${
-                    periode === "Custom" && !selectedDate
+                    isSearchDisabled
                       ? "cursor-not-allowed border border-slate-100 bg-slate-200 text-slate-400"
-                      : "bg-slate-900 hover:bg-slate-800 hover:shadow-md"
+                      : "bg-slate-900 hover:bg-slate-800 hover:shadow-md active:scale-95"
                   }
                 `}
               >
@@ -172,6 +183,7 @@ export default function FilterCard({
               transition-all
               hover:bg-slate-100/80
               hover:text-slate-800
+              active:scale-95
               lg:mb-0.5
             "
           >
@@ -200,32 +212,83 @@ export default function FilterCard({
               ))}
             </div>
 
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              disabled={periode !== "Custom"}
-              className={`
-                h-11
-                w-full
-                rounded-xl
-                border
-                px-4
-                text-sm
-                outline-none
-                transition-all
-                duration-300
-                ${
-                  periode !== "Custom"
-                    ? "cursor-not-allowed border-slate-100 bg-slate-50/50 text-slate-400"
-                    : "border-slate-200 bg-white text-slate-800 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                }
-              `}
-            />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-1">
+              <label className="space-y-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                  Mulai
+                  {isCustomPeriod && (
+                    <span className="text-[10px] text-emerald-600 font-semibold lowercase">Custom</span>
+                  )}
+                </span>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  onFocus={() => {
+                    if (!isCustomPeriod) setPeriode("Custom");
+                  }}
+                  className={`
+                    h-11
+                    w-full
+                    rounded-xl
+                    border
+                    px-3.5
+                    text-sm
+                    outline-none
+                    transition-all
+                    duration-300
+                    ${
+                      isCustomPeriod
+                        ? "border-emerald-300 bg-emerald-50/20 text-slate-800 hover:border-emerald-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                    }
+                  `}
+                />
+              </label>
 
-            {periode === "Custom" && !selectedDate && (
+              <label className="space-y-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                  Akhir
+                  {isCustomPeriod && (
+                    <span className="text-[10px] text-emerald-600 font-semibold lowercase">Custom</span>
+                  )}
+                </span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  onFocus={() => {
+                    if (!isCustomPeriod) setPeriode("Custom");
+                  }}
+                  className={`
+                    h-11
+                    w-full
+                    rounded-xl
+                    border
+                    px-3.5
+                    text-sm
+                    outline-none
+                    transition-all
+                    duration-300
+                    ${
+                      isCustomPeriod
+                        ? "border-emerald-300 bg-emerald-50/20 text-slate-800 hover:border-emerald-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                    }
+                  `}
+                />
+              </label>
+            </div>
+
+            {isCustomRangeIncomplete && (
               <p className="text-xs font-semibold text-rose-500">
-                Pilih tanggal untuk filter custom.
+                Pilih tanggal mulai dan tanggal akhir untuk filter custom.
+              </p>
+            )}
+
+            {isInvalidCustomRange && (
+              <p className="text-xs font-semibold text-rose-500">
+                Tanggal mulai tidak boleh lebih besar dari tanggal akhir.
               </p>
             )}
           </div>

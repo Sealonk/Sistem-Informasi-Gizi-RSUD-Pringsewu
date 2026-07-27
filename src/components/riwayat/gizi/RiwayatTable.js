@@ -1,8 +1,86 @@
 import { useEffect, useState } from "react";
 import RiwayatRow from "./RiwayatRow";
-import { getRiwayat, deleteRiwayat } from "../../../services/riwayat/riwayatApi";
-import { Loader2, ChevronLeft, ChevronRight, AlertCircle, Inbox, AlertTriangle } from "lucide-react";
-import ConfirmationModal from "../../common/ConfirmationModal";
+import { getRiwayat } from "../../../services/riwayat/riwayatApi";
+import { Loader2, ChevronLeft, ChevronRight, AlertCircle, Inbox } from "lucide-react";
+
+import {
+  PAGE_SIZE,
+  getPatientKey,
+  getRiwayatDate,
+  normalizeText,
+  normalizeComparable,
+  diseaseKeywords,
+  getItemSearchText,
+  getRoomName,
+  parseDateOnly,
+  isDateInRange,
+  matchesUserFilter,
+} from "../../../utils/riwayatSearchHelpers";
+
+const applyClientFilters = (items = [], filters = {}) => {
+  const selectedDiseases = Array.isArray(filters.penyakit)
+    ? filters.penyakit
+    : [];
+  const search = normalizeText(filters.search).trim();
+  const room = normalizeComparable(filters.ruangan);
+
+  return items.filter((item) => {
+    const text = getItemSearchText(item);
+
+    if (search && !text.includes(search)) {
+      return false;
+    }
+
+    if (selectedDiseases.length > 0) {
+      const matchesAllDiseases = selectedDiseases.every((value) => (
+        (diseaseKeywords[value] || [value]).some((keyword) => text.includes(keyword))
+      ));
+
+      if (!matchesAllDiseases) {
+        return false;
+      }
+    }
+
+    if (room && normalizeComparable(getRoomName(item)) !== room) {
+      return false;
+    }
+
+    if (!matchesUserFilter(item, filters.filter_user)) {
+      return false;
+    }
+
+    if (filters.tanggalMode === "tanggal" && filters.tanggal) {
+      return parseDateOnly(getRiwayatDate(item)) === filters.tanggal;
+    }
+
+    if (filters.tanggalMode === "range" && (filters.startDate || filters.endDate)) {
+      return isDateInRange(getRiwayatDate(item), filters.startDate, filters.endDate);
+    }
+
+    return true;
+  });
+};
+
+const getLatestRiwayatPerPatient = (items = []) => {
+  const grouped = new Map();
+
+  items.forEach((item) => {
+    const key = String(getPatientKey(item) || "").trim();
+    const current = grouped.get(key);
+    const itemTime = new Date(getRiwayatDate(item)).getTime() || 0;
+    const currentTime = new Date(getRiwayatDate(current)).getTime() || 0;
+
+    if (!current || itemTime >= currentTime) {
+      grouped.set(key, item);
+    }
+  });
+
+  return Array.from(grouped.values()).sort((a, b) => {
+    const dateA = new Date(getRiwayatDate(a)).getTime() || 0;
+    const dateB = new Date(getRiwayatDate(b)).getTime() || 0;
+    return dateB - dateA;
+  });
+};
 
 export default function RiwayatTable({ filters, page, setPage }) {
   const [data, setData] = useState([]);
@@ -12,7 +90,7 @@ export default function RiwayatTable({ filters, page, setPage }) {
     total_data: 0,
     halaman_sekarang: 1,
     total_halaman: 1,
-    limit_per_halaman: 10
+    limit_per_halaman: PAGE_SIZE
   });
 
   const loadRiwayat = async () => {
@@ -20,17 +98,32 @@ export default function RiwayatTable({ filters, page, setPage }) {
     setError(null);
     try {
       const response = await getRiwayat({
-        page,
-        limit: 10,
+        page: 1,
+        limit: 1000,
         search: filters.search,
-        penyakit: filters.penyakit,
-        tanggal: filters.tanggal,
-        filter_user: filters.filter_user,
+        penyakit: "",
+        tanggal: "",
+        filter_user: "all",
       });
 
       if (response.status === "success") {
-        setData(response.data.riwayat);
-        setPagination(response.data.pagination);
+        const filteredRiwayat = applyClientFilters(response.data.riwayat, filters);
+        const latestRiwayat = getLatestRiwayatPerPatient(filteredRiwayat);
+        const totalPages = Math.max(Math.ceil(latestRiwayat.length / PAGE_SIZE), 1);
+        const safePage = Math.min(page, totalPages);
+        const pageStart = (safePage - 1) * PAGE_SIZE;
+
+        if (safePage !== page) {
+          setPage(safePage);
+        }
+
+        setData(latestRiwayat.slice(pageStart, pageStart + PAGE_SIZE));
+        setPagination({
+          total_data: latestRiwayat.length,
+          halaman_sekarang: safePage,
+          total_halaman: totalPages,
+          limit_per_halaman: PAGE_SIZE,
+        });
       } else {
         setError(response.message || "Gagal mengambil data riwayat");
       }
@@ -45,37 +138,6 @@ export default function RiwayatTable({ filters, page, setPage }) {
     loadRiwayat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page]);
-
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
-
-  const handleDeleteClick = (id) => {
-    setDeleteId(id);
-    setIsDeleteModalOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteId) return;
-    setIsDeleteModalOpen(false);
-    try {
-      const response = await deleteRiwayat(deleteId);
-      if (response.status === "success") {
-        // If deleted successfully, refresh the list. If it was the last item on the page, go to previous page
-        const isLastItemOnPage = data.length === 1 && page > 1;
-        if (isLastItemOnPage) {
-          setPage(prev => prev - 1);
-        } else {
-          loadRiwayat();
-        }
-      } else {
-        alert(response.message || "Gagal menghapus riwayat");
-      }
-    } catch (err) {
-      alert(err.message || "Terjadi kesalahan saat menghapus riwayat");
-    } finally {
-      setDeleteId(null);
-    }
-  };
 
   return (
     <div
@@ -163,7 +225,7 @@ export default function RiwayatTable({ filters, page, setPage }) {
       {/* TABLE */}
       {!loading && !error && data.length > 0 && (
         <div className="overflow-x-auto relative z-10">
-          <table className="w-full min-w-[900px] border-collapse">
+          <table className="w-full min-w-[1060px] border-collapse">
             {/* HEAD */}
             <thead className="bg-slate-55/60 backdrop-blur-sm border-b border-slate-100">
               <tr>
@@ -175,6 +237,9 @@ export default function RiwayatTable({ filters, page, setPage }) {
                 </th>
                 <th className="px-10 py-5 text-center text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
                   Kode Penyakit
+                </th>
+                <th className="px-10 py-5 text-center text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                  Ruangan
                 </th>
                 <th className="px-10 py-5 text-center text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
                   Energi & Makronutrien
@@ -197,7 +262,6 @@ export default function RiwayatTable({ filters, page, setPage }) {
                 <RiwayatRow
                   key={item.id_perhitungan}
                   item={item}
-                  onDelete={handleDeleteClick}
                 />
               ))}
             </tbody>
@@ -232,22 +296,6 @@ export default function RiwayatTable({ filters, page, setPage }) {
         </div>
       )}
 
-      {/* CONFIRMATION DELETE MODAL */}
-      <ConfirmationModal
-        isOpen={isDeleteModalOpen}
-        title="Hapus Riwayat Perhitungan"
-        message="Apakah Anda yakin ingin menghapus data riwayat perhitungan gizi pasien ini? Tindakan ini tidak dapat dibatalkan."
-        onConfirm={confirmDelete}
-        onCancel={() => {
-          setIsDeleteModalOpen(false);
-          setDeleteId(null);
-        }}
-        confirmText="Ya, Hapus"
-        cancelText="Batal"
-        confirmColor="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-lg shadow-rose-200/50"
-        iconBg="bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-lg shadow-rose-200/50"
-        icon={<AlertTriangle size={24} className="animate-pulse" />}
-      />
     </div>
   );
 }

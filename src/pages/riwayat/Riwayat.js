@@ -17,9 +17,13 @@ export default function Riwayat() {
 
   const [filters, setFilters] = useState({
     search: location.state?.search || "",
-    penyakit: "Semua Penyakit",
+    penyakit: [],
     tanggal: "",
+    tanggalMode: "semua",
+    startDate: "",
+    endDate: "",
     filter_user: "all",
+    ruangan: "",
   });
 
   const [page, setPage] = useState(1);

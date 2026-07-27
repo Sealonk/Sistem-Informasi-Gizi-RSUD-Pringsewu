@@ -1,6 +1,5 @@
 import {
   Eye,
-  Trash2,
   Pencil,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -26,16 +25,44 @@ const formatIndonesianDate = (dateStr) => {
   }
 };
 
-export default function RiwayatRow({
-  item,
-  onDelete,
-}) {
+const formatIndonesianTime = (dateStr) => {
+  if (!dateStr) return "-";
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "-";
+    return new Intl.DateTimeFormat("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(date);
+  } catch (e) {
+    return "-";
+  }
+};
+
+const getRiwayatDate = (item) => (
+  item?.tanggal_perhitungan ||
+  item?.created_at ||
+  item?.updated_at ||
+  item?.tanggal
+);
+
+const getRoomName = (item) => (
+  item?.ruang_bangsal ||
+  item?.ruangan ||
+  item?.nama_ruangan ||
+  item?.bangsal ||
+  "-"
+);
+
+export default function RiwayatRow({ item }) {
   const navigate = useNavigate();
   const energiTotal = getEnergiTotal(item);
   const hasMakro = hasMakronutrienData(item);
   const user = getUser();
   const isAdmin = user?.role === "admin";
   const canModify = item.is_mine || isAdmin;
+  const tanggalPerhitungan = getRiwayatDate(item);
 
   return (
     <tr
@@ -116,6 +143,27 @@ export default function RiwayatRow({
         </div>
       </td>
 
+      {/* RUANGAN */}
+      <td className="px-10 py-5 text-center">
+        <span
+          className="
+            inline-flex
+            items-center
+            px-2.5
+            py-0.5
+            rounded-lg
+            bg-indigo-50/80
+            text-indigo-700
+            border
+            border-indigo-100/50
+            text-[11px]
+            font-bold
+          "
+        >
+          {getRoomName(item)}
+        </span>
+      </td>
+
       {/* ENERGI & MAKRONUTRIEN */}
       <td className="px-10 py-5 text-center">
         <div className="flex flex-col items-center justify-center">
@@ -155,7 +203,10 @@ export default function RiwayatRow({
             font-semibold
           "
         >
-          {formatIndonesianDate(item.tanggal_perhitungan)}
+          {formatIndonesianDate(tanggalPerhitungan)}
+        </p>
+        <p className="mt-1 text-[11px] font-bold text-slate-400">
+          {formatIndonesianTime(tanggalPerhitungan)} WIB
         </p>
       </td>
 
@@ -187,7 +238,6 @@ export default function RiwayatRow({
           {/* DETAIL */}
           <button
             onClick={() => {
-              console.log("ID PERHITUNGAN:", item.id_perhitungan);
               navigate(`/riwayat/${item.id_perhitungan}`);
             }}
             className="
@@ -206,68 +256,41 @@ export default function RiwayatRow({
               transition-all
               duration-200
             "
-            title="Lihat Detail"
+            title="Lihat Riwayat Perhitungan"
           >
             <Eye size={16} />
           </button>
 
           {canModify && (
-            <>
-              {/* EDIT */}
-              <button
-                onClick={() => {
-                  navigate(`/assessment`, {
-                    state: {
-                      isEditMode: true,
-                      id_perhitungan: item.id_perhitungan,
-                    },
-                  });
-                }}
-                className="
-                  w-9
-                  h-9
-                  rounded-xl
-                  bg-amber-50/60
-                  text-amber-600
-                  flex
-                  items-center
-                  justify-center
-                  hover:bg-amber-600
-                  hover:text-white
-                  hover:shadow-md
-                  hover:shadow-amber-100
-                  transition-all
-                  duration-200
-                "
-                title="Edit Perhitungan"
-              >
-                <Pencil size={16} />
-              </button>
-
-              {/* HAPUS */}
-              <button
-                onClick={() => onDelete(item.id_perhitungan)}
-                className="
-                  w-9
-                  h-9
-                  rounded-xl
-                  bg-red-50/60
-                  text-red-600
-                  flex
-                  items-center
-                  justify-center
-                  hover:bg-red-600
-                  hover:text-white
-                  hover:shadow-md
-                  hover:shadow-red-100
-                  transition-all
-                  duration-200
-                "
-                title="Hapus Perhitungan"
-              >
-                <Trash2 size={16} />
-              </button>
-            </>
+            <button
+              onClick={() => {
+                navigate("/assessment", {
+                  state: {
+                    isEditMode: true,
+                    id_perhitungan: item.id_perhitungan,
+                  },
+                });
+              }}
+              className="
+                w-9
+                h-9
+                rounded-xl
+                bg-amber-50/60
+                text-amber-600
+                flex
+                items-center
+                justify-center
+                hover:bg-amber-600
+                hover:text-white
+                hover:shadow-md
+                hover:shadow-amber-100
+                transition-all
+                duration-200
+              "
+              title="Edit Perhitungan"
+            >
+              <Pencil size={16} />
+            </button>
           )}
         </div>
       </td>

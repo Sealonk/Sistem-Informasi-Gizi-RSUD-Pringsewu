@@ -35,13 +35,27 @@ export const getRiwayat = async ({
 export const getRiwayatDetail = async (id) => {
   try {
     const response = await axiosInstance.get(
-      `/api/riwayat/${id}`
+      `/api/riwayat/detail/${id}`
     );
 
     return response.data;
   } catch (error) {
     throw new Error(
       error.response?.data?.message || "Gagal mengambil detail riwayat"
+    );
+  }
+};
+
+export const getRiwayatVersions = async (id) => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/riwayat/${id}`
+    );
+
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Gagal mengambil versi riwayat"
     );
   }
 };

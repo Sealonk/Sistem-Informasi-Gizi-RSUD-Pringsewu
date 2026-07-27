@@ -2,45 +2,13 @@ import { Stethoscope, AlertTriangle, Droplet, Activity, Heart, Flame, Brain, Shi
 
 import SectionCard from "../../common/SectionCard";
 
-export const calculationTypeValues = ["critical_ill", "mifflin"];
+import {
+  calculationTypeValues,
+  getDiseaseValues,
+  isValidCombination,
+} from "../../../utils/diseaseHelpers";
 
-export function getDiseaseValues(penyakitArray) {
-  return (penyakitArray || []).filter(
-    (item) => !calculationTypeValues.includes(item)
-  );
-}
-
-export function isValidCombination(penyakitArray) {
-  const diseaseValues = getDiseaseValues(penyakitArray);
-
-  if (!diseaseValues.length) return false;
-
-  const validCombinations = [
-    ["dm"],
-    ["dm", "ckd"],
-    ["dm", "ckd", "chf"],
-    ["dm", "chf"],
-    ["dm", "lambung"],
-    ["dm", "stroke"],
-    ["ckd"],
-    ["ckd", "chf"],
-    ["ckd", "lambung"],
-    ["ckd", "stroke"],
-    ["chf"],
-    ["chf", "lambung"],
-    ["chf", "stroke"],
-    ["lambung"],
-    ["stroke"],
-  ];
-
-  const sorted = [...diseaseValues].sort();
-
-  return validCombinations.some((combo) => {
-    const sortedCombo = [...combo].sort();
-    if (sortedCombo.length !== sorted.length) return false;
-    return sortedCombo.every((val, idx) => val === sorted[idx]);
-  });
-}
+export { calculationTypeValues, getDiseaseValues, isValidCombination };
 
 export default function JenisPenyakit({
   data,

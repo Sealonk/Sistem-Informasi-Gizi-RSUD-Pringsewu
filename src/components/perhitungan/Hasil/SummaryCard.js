@@ -90,6 +90,7 @@ export default function SummaryCard({
         sm:grid-cols-2
         xl:grid-cols-4
         gap-5
+        print-grid-cols-4
       "
     >
 
@@ -107,6 +108,9 @@ export default function SummaryCard({
             bg-white/75
             backdrop-blur-md
             p-6
+            print:p-3
+            print:rounded-2xl
+            print-break-inside-avoid
             shadow-sm
             hover:shadow-xl
             hover:-translate-y-1
@@ -128,6 +132,7 @@ export default function SummaryCard({
               items-center
               justify-between
               mb-5
+              print:mb-2
               relative
               z-10
             "
@@ -137,6 +142,7 @@ export default function SummaryCard({
             <p
               className="
                 text-sm
+                print:text-xs
                 font-semibold
                 text-slate-500
               "
@@ -149,6 +155,8 @@ export default function SummaryCard({
               className={`
                 w-11
                 h-11
+                print:w-8
+                print:h-8
                 rounded-xl
                 flex
                 items-center
@@ -177,6 +185,7 @@ export default function SummaryCard({
             <h2
               className={`
                 text-4xl
+                print:text-2xl
                 font-extrabold
                 tracking-tight
                 leading-none
@@ -190,6 +199,7 @@ export default function SummaryCard({
             <span
               className="
                 text-sm
+                print:text-xs
                 font-medium
                 text-slate-400
                 mb-1

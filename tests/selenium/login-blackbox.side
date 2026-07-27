@@ -30,7 +30,7 @@
           "command": "assertText",
           "target": "css=h2",
           "targets": [],
-          "value": "Login"
+          "value": "Login Gagal"
         },
         {
           "id": "tc-lg-001-04",
@@ -116,7 +116,7 @@
           "command": "assert",
           "target": "currentPath",
           "targets": [],
-          "value": "/"
+          "value": "/portal"
         },
         {
           "id": "tc-lg-002-06",
@@ -272,7 +272,7 @@
           "command": "assert",
           "target": "currentPath",
           "targets": [],
-          "value": "/"
+          "value": "/portal"
         },
         {
           "id": "tc-lg-004-07",
@@ -662,7 +662,7 @@
           "command": "assert",
           "target": "currentPath",
           "targets": [],
-          "value": "/lupa-password-admin"
+          "value": "/lupa-password-admin-gagal"
         },
         {
           "id": "tc-lg-009-04",
@@ -872,7 +872,7 @@
           "command": "assert",
           "target": "currentPath",
           "targets": [],
-          "value": "/lupa-password-admin"
+          "value": "/lupa-password-admin-gagal"
         }
       ]
     },
@@ -1096,7 +1096,7 @@
           "command": "assertText",
           "target": "css=.bg-red-50.text-red-600",
           "targets": [],
-          "value": "Konfirmasi password belum sama."
+          "value": "Konfirmasi password belum sama. (Gagal)"
         },
         {
           "id": "tc-lg-016-06a",

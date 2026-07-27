@@ -1,6 +1,7 @@
 import {
   Save,
   ArrowLeft,
+  FileText,
 } from "lucide-react";
 
 export default function HasilAction({
@@ -10,6 +11,7 @@ export default function HasilAction({
   backPath = "/assessment",
   showSave = true,
   onBack,
+  onExportPDF,
 }) {
 
   return (
@@ -20,11 +22,13 @@ export default function HasilAction({
         justify-end
         gap-4
         flex-wrap
+        no-print
       "
     >
 
       {/* KEMBALI */}
       <button
+        type="button"
         onClick={() => {
           if (onBack) {
             onBack();
@@ -58,7 +62,33 @@ export default function HasilAction({
 
       </button>
 
-
+      {/* EXPORT PDF */}
+      {onExportPDF && (
+        <button
+          type="button"
+          onClick={onExportPDF}
+          className="
+            h-12
+            px-5
+            rounded-2xl
+            border
+            border-emerald-200
+            bg-emerald-50
+            text-emerald-700
+            text-sm
+            font-semibold
+            flex
+            items-center
+            gap-2
+            hover:bg-emerald-100
+            transition-all
+            shadow-sm
+          "
+        >
+          <FileText size={18} />
+          Export PDF
+        </button>
+      )}
 
       {/* SIMPAN */}
       {showSave && onSave && (

@@ -52,6 +52,8 @@ export async function getPasienList({
   periode = "",
   startDate = "",
   endDate = "",
+  tanggal_awal = "",
+  tanggal_akhir = "",
   limit = 50,
   page = 1,
   status_perhitungan = "",
@@ -67,11 +69,17 @@ export async function getPasienList({
     if (periode) {
       params.periode = periode;
     }
-    if (startDate) {
-      params.startDate = startDate;
+
+    const tglAwal = startDate || tanggal_awal;
+    const tglAkhir = endDate || tanggal_akhir;
+
+    if (tglAwal) {
+      params.startDate = tglAwal;
+      params.tanggal_awal = tglAwal;
     }
-    if (endDate) {
-      params.endDate = endDate;
+    if (tglAkhir) {
+      params.endDate = tglAkhir;
+      params.tanggal_akhir = tglAkhir;
     }
     if (status_perhitungan) {
       params.status_perhitungan = status_perhitungan;

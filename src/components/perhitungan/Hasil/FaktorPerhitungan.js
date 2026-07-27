@@ -191,12 +191,15 @@ export default function FaktorPerhitungan({
         border-blue-100
         bg-white
         p-6
+        print:p-4
+        print:rounded-2xl
+        print-break-inside-avoid
         shadow-sm
       "
     >
 
       {/* TITLE */}
-      <div className="mb-6">
+      <div className="mb-6 print:mb-3">
 
         <h3
           className="
@@ -229,6 +232,7 @@ export default function FaktorPerhitungan({
           grid-cols-1
           sm:grid-cols-2
           gap-4
+          print:gap-2.5
         "
       >
 
@@ -240,11 +244,14 @@ export default function FaktorPerhitungan({
               flex
               items-center
               gap-4
+              print:gap-2.5
               rounded-2xl
+              print:rounded-xl
               border
               border-blue-100
               bg-slate-50/50
               p-4
+              print:p-2.5
             "
           >
 

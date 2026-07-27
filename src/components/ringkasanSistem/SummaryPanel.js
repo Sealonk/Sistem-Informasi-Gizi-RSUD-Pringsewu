@@ -3,7 +3,6 @@ export default function SummaryPanel({ title, children, className = "", action, 
     <section
       className={`
         relative
-        overflow-hidden
         rounded-[32px] 
         border 
         border-slate-200/80 

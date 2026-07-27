@@ -19,7 +19,8 @@ export default function usePilihPasien() {
 
   const [periode, setPeriode] = useState("");
   const [search, setSearch] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [statusPerhitungan, setStatusPerhitungan] = useState("");
   const [ruangan, setRuangan] = useState("");
   const [statusPulang, setStatusPulang] = useState("");
@@ -37,18 +38,12 @@ export default function usePilihPasien() {
   const [ruanganError, setRuanganError] = useState("");
 
   const getPeriodeValue = useCallback(() => {
-    switch (periode) {
-      case "Hari Ini":
-        return "hari_ini";
-      case "Minggu Ini":
-        return "minggu_ini";
-      case "Bulan Ini":
-        return "bulan_ini";
-      case "Custom":
-        return "custom";
-      default:
-        return "";
-    }
+    const p = (periode || "").toLowerCase();
+    if (p === "hari ini" || p === "hari_ini") return "hari_ini";
+    if (p === "minggu ini" || p === "minggu_ini") return "minggu_ini";
+    if (p === "bulan ini" || p === "bulan_ini") return "bulan_ini";
+    if (p === "custom") return "custom";
+    return "";
   }, [periode]);
 
   const loadPatients = useCallback(async () => {
@@ -56,11 +51,16 @@ export default function usePilihPasien() {
       setIsLoading(true);
       setFetchError("");
 
+      const periodeVal = getPeriodeValue();
+      const isCustom = periodeVal === "custom";
+
       const response = await getPasienList({
         search,
-        periode: getPeriodeValue(),
-        startDate: periode === "Custom" ? selectedDate : "",
-        endDate: periode === "Custom" ? selectedDate : "",
+        periode: periodeVal,
+        startDate: isCustom ? startDate : "",
+        endDate: isCustom ? endDate : "",
+        tanggal_awal: isCustom ? startDate : "",
+        tanggal_akhir: isCustom ? endDate : "",
         limit: pageSize,
         page: page,
         status_perhitungan: statusPerhitungan,
@@ -79,7 +79,8 @@ export default function usePilihPasien() {
   }, [
     search,
     periode,
-    selectedDate,
+    startDate,
+    endDate,
     pageSize,
     page,
     statusPerhitungan,
@@ -143,14 +144,31 @@ export default function usePilihPasien() {
 
   const handlePeriodeChange = (value) => {
     setPeriode(value);
+    setFilterError("");
+    if (value !== "Custom") {
+      setStartDate("");
+      setEndDate("");
+    }
   };
 
   const handleSearchChange = (value) => {
     setSearch(value);
   };
 
-  const handleDateChange = (value) => {
-    setSelectedDate(value);
+  const handleStartDateChange = (value) => {
+    setStartDate(value);
+    setFilterError("");
+    if (value && periode !== "Custom") {
+      setPeriode("Custom");
+    }
+  };
+
+  const handleEndDateChange = (value) => {
+    setEndDate(value);
+    setFilterError("");
+    if (value && periode !== "Custom") {
+      setPeriode("Custom");
+    }
   };
 
   const handleStatusPerhitunganChange = (value) => {
@@ -171,8 +189,14 @@ export default function usePilihPasien() {
   };
 
   const handleSearch = () => {
-    if (periode === "Custom" && !selectedDate) {
-      setFilterError("Silakan pilih tanggal terlebih dahulu.");
+    const pVal = getPeriodeValue();
+    if (pVal === "custom" && (!startDate || !endDate)) {
+      setFilterError("Silakan pilih tanggal mulai dan tanggal akhir terlebih dahulu.");
+      return;
+    }
+
+    if (pVal === "custom" && startDate > endDate) {
+      setFilterError("Tanggal mulai tidak boleh lebih besar dari tanggal akhir.");
       return;
     }
 
@@ -187,7 +211,8 @@ export default function usePilihPasien() {
   const handleReset = () => {
     setPeriode("");
     setSearch("");
-    setSelectedDate("");
+    setStartDate("");
+    setEndDate("");
     setFilterError("");
     setStatusPerhitungan("");
     setRuangan("");
@@ -202,7 +227,8 @@ export default function usePilihPasien() {
   return {
     periode,
     search,
-    selectedDate,
+    startDate,
+    endDate,
     statusPerhitungan,
     ruangan,
     statusPulang,
@@ -224,7 +250,8 @@ export default function usePilihPasien() {
     handleConfirmSelect,
     handlePeriodeChange,
     handleSearchChange,
-    handleDateChange,
+    handleStartDateChange,
+    handleEndDateChange,
     handleStatusPerhitunganChange,
     handleRuanganChange,
     handleStatusPulangChange,

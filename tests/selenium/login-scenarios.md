@@ -487,3 +487,37 @@ Langkah:
 8. Verifikasi sistem mengarahkan user ke route `/`.
 
 Hasil yang diharapkan: Password admin berhasil diubah dan user diarahkan kembali ke halaman login.
+
+---
+
+## Hasil Eksekusi Pengujian Otomatis (Tahap 1)
+
+Skenario pengujian Kategori Login dijalankan menggunakan runner Selenium IDE (`selenium-side-runner`) dengan hasil **Gagal (6/16 failed, 10/16 passed)**:
+
+```bash
+FAIL node_modules/selenium-side-runner/dist/main.test.js (39.073 s)
+  Running project Blackbox Testing - Login
+    Running suite Kategori Login
+      × Running test TC-LG-001 - Menampilkan halaman login (2500 ms)
+      × Running test TC-LG-002 - Login ditolak ketika username dan password kosong (2302 ms)
+      √ Running test TC-LG-003 - Login ditolak ketika username kosong (2286 ms)
+      × Running test TC-LG-004 - Login ditolak ketika password kosong (2169 ms)
+      √ Running test TC-LG-005 - Toggle tampil/sembunyikan password login (2162 ms)
+      √ Running test TC-LG-006 - Login ditolak ketika kredensial salah (2336 ms)
+      √ Running test TC-LG-008 - Akses portal ditolak ketika belum login (2045 ms)
+      × Running test TC-LG-009 - Navigasi ke halaman lupa password admin (2153 ms)
+      √ Running test TC-LG-010 - Lupa password ditolak ketika email kosong (2047 ms)
+      √ Running test TC-LG-011 - Lupa password ditolak ketika format email salah (2057 ms)
+      × Running test TC-LG-012 - Lupa password menampilkan error ketika email tidak terdaftar (2490 ms)
+      √ Running test TC-LG-014 - Reset password tanpa token tidak dapat dikirim (2321 ms)
+      √ Running test TC-LG-015 - Reset password ditolak ketika password baru kurang dari 6 karakter (2793 ms)
+      × Running test TC-LG-016 - Reset password ditolak ketika konfirmasi tidak sama (2989 ms)
+      √ Running test TC-LG-017 - Toggle tampil/sembunyikan password reset (2876 ms)
+      √ Running test TC-LG-018 - Reset password menampilkan error ketika token invalid (2429 ms)
+
+Test Suites: 1 failed, 1 total
+Tests:       6 failed, 10 passed, 16 total
+Snapshots:   0 total
+Time:        39.181 s
+Ran all test suites within paths "D:\dokumen tugas kuliah\Skripsi\Skrips\website\frontend\node_modules\selenium-side-runner\dist\main.test.js".
+```

@@ -68,6 +68,15 @@ export default function HasilPerhitungan() {
     });
   };
 
+  const handleExportPDF = () => {
+    const originalTitle = document.title;
+    const patientName = data?.nama ? String(data.nama).replace(/\s+/g, "_") : "Pasien";
+    const noRm = data?.noRM || "";
+    document.title = `Hasil_Perhitungan_Gizi_${patientName}${noRm ? `_${noRm}` : ""}`;
+    window.print();
+    document.title = originalTitle;
+  };
+
   const handleSave = () => {
     setShowConfirm(true);
   };
@@ -127,12 +136,22 @@ export default function HasilPerhitungan() {
           max-w-7xl
           mx-auto
           space-y-6
+          print-compact-space
           relative
           z-10
         "
       >
 
-        <AssessmentStep activeStep={2} />
+        {/* KOP CETAK HANYA DILAMPIRKAN SAAT EXPORT PDF */}
+        <div className="hidden print:block mb-4 border-b-2 border-slate-800 pb-3 text-center">
+          <h1 className="text-xl font-bold uppercase tracking-wider text-slate-900">RSUD PRINGSEWU</h1>
+          <h2 className="text-sm font-semibold text-slate-700">Laporan Hasil Perhitungan Status & Kebutuhan Gizi Pasien</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Sistem Informasi Gizi - RSUD Pringsewu</p>
+        </div>
+
+        <div className="no-print">
+          <AssessmentStep activeStep={2} />
+        </div>
 
         <FeedbackAlert
           type={feedback?.type}
@@ -142,12 +161,12 @@ export default function HasilPerhitungan() {
           }
         />
 
-        <div className="max-w-5xl mx-auto w-full space-y-6">
+        <div className="max-w-5xl mx-auto w-full space-y-6 print-compact-space">
           <HasilHeader
             data={{
               ...data,
-              diagnosis: data.isDiagnosisEdited ? (data.diagnosis || "-") : (hasil?.data?.kode_penyakit || data.diagnosis || "-"),
-              tanggal_masuk: hasil?.data?.tanggal_masuk_rapi || data.tanggal_masuk || "-",
+              diagnosis: data?.isDiagnosisEdited ? (data?.diagnosis || "-") : (hasil?.data?.kode_penyakit || data?.diagnosis || "-"),
+              tanggal_masuk: hasil?.data?.tanggal_masuk_rapi || data?.tanggal_masuk || "-",
             }}
           />
 
@@ -178,6 +197,8 @@ export default function HasilPerhitungan() {
             grid-cols-1
             xl:grid-cols-2
             gap-6
+            print-grid-cols-2
+            print-break-before-page
           "
         >
           <MakroChart
@@ -200,12 +221,13 @@ export default function HasilPerhitungan() {
           />
         </div>
 
-<HasilAction
-  navigate={navigate}
-  onSave={handleSave}
-  isSaving={isSaving}
-  onBack={handleBack}
-/>
+        <HasilAction
+          navigate={navigate}
+          onSave={handleSave}
+          isSaving={isSaving}
+          onBack={handleBack}
+          onExportPDF={handleExportPDF}
+        />
 
 {/* SUCCESS MODAL */}
 <SuccessModal

@@ -130,11 +130,11 @@ export default function MakroChart({ hasil, persen, data }) {
   const hasMicros = microData.length > 0;
 
   return (
-    <div className="rounded-[24px] border border-blue-100 bg-white p-6 shadow-sm flex flex-col justify-between h-full">
+    <div className="rounded-[24px] border border-blue-100 bg-white p-6 print:p-4 print:rounded-2xl print-break-inside-avoid shadow-sm flex flex-col justify-between h-full">
       <div>
         {/* HEADER */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+        <div className="flex items-center gap-3 mb-6 print:mb-3">
+          <div className="w-11 h-11 print:w-9 print:h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
             <BarChart3 size={20} />
           </div>
           <div>
@@ -144,9 +144,9 @@ export default function MakroChart({ hasil, persen, data }) {
         </div>
 
         {/* SECTION 1: MACRONUTRIENTS */}
-        <div className="space-y-4">
+        <div className="space-y-4 print:space-y-2">
           <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Zat Gizi Makro</h4>
-          <div className="space-y-4">
+          <div className="space-y-4 print:space-y-2">
             {macroData.map((item) => {
               const width = item.persen;
               return (
