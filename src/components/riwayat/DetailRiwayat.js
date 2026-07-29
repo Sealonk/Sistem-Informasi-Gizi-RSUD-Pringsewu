@@ -178,7 +178,7 @@ function CalculationDetailView({ calculationId }) {
     );
   }
 
-  const formattedTanggal = formatDate(detailData.tanggal_perhitungan);
+  const formattedTanggal = detailData.tanggal_perhitungan_rapi || formatDate(detailData.tanggal_perhitungan);
   const keys = getSelectedKeys(detailData.diagnosa_penyakit_saat_dihitung);
   const displayDiagnosis = getFilteredDiseaseCodes(keys, detailData.kode_penyakit);
 
@@ -187,10 +187,13 @@ function CalculationDetailView({ calculationId }) {
     noRM: detailData.no_rm,
     umur: detailData.umur_saat_dihitung ? Math.round(detailData.umur_saat_dihitung) : "-",
     jenisKelamin: normalizeGender(detailData.jenis_kelamin),
-    tanggal: formattedTanggal,
+    tanggal: detailData.tanggal_perhitungan_rapi || formattedTanggal,
+    tanggal_perhitungan_rapi: detailData.tanggal_perhitungan_rapi,
+    jam_perhitungan: detailData.jam_perhitungan || "",
     ruangan: detailData.ruang_bangsal || "-",
     diagnosis: displayDiagnosis,
-    tanggal_masuk: detailData.tanggal_masuk || "-",
+    tanggal_masuk: detailData.tanggal_masuk_rapi || detailData.tanggal_masuk || "-",
+    tanggal_masuk_rapi: detailData.tanggal_masuk_rapi,
   };
 
   const hasilData = {
@@ -486,10 +489,7 @@ function VersionHistoryView({ id }) {
                 <p className="text-[11px] font-extrabold uppercase text-slate-400">Nomor Rekam Medis</p>
                 <p className="text-sm font-extrabold text-slate-900 mt-1">{patient.no_rm || "-"}</p>
               </div>
-              <div>
-                <p className="text-[11px] font-extrabold uppercase text-slate-400">Tanggal Lahir</p>
-                <p className="text-sm font-extrabold text-slate-900 mt-1">{formatDate(patient.tanggal_lahir)}</p>
-              </div>
+
             </div>
 
             <div className="lg:pl-6 space-y-4">
@@ -558,8 +558,8 @@ function VersionHistoryView({ id }) {
                         </div>
                       </td>
                       <td className="px-5 py-4">
-                        <p className="text-sm font-extrabold text-slate-800">{splitDateTime(itemDate).date}</p>
-                        <p className="text-xs font-bold text-slate-500 mt-0.5">{splitDateTime(itemDate).time} WIB</p>
+                        <p className="text-sm font-extrabold text-slate-800">{item.tanggal_perhitungan_rapi || splitDateTime(itemDate).date}</p>
+                        <p className="text-xs font-bold text-slate-500 mt-0.5">{item.jam_perhitungan ? `${item.jam_perhitungan} WIB` : `${splitDateTime(itemDate).time} WIB`}</p>
                       </td>
                       <td className="px-5 py-4 text-sm font-extrabold text-slate-800">{item.metode_perhitungan || "-"}</td>
                       <td className="px-5 py-4 text-sm font-extrabold text-slate-800">

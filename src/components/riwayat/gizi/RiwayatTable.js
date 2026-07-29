@@ -103,7 +103,7 @@ export default function RiwayatTable({ filters, page, setPage }) {
         search: filters.search,
         penyakit: "",
         tanggal: "",
-        filter_user: "all",
+        filter_user: filters.filter_user === "me" ? "me" : "all",
       });
 
       if (response.status === "success") {

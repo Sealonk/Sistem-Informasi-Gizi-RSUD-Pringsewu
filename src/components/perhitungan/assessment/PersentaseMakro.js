@@ -144,9 +144,30 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
 
   // Determine current active values
   const hasSliders = config && !isExcluded;
-  const pVal = hasSliders && config.type === "three-sliders" ? (data.persen_protein ?? config.protein.defaultVal) : 0;
-  const lVal = hasSliders ? (data.persen_lemak ?? config.lemak.defaultVal) : 0;
-  const kVal = hasSliders && config.type === "three-sliders" ? getSisaKarbohidrat(pVal, lVal) : 0;
+  let pVal = 0;
+  let lVal = 0;
+  let kVal = 0;
+
+  if (hasSliders) {
+    if (config.type === "three-sliders") {
+      pVal = data.persen_protein ?? config.protein.defaultVal;
+      lVal = data.persen_lemak ?? config.lemak.defaultVal;
+      kVal = getSisaKarbohidrat(pVal, lVal);
+    } else if (config.type === "one-slider") {
+      lVal = data.persen_lemak ?? config.lemak.defaultVal;
+      const isHD = data.hemodialisa === "Ya" || data.hemodialisa === "Iya";
+      const isStroke = penyakitOnly.includes("stroke");
+      // Protein estimate for locked mode: HD / Stroke ~ 16%, Non-HD CKD ~ 11%
+      pVal = isHD || isStroke ? 16 : 11;
+      kVal = Math.max(0, 100 - pVal - lVal);
+    }
+  } else {
+    // Default Mifflin / Excluded
+    pVal = 15;
+    lVal = data.persen_lemak ?? 20;
+    kVal = Math.max(0, 100 - pVal - lVal);
+  }
+
   const total = pVal + lVal + kVal;
 
   const isDifferentFromDefault = config && (
@@ -196,66 +217,50 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
           </div>
         )}
 
-        {/* CASE 3: Has Sliders */}
+        {/* Visual stacked progress bar breakdown (Always visible) */}
+        <div className="space-y-2 pt-1">
+          <div className="flex justify-between text-xs font-semibold text-slate-500 px-1">
+            <span>Visualisasi Distribusi Energi</span>
+            <span className="text-emerald-600 font-bold">
+              Total: {total}%
+            </span>
+          </div>
+          <div className="h-3 w-full bg-slate-100 rounded-full flex overflow-hidden transition-all duration-300">
+            <div style={{ width: `${pVal}%` }} className="bg-indigo-500 transition-all duration-300" title={`Protein: ${pVal}%`} />
+            <div style={{ width: `${lVal}%` }} className="bg-amber-500 transition-all duration-300" title={`Lemak: ${lVal}%`} />
+            <div style={{ width: `${kVal}%` }} className="bg-emerald-500 transition-all duration-300" title={`Karbohidrat: ${kVal}%`} />
+          </div>
+
+          {/* Legend */}
+          <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-slate-600 px-1 pt-1">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+              <span>
+                Protein ({pVal}%)
+                {config?.type === "one-slider" && (
+                  <span className="ml-1 text-[10px] text-slate-400 font-normal">(Dihitung)</span>
+                )}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+              <span>Lemak ({lVal}%)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <span>
+                Karbohidrat ({kVal}%)
+                {config?.type === "one-slider" && (
+                  <span className="ml-1 text-[10px] text-slate-400 font-normal">(Otomatis)</span>
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* CASE 3: Has Sliders Container */}
         {hasSliders && (
           <div className="space-y-5">
-            {/* Visual stacked progress bar breakdown */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-semibold text-slate-500 px-1">
-                <span>Visualisasi Distribusi Energi</span>
-                {config.type === "three-sliders" && (
-                  <span className="text-emerald-600">
-                    Total: {total}%
-                  </span>
-                )}
-              </div>
-              <div className="h-3 w-full bg-slate-100 rounded-full flex overflow-hidden transition-all duration-300">
-                {config.type === "three-sliders" ? (
-                  <>
-                    <div style={{ width: `${pVal}%` }} className="bg-indigo-500 transition-all duration-300" title={`Protein: ${pVal}%`} />
-                    <div style={{ width: `${lVal}%` }} className="bg-amber-500 transition-all duration-300" title={`Lemak: ${lVal}%`} />
-                    <div style={{ width: `${kVal}%` }} className="bg-emerald-500 transition-all duration-300" title={`Karbohidrat: ${kVal}%`} />
-                  </>
-                ) : (
-                  <>
-                    <div style={{ width: `${lVal}%` }} className="bg-amber-500 transition-all duration-300" title={`Lemak: ${lVal}%`} />
-                    <div style={{ width: `${100 - lVal}%` }} className="bg-slate-300 transition-all duration-300" title="Protein & Karbohidrat (Dihitung Sistem)" />
-                  </>
-                )}
-              </div>
-
-              {/* Legend */}
-              <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-slate-600 px-1 pt-1">
-                {config.type === "three-sliders" ? (
-                  <>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
-                      <span>Protein ({pVal}%)</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                      <span>Lemak ({lVal}%)</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                      <span>Karbohidrat ({kVal}%)</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                      <span>Lemak ({lVal}%)</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
-                      <span>Protein & Karbo ({100 - lVal}% - Dihitung Otomatis)</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
             {/* Sliders Container */}
             <div className="space-y-4 border border-slate-100 rounded-2xl p-4 bg-white/50 backdrop-blur-sm shadow-inner">
               {/* PROTEIN SLIDER OR LOCKED */}
@@ -293,7 +298,7 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
                     </div>
                   </div>
                   <span className="font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                    Otomatis
+                    ~{pVal}% (Dihitung)
                   </span>
                 </div>
               )}
@@ -351,7 +356,7 @@ export default function MetodePerhitungan({ data, setData, errors, showErrors })
                     </div>
                   </div>
                   <span className="font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                    Sisa
+                    {kVal}% (Otomatis)
                   </span>
                 </div>
               )}

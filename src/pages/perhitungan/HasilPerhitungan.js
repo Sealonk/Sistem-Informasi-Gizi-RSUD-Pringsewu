@@ -167,6 +167,9 @@ export default function HasilPerhitungan() {
               ...data,
               diagnosis: data?.isDiagnosisEdited ? (data?.diagnosis || "-") : (hasil?.data?.kode_penyakit || data?.diagnosis || "-"),
               tanggal_masuk: hasil?.data?.tanggal_masuk_rapi || data?.tanggal_masuk || "-",
+              tanggal_masuk_rapi: hasil?.data?.tanggal_masuk_rapi || data?.tanggal_masuk_rapi,
+              tanggal_perhitungan_rapi: hasil?.data?.tanggal_perhitungan_rapi || data?.tanggal_perhitungan_rapi,
+              jam_perhitungan: hasil?.data?.jam_perhitungan || data?.jam_perhitungan,
             }}
           />
 

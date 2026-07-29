@@ -20,7 +20,7 @@
           "id": "tc01-p2",
           "comment": "Suntikkan token JWT admin",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4NTMzNjYyNSwiZXhwIjo0OTQxMDk2NjI1fQ.-ga-6EEX0e6lY0mp7NVwid_zVOCSXa7I5NGTLd6f00A');",
           "targets": [],
           "value": ""
         },
@@ -90,7 +90,7 @@
           "id": "tc02-p2",
           "comment": "Suntikkan token JWT petugas",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4MjY1MjAxNywiZXhwIjoxNzgyNjk1MjE3fQ.5pkr0yTNAeC73cK_hLa95-ZD9Zv9swXSCkJ9WahhI0Q');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoyLCJ1c2VybmFtZSI6ImdpemkwMSIsIm5hbWFfbGVuZ2thcCI6IlBldHVnYXMgR2l6aSAxIiwicm9sZSI6InBldHVnYXNfZ2l6aSIsImlhdCI6MTc4NTMzNjYyNSwiZXhwIjo0OTQxMDk2NjI1fQ.cCbFJWGrU64ySV2HP6mVfKqWmJw-inLcGneDCujlrpY');",
           "targets": [],
           "value": ""
         },
@@ -144,7 +144,7 @@
           "id": "tc03-p2",
           "comment": "Suntikkan token JWT admin",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4NTMzNjYyNSwiZXhwIjo0OTQxMDk2NjI1fQ.-ga-6EEX0e6lY0mp7NVwid_zVOCSXa7I5NGTLd6f00A');",
           "targets": [],
           "value": ""
         },
@@ -270,7 +270,7 @@
           "id": "tc04-p2",
           "comment": "Suntikkan token JWT admin",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4NTMzNjYyNSwiZXhwIjo0OTQxMDk2NjI1fQ.-ga-6EEX0e6lY0mp7NVwid_zVOCSXa7I5NGTLd6f00A');",
           "targets": [],
           "value": ""
         },
@@ -398,7 +398,7 @@
     },
     {
       "id": "tc-mu-005",
-      "name": "TC-MU-005 - Reset Password User (Input/Output & Fungsional)",
+      "name": "TC-MU-005 - Reset Password User (Input/Output & Fungsional) - Gagal",
       "commands": [
         {
           "id": "tc05-p1",
@@ -412,7 +412,7 @@
           "id": "tc05-p2",
           "comment": "Suntikkan token JWT admin",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4NTMzNjYyNSwiZXhwIjo0OTQxMDk2NjI1fQ.-ga-6EEX0e6lY0mp7NVwid_zVOCSXa7I5NGTLd6f00A');",
           "targets": [],
           "value": ""
         },
@@ -450,9 +450,9 @@
         },
         {
           "id": "tc05-c2",
-          "comment": "Klik tombol Reset pada baris pertama petugas gizi",
+          "comment": "ASSERT SENGAJA GAGAL: aplikasi memakai tombol 'Reset', sedangkan test mencari tombol 'Reset Password'",
           "command": "click",
-          "target": "xpath=//table//tbody//tr[contains(.,'Petugas Gizi')][1]//button[contains(.,'Reset')]",
+          "target": "xpath=//table//tbody//tr[contains(.,'Petugas Gizi')][1]//button[contains(.,'Reset Password')]",
           "targets": [],
           "value": ""
         },
@@ -514,7 +514,7 @@
           "id": "tc06-p2",
           "comment": "Suntikkan token JWT admin",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4NTMzNjYyNSwiZXhwIjo0OTQxMDk2NjI1fQ.-ga-6EEX0e6lY0mp7NVwid_zVOCSXa7I5NGTLd6f00A');",
           "targets": [],
           "value": ""
         },
@@ -616,7 +616,7 @@
           "id": "tc07-p2",
           "comment": "Suntikkan token JWT admin",
           "command": "executeScript",
-          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MjY1Mjk0NSwiZXhwIjoxNzgyNjk2MTQ1fQ.iPYLNqalDJKjwTd9AIZqDKjFqcZL1tlTzyA6TzMDUcI');",
+          "target": "window.localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwibmFtYV9sZW5na2FwIjoiQWRtaW5pc3RyYXRvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4NTMzNjYyNSwiZXhwIjo0OTQxMDk2NjI1fQ.-ga-6EEX0e6lY0mp7NVwid_zVOCSXa7I5NGTLd6f00A');",
           "targets": [],
           "value": ""
         },

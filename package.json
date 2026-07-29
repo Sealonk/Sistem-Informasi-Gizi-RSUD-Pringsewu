@@ -42,14 +42,10 @@
     "test:selenium:ringkasan": "node scripts/run-selenium-side.cjs -c \"browserName=chrome\" tests/selenium/ringkasan-blackbox.side",
     "test:selenium:ringkasan:preview": "node scripts/run-selenium-side.cjs -c \"browserName=chrome goog:chromeOptions.detach=true goog:chromeOptions.args=[start-maximized,disable-gpu]\" tests/selenium/ringkasan-blackbox.side",
     "test:selenium:ringkasan:visual": "node scripts/run-ringkasan-visual.cjs --delay=1200 --hold=20000",
-<<<<<<< HEAD
-    "eject": "react-scripts eject",
-    "gcp-build": ""
-=======
     "test:selenium:manajemen-user": "node scripts/run-selenium-side.cjs -c \"browserName=chrome\" tests/selenium/manajemen-user-blackbox.side",
     "test:selenium:manajemen-user:preview": "node scripts/run-selenium-side.cjs -c \"browserName=chrome goog:chromeOptions.detach=true goog:chromeOptions.args=[start-maximized,disable-gpu]\" tests/selenium/manajemen-user-blackbox.side",
-    "eject": "react-scripts eject"
->>>>>>> cc44566b5a2122eaa4ee08643eb77ae95f00f26c
+    "eject": "react-scripts eject",
+    "gcp-build": ""
   },
   "eslintConfig": {
     "extends": [

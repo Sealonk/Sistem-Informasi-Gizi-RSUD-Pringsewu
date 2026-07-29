@@ -203,10 +203,10 @@ export default function RiwayatRow({ item }) {
             font-semibold
           "
         >
-          {formatIndonesianDate(tanggalPerhitungan)}
+          {item.tanggal_perhitungan_rapi || formatIndonesianDate(tanggalPerhitungan)}
         </p>
         <p className="mt-1 text-[11px] font-bold text-slate-400">
-          {formatIndonesianTime(tanggalPerhitungan)} WIB
+          {item.jam_perhitungan ? `${item.jam_perhitungan} WIB` : `${formatIndonesianTime(tanggalPerhitungan)} WIB`}
         </p>
       </td>
 

@@ -25,30 +25,36 @@ export default function HasilHeader({
     return null;
   };
 
-  /* TANGGAL */
-  const tanggal =
-    data.tanggal ||
-    new Date().toLocaleDateString(
-      "id-ID",
-      {
-        day: "2-digit",
+  /* TANGGAL & WAKTU HELPERS */
+  const renderTanggalMasuk = () => {
+    const raw = data.tanggal_masuk_rapi || data.tanggal_masuk;
+    if (!raw || raw === "-") return "-";
+    const str = String(raw).trim();
+
+    // 1. Jika sudah berformat tanggal Indonesia seperti "24 April 2026"
+    if (/^\d{1,2}\s+[a-zA-Z]+\s+\d{4}$/.test(str)) {
+      return str;
+    }
+
+    // 2. Jika format ISO YYYY-MM-DD (seperti "2026-04-24T17:00:00.000Z")
+    const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+      const year = parseInt(isoMatch[1], 10);
+      const monthIndex = parseInt(isoMatch[2], 10) - 1;
+      const day = parseInt(isoMatch[3], 10);
+      const localDate = new Date(year, monthIndex, day);
+      return localDate.toLocaleDateString("id-ID", {
+        day: "numeric",
         month: "long",
         year: "numeric",
-      }
-    );
-
-  // Helper to format or display date
-  const renderTanggalMasuk = () => {
-    if (!data.tanggal_masuk || data.tanggal_masuk === "-") return "-";
-    const dateStr = String(data.tanggal_masuk);
-    if (/[a-zA-Z]/.test(dateStr) || dateStr.includes(" ")) {
-      return dateStr;
+      });
     }
+
     try {
-      const parsedDate = new Date(dateStr);
+      const parsedDate = new Date(str);
       if (!isNaN(parsedDate.getTime())) {
         return parsedDate.toLocaleDateString("id-ID", {
-          day: "2-digit",
+          day: "numeric",
           month: "long",
           year: "numeric",
         });
@@ -56,7 +62,108 @@ export default function HasilHeader({
     } catch (e) {
       // ignore
     }
-    return dateStr;
+    return str;
+  };
+
+  const renderTanggalPerhitungan = () => {
+    const raw = data.tanggal_perhitungan_rapi || data.tanggal_perhitungan || data.tanggal;
+    if (raw && raw !== "-") {
+      const str = String(raw).trim();
+
+      // 1. Jika berformat "29 Juli 2026" atau "29 Juli 2026 22:39:22"
+      if (/^\d{1,2}\s+[a-zA-Z]+\s+\d{4}/.test(str)) {
+        const match = str.match(/^(\d{1,2}\s+[a-zA-Z]+\s+\d{4})/);
+        if (match) return match[1];
+      }
+
+      // 2. Jika format ISO YYYY-MM-DD
+      const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) {
+        const year = parseInt(isoMatch[1], 10);
+        const monthIndex = parseInt(isoMatch[2], 10) - 1;
+        const day = parseInt(isoMatch[3], 10);
+        const localDate = new Date(year, monthIndex, day);
+        return localDate.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+
+      try {
+        const parsedDate = new Date(str);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
+        }
+      } catch (e) {
+        // ignore
+      }
+      return str;
+    }
+
+    // Fallback jika belum ada di data (seperti preview perhitungan baru)
+    const today = new Date();
+    return today.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const renderJamPerhitungan = () => {
+    // 1. Jika backend mengembalikan jam_perhitungan langsung (seperti "22:39:22")
+    if (data.jam_perhitungan && data.jam_perhitungan !== "-") {
+      return String(data.jam_perhitungan).includes("WIB")
+        ? data.jam_perhitungan
+        : `${data.jam_perhitungan} WIB`;
+    }
+
+    // 2. Cek apakah ada di tanggal_perhitungan_rapi (seperti "29 Juli 2026 22:39:22")
+    const rawRapi = data.tanggal_perhitungan_rapi;
+    if (rawRapi && typeof rawRapi === "string" && rawRapi !== "-") {
+      const timeMatch = rawRapi.match(/(\d{1,2}:\d{2}(?::\d{2})?)/);
+      if (timeMatch) {
+        return `${timeMatch[1]} WIB`;
+      }
+    }
+
+    // 3. Fallback parse dari tanggal_perhitungan ISO (seperti "2026-07-29T15:39:22.000Z")
+    const rawISO = data.tanggal_perhitungan || data.tanggal;
+    if (rawISO && rawISO !== "-") {
+      const str = String(rawISO).trim();
+      try {
+        const parsed = new Date(str);
+        if (!isNaN(parsed.getTime())) {
+          return (
+            parsed
+              .toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              })
+              .replace(/\./g, ":") + " WIB"
+          );
+        }
+      } catch (e) {}
+    }
+
+    // Fallback jika belum ada di data (seperti preview perhitungan baru)
+    const now = new Date();
+    return (
+      now
+        .toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        })
+        .replace(/\./g, ":") + " WIB"
+    );
   };
 
   return (
@@ -167,14 +274,15 @@ export default function HasilHeader({
           className="
             grid
             grid-cols-2
-            md:grid-cols-3
-            lg:grid-cols-6
-            gap-4
+            sm:grid-cols-3
+            md:grid-cols-4
+            lg:grid-cols-7
+            gap-3
           "
         >
           {/* RM */}
-          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
-            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="bg-slate-50/40 border border-slate-100/80 p-3.5 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">
               No. RM
             </p>
             <h4 className="text-sm font-bold text-slate-800 leading-tight">
@@ -183,8 +291,8 @@ export default function HasilHeader({
           </div>
 
           {/* KODE PENYAKIT */}
-          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
-            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="bg-slate-50/40 border border-slate-100/80 p-3.5 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">
               Kode Penyakit
             </p>
             <h4 className="text-sm font-bold text-slate-800 leading-tight">
@@ -193,8 +301,8 @@ export default function HasilHeader({
           </div>
 
           {/* UMUR */}
-          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
-            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="bg-slate-50/40 border border-slate-100/80 p-3.5 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">
               Umur
             </p>
             <h4 className="text-sm font-bold text-slate-800 leading-tight flex items-center flex-wrap">
@@ -204,8 +312,8 @@ export default function HasilHeader({
           </div>
 
           {/* JK */}
-          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
-            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="bg-slate-50/40 border border-slate-100/80 p-3.5 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">
               Jenis Kelamin
             </p>
             <h4 className="text-sm font-bold text-slate-800 leading-tight flex items-center flex-wrap">
@@ -215,8 +323,8 @@ export default function HasilHeader({
           </div>
 
           {/* TANGGAL MASUK */}
-          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
-            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="bg-slate-50/40 border border-slate-100/80 p-3.5 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">
               Tanggal Masuk
             </p>
             <h4 className="text-sm font-bold text-slate-800 leading-tight">
@@ -225,12 +333,22 @@ export default function HasilHeader({
           </div>
 
           {/* TANGGAL PERHITUNGAN */}
-          <div className="bg-slate-50/40 border border-slate-100/80 p-4 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
-            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
-              Tanggal Perhitungan
+          <div className="bg-slate-50/40 border border-slate-100/80 p-3.5 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">
+              Tgl. Perhitungan
             </p>
             <h4 className="text-sm font-bold text-slate-800 leading-tight">
-              {tanggal}
+              {renderTanggalPerhitungan()}
+            </h4>
+          </div>
+
+          {/* JAM PERHITUNGAN */}
+          <div className="bg-slate-50/40 border border-slate-100/80 p-3.5 rounded-2xl transition-all duration-200 hover:bg-slate-50/80 hover:border-slate-200/50">
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">
+              Jam Perhitungan
+            </p>
+            <h4 className="text-sm font-bold text-slate-800 leading-tight">
+              {renderJamPerhitungan()}
             </h4>
           </div>
         </div>

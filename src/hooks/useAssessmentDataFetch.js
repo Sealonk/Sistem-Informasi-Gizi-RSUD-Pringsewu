@@ -35,7 +35,7 @@ export default function useAssessmentDataFetch({
 }) {
   // Load detail pasien
   useEffect(() => {
-    if (isRestored) return;
+    if (isRestored || isEditMode) return;
 
     async function loadDetailPasien() {
       try {
@@ -75,7 +75,7 @@ export default function useAssessmentDataFetch({
     }
 
     loadDetailPasien();
-  }, [patient, isRestored, setData]);
+  }, [patient, isRestored, isEditMode, setData]);
 
   // Load detail riwayat for editing
   useEffect(() => {

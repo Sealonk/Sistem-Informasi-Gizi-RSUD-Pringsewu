@@ -109,6 +109,11 @@ export const isDateInRange = (value, startDate, endDate) => {
 export const matchesUserFilter = (item, filterValue) => {
   if (!filterValue || filterValue === "all") return true;
 
+  // Mendukung filter "Hanya Saya" menggunakan is_mine dari backend
+  if (filterValue === "me") {
+    return item?.is_mine === true;
+  }
+
   let targetId = "";
   let targetName = "";
 

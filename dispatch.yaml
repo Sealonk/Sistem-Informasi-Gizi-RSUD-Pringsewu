@@ -1,8 +1,0 @@
-dispatch:
-  # Mengarahkan domain tanpa www ke service frontend
-  - url: "si-gizi.site/*"
-    service: frontend
-
-  # Mengarahkan domain dengan www ke service frontend
-  - url: "www.si-gizi.site/*"
-    service: frontend
