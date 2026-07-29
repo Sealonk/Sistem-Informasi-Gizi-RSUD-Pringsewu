@@ -25,6 +25,15 @@ const konversiUmurKeTahun = (umurStr) => {
     return angka; 
 };
 
+const perbaikiZonaWaktu = (tanggalDariDB) => {
+    if (!tanggalDariDB) return null;
+    const d = new Date(tanggalDariDB);
+    return new Date(Date.UTC(
+        d.getFullYear(), d.getMonth(), d.getDate(),
+        d.getHours(), d.getMinutes(), d.getSeconds()
+    ));
+};
+
 // ==========================================
 // MENGAMBIL DAFTAR RIWAYAT
 // ==========================================
@@ -68,13 +77,13 @@ const getRiwayat = async (req, res, next) => {
             });
         }
 
-        // [BARU]: Filter Ruangan
+        // Filter Ruangan
         if (ruangan) {
             whereClause += ` AND b.nm_bangsal LIKE ?`;
             queryParams.push(`%${ruangan}%`);
         }
 
-        // [DIPERBARUI]: Logic untuk Range Tanggal
+        // Logic untuk Range Tanggal
         if (tanggal_awal && tanggal_akhir) {
             whereClause += ` AND DATE(pg.tanggal_perhitungan) BETWEEN ? AND ?`;
             queryParams.push(tanggal_awal, tanggal_akhir);
@@ -141,16 +150,17 @@ const getRiwayat = async (req, res, next) => {
         const finalQueryParams = [...queryParams, limit.toString(), offset.toString()];
         const [rows] = await db.execute(dataQuery, finalQueryParams);
 
-        // Tanggal dengan penambahan Jam, Menit, Detik
-        const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' };
+        const opsiJam = { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Jakarta' };
 
         const formattedRiwayat = rows.map(item => {
-            const dateObj = new Date(item.tanggal_perhitungan);
-            const tanggalRapi = dateObj.toLocaleString('id-ID', opsiTanggal).replace(/\./g, ':');
+            const dateObj = perbaikiZonaWaktu(item.tanggal_perhitungan);
+            const tanggalRapi = dateObj.toLocaleDateString('id-ID', opsiTanggal);
+            const jamRapi = dateObj.toLocaleTimeString('id-ID', opsiJam).replace(/\./g, ':');
 
             return {
                 id_perhitungan: item.id_perhitungan,
-                versi: item.versi || 1, // Info versi terbaru
+                versi: item.versi || 1, 
                 nama_pasien: item.nama_pasien,
                 no_rm: item.no_rm, 
                 jenis_kelamin: item.jenis_kelamin, 
@@ -164,6 +174,7 @@ const getRiwayat = async (req, res, next) => {
                     karbohidrat: parseFloat(item.karbohidrat_gram) || 0 
                 },
                 tanggal_perhitungan: tanggalRapi,
+                jam_perhitungan: jamRapi,
                 created_by: item.created_by, 
                 is_mine: item.id_user === id_user_login 
             };
@@ -195,22 +206,22 @@ const getRiwayatVersions = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        // Cari tahu siapa parent (root) dari ID ini
         const targetDetail = await PerhitunganModel.findDetailById(id);
         if (!targetDetail) {
             return res.status(404).json({ status: 'error', message: 'Data riwayat tidak ditemukan' });
         }
 
         const parentId = targetDetail.parent_id || targetDetail.id_perhitungan;
-
-        // Tarik seluruh versi yang memiliki parent_id ini
         const versions = await PerhitunganModel.findVersionsByParentId(parentId);
 
-        const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' };
+        const opsiJam = { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Jakarta' };
         
-        // Memformat daftar riwayat
         const formattedVersions = versions.map(item => {
-            const dateObj = new Date(item.tanggal_perhitungan);
+            const dateObj = perbaikiZonaWaktu(item.tanggal_perhitungan);
+            const tanggalRapi = dateObj.toLocaleDateString('id-ID', opsiTanggal);
+            const jamRapi = dateObj.toLocaleTimeString('id-ID', opsiJam).replace(/\./g, ':');
+            
             return {
                 id_perhitungan: item.id_perhitungan,
                 versi: item.versi || 1,
@@ -224,21 +235,21 @@ const getRiwayatVersions = async (req, res, next) => {
                     lemak: parseFloat(item.lemak_gram) || 0,
                     karbohidrat: parseFloat(item.karbohidrat_gram) || 0
                 },
-                tanggal_perhitungan: dateObj.toLocaleString('id-ID', opsiTanggal).replace(/\./g, ':'),
+                tanggal_perhitungan: tanggalRapi,
+                jam_perhitungan: jamRapi,
                 created_by: item.nama_pembuat,
                 is_mine: item.id_user === req.user.id_user
             };
         });
 
-        // Menyusun Header Info Pasien yang konstan
         const patientInfo = {
             nama_pasien: targetDetail.nama_pasien,
             no_rm: targetDetail.no_rm,
             kode_penyakit: targetDetail.kode_penyakit || '-',
             umur: targetDetail.umur_saat_dihitung + ' ' + targetDetail.kelompok_umur,
             jenis_kelamin: targetDetail.jenis_kelamin,
-            tanggal_masuk: targetDetail.tanggal_masuk ? new Date(targetDetail.tanggal_masuk).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '-',
-            tanggal_perhitungan_terakhir: formattedVersions[0].tanggal_perhitungan 
+            tanggal_masuk: targetDetail.tanggal_masuk ? perbaikiZonaWaktu(targetDetail.tanggal_masuk).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric', timeZone: 'Asia/Jakarta'}) : '-',
+            tanggal_perhitungan_terakhir: `${formattedVersions[0].tanggal_perhitungan} ${formattedVersions[0].jam_perhitungan}` 
         };
 
         res.status(200).json({
@@ -268,22 +279,22 @@ const getRiwayatDetail = async (req, res, next) => {
             return res.status(404).json({ status: 'error', message: 'Data riwayat tidak ditemukan' });
         }
 
-        const opsiTanggalLengkap = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        const opsiTanggalSaja = { day: 'numeric', month: 'long', year: 'numeric' };
+        const opsiTanggalSaja = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' };
+        const opsiJamSaja = { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Jakarta' };
 
         if (detail.tanggal_masuk) {
-            const tglMasukObj = new Date(detail.tanggal_masuk);
+            const tglMasukObj = perbaikiZonaWaktu(detail.tanggal_masuk);
             detail.tanggal_masuk_rapi = tglMasukObj.toLocaleDateString('id-ID', opsiTanggalSaja);
         }
 
         if (detail.tanggal_perhitungan) {
-            const tglHitungObj = new Date(detail.tanggal_perhitungan);
-            // [DIPERBARUI]: Menampilkan jam, menit, detik
-            detail.tanggal_perhitungan_rapi = tglHitungObj.toLocaleString('id-ID', opsiTanggalLengkap).replace(/\./g, ':');
+            const tglHitungObj = perbaikiZonaWaktu(detail.tanggal_perhitungan);
+            detail.tanggal_perhitungan_rapi = tglHitungObj.toLocaleDateString('id-ID', opsiTanggalSaja);
+            detail.jam_perhitungan = tglHitungObj.toLocaleTimeString('id-ID', opsiJamSaja).replace(/\./g, ':');
         }
 
         detail.ruangan = detail.ruangan || 'Poli / Rawat Jalan';
-        detail.versi = detail.versi || 1; // Info versi 
+        detail.versi = detail.versi || 1; 
 
         res.status(200).json({
             status: 'success',
@@ -310,7 +321,6 @@ const updateRiwayat = async (req, res, next) => {
             return res.status(404).json({ status: 'error', message: 'Data riwayat tidak ditemukan' });
         }
 
-        // Izinkan update jika dia pembuatnya, ATAU jika dia adalah admin
         if (detailLama.id_user !== id_user_login && user_role !== 'admin') {
             return res.status(403).json({ 
                 status: 'error', 
@@ -340,14 +350,12 @@ const updateRiwayat = async (req, res, next) => {
             diagnosa_string = diagnosa_string.replace('Mifflin', `Mifflin (${dataInput.penyakit_lainnya})`);
         }
 
-        // Menentukan Induk Versi dan Angka Versi Terbaru
         const parentId = detailLama.parent_id || detailLama.id_perhitungan;
         const versiBaru = (detailLama.versi || 1) + 1;
 
-        // Merangkai Data untuk disisipkan sebagai baris baru (bukan UPDATE, tapi INSERT)
         const dataInsert = {
             no_rawat: detailLama.no_rawat,
-            id_user: id_user_login, // Disimpan atas nama staf yang melakukan update
+            id_user: id_user_login,
             umur_saat_dihitung: detailLama.umur_saat_dihitung,
             kelompok_umur: detailLama.kelompok_umur,
             ruang_bangsal: detailLama.ruang_bangsal,
@@ -412,7 +420,6 @@ const deleteRiwayat = async (req, res, next) => {
             return res.status(404).json({ status: 'error', message: 'Gagal menghapus, data tidak ditemukan' });
         }
 
-        // Izinkan hapus jika dia pembuatnya, ATAU jika dia adalah admin
         if (detailLama.id_user !== id_user_login && user_role !== 'admin') {
             return res.status(403).json({ 
                 status: 'error', 
