@@ -1,10 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungCKD_Stroke.js
-// Komplikasi Ganda: Ginjal Kronik (CKD) + Stroke
-// Pendekatan: Titik Temu Paling Ketat (The Strictest Limit) dari Buku Biru Edisi 5
-// Fitur: Validasi Slider Lemak Dinamis (Protein Absolut Dikunci)
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungCKD_Stroke = (data) => {
@@ -14,8 +7,7 @@ const hitungCKD_Stroke = (data) => {
         tinggi_badan, 
         umur, 
         status_hemodialisa,
-        volume_urine, // Sangat krusial untuk Natrium, Kalium, & Cairan
-        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
+        volume_urine,
         input_persen_lemak
     } = data;
 
@@ -25,10 +17,7 @@ const hitungCKD_Stroke = (data) => {
 
     const isHD = status_hemodialisa && status_hemodialisa.toLowerCase() === 'ya';
 
-    // =========================================================================
-    // 2. KEBUTUHAN ENERGI TOTAL (TEE) - Mengikuti Standar CKD
-    // Umur < 60 = 35 * BBI | Umur >= 60 = 30 * BBI
-    // =========================================================================
+    // 2. KEBUTUHAN ENERGI TOTAL (TEE)
     let kebutuhan_energi_total = 0;
     if (umur >= 60) {
         kebutuhan_energi_total = 30 * bbi;
@@ -36,16 +25,11 @@ const hitungCKD_Stroke = (data) => {
         kebutuhan_energi_total = 35 * bbi;
     }
 
-    // Menyimpan nilai ke variabel energiBasal agar format JSON Frontend aman
     const energiBasal = kebutuhan_energi_total;
 
-    // =========================================================================
     // 3. DISTRIBUSI MAKRONUTRIEN (Validasi Slider & Irisan Ketat CKD + Stroke)
-    // =========================================================================
     
     // 3a. PROTEIN: Dikunci Mutlak
-    // Stroke mengalah pada Ginjal (0.75 - 1 g/kg). Kita patok presisi di 0.8 g/kg.
-    // Jika HD = 1.2 g/kg (Syarat mutlak mengganti asam amino yang terbuang).
     let protein_gram = 0;
     if (isHD) {
         protein_gram = 1.2 * bbi; 
@@ -55,19 +39,16 @@ const hitungCKD_Stroke = (data) => {
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // 3b. LEMAK TOTAL: Default 25% (Irisan CKD 25-30% dan Stroke 25-35%)
+    // 3b. LEMAK TOTAL: Default 25%
     let lemak_persen = 25;
 
-    // Validasi input slider lemak dari Frontend
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
-        
-        // Pagar Aman Lemak (Rentang irisan paling aman adalah 25% - 30%)
+
         if (l < 15 || l > 35) {
             throw new Error(`Persentase Lemak CKD + Stroke harus antara 15% - 35%. Input ditolak: ${l}%`);
         }
-        
-        // Validasi Matematis Ekstra
+
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein mutlak (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
@@ -78,8 +59,6 @@ const hitungCKD_Stroke = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak mengikuti aturan Stroke yang lebih ketat (< 7% Jenuh)
-    // Dibuat proporsional berdasarkan persentase lemak yang diinput user
     const lemak_jenuh_persen = Math.floor(lemak_persen * (7/25));
     const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
@@ -100,25 +79,21 @@ const hitungCKD_Stroke = (data) => {
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // =========================================================================
     // 4. MIKRONUTRIEN & CAIRAN (Penggabungan Batas Paling Ketat)
-    // =========================================================================
     
-    const kolesterol_mg = 200; // Batas Stroke
-    const serat_gram = 25;     // Batas Stroke (25-30g)
+    const kolesterol_mg = 200; 
+    const serat_gram = 25;     
 
     let natrium_mg = 0;
     let kalium_mg = 0;
     let kalsium_mg = 0;
     let fosfor_mg = 0;
 
-    // Mengolah input volume urine untuk ginjal
     const volUrine = (volume_urine !== undefined && volume_urine !== null && volume_urine !== "") 
                         ? parseFloat(volume_urine) 
                         : null;
 
     if (isHD) {
-        // --- ATURAN HEMODIALISA ---
         if (volUrine !== null) {
             if (volUrine === 0) {
                 natrium_mg = 2000;
@@ -134,14 +109,12 @@ const hitungCKD_Stroke = (data) => {
         kalsium_mg = 1000;    
         fosfor_mg = 17 * bbi; 
     } else {
-        // --- ATURAN PRE-DIALISIS ---
         natrium_mg = 2000;    
         kalium_mg = 39 * bbi; 
         kalsium_mg = 1200;    
         fosfor_mg = 800;      
     }
 
-    // Cairan Dinamis Ginjal Menganulir Cairan Neurologis Stroke (Cegah Edema Paru)
     let kebutuhan_cairan = "Sesuai volume urine 24 jam + 500 ml";
     if (volUrine !== null) {
         const totalCairan = volUrine + 500;
@@ -167,8 +140,6 @@ const hitungCKD_Stroke = (data) => {
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
                 karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
-                
-                // Rincian Lemak & Mikro untuk UI Frontend
                 lemak_jenuh_gr: parseFloat(lemak_jenuh_gram.toFixed(2)),
                 lemak_pufa_gr: parseFloat(lemak_pufa_gram.toFixed(2)),
                 lemak_mufa_gr: parseFloat(lemak_mufa_gram.toFixed(2)),
@@ -205,7 +176,6 @@ const hitungCKD_Stroke = (data) => {
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
-            
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_pufa_gram: parseFloat(lemak_pufa_gram.toFixed(2)),
             lemak_mufa_gram: parseFloat(lemak_mufa_gram.toFixed(2)),

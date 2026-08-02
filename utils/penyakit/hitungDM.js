@@ -1,9 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungDM.js
-// Berdasarkan: Penuntun Diet & Terapi Gizi Edisi 5 (PERSAGI)
-// Fitur: Dukungan Slider Makronutrien + Faktor Stres Khusus DM (10%, 20%, 30%)
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungDM = (data) => {
@@ -15,7 +9,6 @@ const hitungDM = (data) => {
         aktivitas_fisik, 
         faktor_stres, 
         kategori_penambahan_energi,
-        // Parameter Baru untuk Slider Persentase Makronutrien (Opsional)
         input_persen_protein,
         input_persen_lemak,
         input_persen_karbo 
@@ -26,7 +19,7 @@ const hitungDM = (data) => {
     const dataIMT = hitungIMT(berat_badan, tinggi_badan);
     const kategoriIMT = dataIMT.statusGizi;
 
-    // 2. ENERGI BASAL (Koreksi Gender sesuai Buku Biru/PERKENI)
+    // 2. ENERGI BASAL
     let energiBasal = 0;
     if (jenis_kelamin === 'L') {
         energiBasal = bbi * 30; // Pria: 30 kkal/kg BBI
@@ -34,7 +27,7 @@ const hitungDM = (data) => {
         energiBasal = bbi * 25; // Wanita: 25 kkal/kg BBI
     }
 
-    // 3. KOREKSI UMUR (Sesuai Buku Biru PERSAGI)
+    // 3. KOREKSI UMUR
     let koreksiUmurNilai = 0;
     if (umur >= 40 && umur <= 59) {
         koreksiUmurNilai = energiBasal * -0.05; // -5%
@@ -69,24 +62,19 @@ const hitungDM = (data) => {
     }
     koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // =========================================================================
     // 5. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
-    // =========================================================================
     let koreksiStresNilai = 0;
     let persentaseStres = 0.10; // Default 10% 
     
     const parsedStress = parseFloat(faktor_stres);
     if (!isNaN(parsedStress)) {
-        // Jika frontend mengirim angka bulat (10, 20, 30)
         if (parsedStress === 10 || parsedStress === 20 || parsedStress === 30) {
             persentaseStres = parsedStress / 100;
         } 
-        // Jika frontend mengirim format desimal (0.1, 0.2, 0.3)
         else if (parsedStress === 0.1 || parsedStress === 0.2 || parsedStress === 0.3) {
             persentaseStres = parsedStress;
         }
     } else {
-        // Fallback jika Frontend mengirim teks
         const stressNormal = faktor_stres?.toLowerCase();
         switch (stressNormal) {
             case 'ringan': 
@@ -106,7 +94,7 @@ const hitungDM = (data) => {
     }
     koreksiStresNilai = energiBasal * persentaseStres;
 
-    // 6. PENAMBAHAN KALORI (KEHAMILAN & LAKTASI SESUAI BUKU BIRU)
+    // 6. PENAMBAHAN KALORI
     let penambahanKaloriNilai = 0;
     if (kategori_penambahan_energi) {
         const kategoriUpper = kategori_penambahan_energi.toUpperCase();
@@ -125,19 +113,15 @@ const hitungDM = (data) => {
     // 7. KEBUTUHAN ENERGI TOTAL (TEE)
     const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
-    // =========================================================================
-    // 8. DISTRIBUSI MAKRONUTRIEN (DENGAN VALIDASI SLIDER FRONTEND)
-    // =========================================================================
+    // 8. DISTRIBUSI MAKRONUTRIEN
     
     let protein_persen = 10; // Default
     let lemak_persen = 25;   // Default
 
-    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
     if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
 
-        // Validasi 1: Harus masuk rentang ("Pagar Aman") Buku Biru untuk DM murni
         if (p < 10 || p > 20) {
             throw new Error(`Persentase Protein DM harus antara 10% - 20%. Input ditolak: ${p}%`);
         }
@@ -145,12 +129,10 @@ const hitungDM = (data) => {
             throw new Error(`Persentase Lemak DM harus antara 20% - 25%. Input ditolak: ${l}%`);
         }
 
-        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
-        // Jika lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
     }

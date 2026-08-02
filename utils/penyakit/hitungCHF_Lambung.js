@@ -1,10 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungCHF_Lambung.js
-// Komplikasi Ganda: Penyakit Jantung (CHF) + Lambung/Dispepsia
-// Pendekatan Hybrid: Energi (Excel RS/Mifflin) + Makro/Mikro (Buku Biru)
-// Fitur: Validasi Slider Makronutrien Dinamis + Custom Stres Multiplier
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungCHF_Lambung = (data) => {
@@ -15,7 +8,6 @@ const hitungCHF_Lambung = (data) => {
         umur, 
         aktivitas_fisik, 
         faktor_stres,
-        // Parameter Baru untuk Slider Persentase Makronutrien
         input_persen_protein,
         input_persen_lemak,
         input_persen_karbo 
@@ -25,9 +17,7 @@ const hitungCHF_Lambung = (data) => {
     const bbi = hitungBeratBadanIdeal(jenis_kelamin, tinggi_badan);
     const dataIMT = hitungIMT(berat_badan, tinggi_badan);
 
-    // =========================================================================
-    // 2. ENERGI BASAL (BMR) - Rumus Mifflin-St Jeor dengan BBI (Format Excel)
-    // =========================================================================
+    // 2. ENERGI BASAL (BMR) - Rumus Mifflin-St Jeor dengan BBI
     let bmr = 0;
     if (jenis_kelamin === 'L') {
         bmr = (10 * bbi) + (6.25 * tinggi_badan) - (5 * umur) + 5;
@@ -35,9 +25,7 @@ const hitungCHF_Lambung = (data) => {
         bmr = (10 * bbi) + (6.25 * tinggi_badan) - (5 * umur) - 161; 
     }
 
-    // =========================================================================
-    // 3. FAKTOR AKTIVITAS (Menggunakan sistem Pengali/Multiplier Excel)
-    // =========================================================================
+    // 3. FAKTOR AKTIVITAS
     let faktorAktivitas = 1.2; 
     const aktivitasNormal = aktivitas_fisik?.toLowerCase();
     switch (aktivitasNormal) {
@@ -48,9 +36,7 @@ const hitungCHF_Lambung = (data) => {
         case 'sangat berat': faktorAktivitas = 2.0; break;
     }
 
-    // =========================================================================
-    // 4. FAKTOR STRES METABOLIK (Mendukung Custom Input Angka Desimal 1.1 - 1.7)
-    // =========================================================================
+    // 4. FAKTOR STRES METABOLIK
     let faktorStres = 1.1; 
     const parsedStress = parseFloat(faktor_stres);
     
@@ -67,39 +53,27 @@ const hitungCHF_Lambung = (data) => {
         }
     }
 
-    // =========================================================================
     // 5. KEBUTUHAN ENERGI TOTAL (TEE)
-    // = BMR * Aktivitas * Stress (Kehamilan = 0 karena berisiko tinggi pada CHF)
-    // =========================================================================
     const kebutuhan_energi_total = bmr * faktorAktivitas * faktorStres;
 
-    // =========================================================================
-    // 6. DISTRIBUSI MAKRONUTRIEN CHF + LAMBUNG (Validasi Slider Dinamis)
-    // =========================================================================
-    
+    // 6. DISTRIBUSI MAKRONUTRIEN CHF + LAMBUNG
     let protein_persen = 15;
     let lemak_persen = 25;
 
-    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
     if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
 
-        // Validasi 1: Pagar Aman Buku Biru CHF
         if (p < 10 || p > 25) {
             throw new Error(`Persentase Protein CHF + Lambung harus antara 10% - 25%. Input ditolak: ${p}%`);
         }
         if (l < 10 || l > 25) {
             throw new Error(`Persentase Lemak CHF + Lambung harus antara 10% - 25%. Input ditolak: ${l}%`);
         }
-
-        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
-
-        // Lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
     }
@@ -118,7 +92,7 @@ const hitungCHF_Lambung = (data) => {
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // Rincian Lemak (Menyesuaikan batas Jantung <10% Jenuh, kita pakai rasio dinamis agar sangat aman)
+
     const lemak_jenuh_persen = Math.floor(lemak_persen * (7/15));
     const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
@@ -131,9 +105,7 @@ const hitungCHF_Lambung = (data) => {
     const kalori_lemak_mufa = (lemak_mufa_persen / 100) * kebutuhan_energi_total;
     const lemak_mufa_gram = kalori_lemak_mufa / 9;
 
-    // =========================================================================
     // 7. MIKRONUTRIEN, CAIRAN, DAN PEDOMAN KLINIS (Buku Biru)
-    // =========================================================================
     const natrium_mg = 1500;       // Sangat dibatasi < 1500 mg/hari (Syarat CHF)
     const kolesterol_mg = 200;     // Maksimal 200 mg/hari (Syarat CHF)
     const kebutuhan_cairan = "Sesuai balance cairan (urine 24 jam + IWL)"; // Syarat CHF
@@ -151,7 +123,7 @@ const hitungCHF_Lambung = (data) => {
             koreksi_aktivitas: parseFloat(faktorAktivitas.toFixed(2)),
             stress_metabolik: parseFloat(faktorStres.toFixed(2)),
             koreksi_umur: 0,
-            kehamilan: 0 // Dinolkan
+            kehamilan: 0
         },
 
         perhitungan: {
@@ -160,8 +132,6 @@ const hitungCHF_Lambung = (data) => {
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
                 karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
-                
-                // Rincian Lemak & Mikro untuk UI Frontend
                 lemak_jenuh_gr: parseFloat(lemak_jenuh_gram.toFixed(2)),
                 lemak_pufa_gr: parseFloat(lemak_pufa_gram.toFixed(2)),
                 lemak_mufa_gr: parseFloat(lemak_mufa_gram.toFixed(2)),
@@ -196,7 +166,6 @@ const hitungCHF_Lambung = (data) => {
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
-
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_pufa_gram: parseFloat(lemak_pufa_gram.toFixed(2)),
             lemak_mufa_gram: parseFloat(lemak_mufa_gram.toFixed(2)),

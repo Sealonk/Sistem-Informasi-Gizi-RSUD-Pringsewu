@@ -62,9 +62,7 @@ const kalkulasiGiziTotal = (dataInput) => {
     // Variabel penampung hasil rumus murni (Sebelum dipotong 80%)
     let hasil; 
 
-    // =====================================================================
-    // ROUTER PENYAKIT (Menggunakan if-else berantai agar fleksibel)
-    // =====================================================================
+    // ROUTER PENYAKIT
     if (has('DM') && has('CKD') && has('CHF')) hasil = hitungDM_CKD_CHF(dataInput);
     
     else if (has('DM') && has('CKD')) hasil = hitungDM_CKD(dataInput);
@@ -86,11 +84,9 @@ const kalkulasiGiziTotal = (dataInput) => {
     else if (has('Lambung')) hasil = hitungLambung(dataInput);
     
     else if (has('Mifflin')) hasil = hitungMifflin(dataInput);
-    else hasil = hitungMifflin(dataInput); // Fallback Universal
+    else hasil = hitungMifflin(dataInput);
 
-    // =====================================================================
     // KALKULASI AKHIR: PEMOTONGAN 80% CRITICAL ILL & HITUNG ULANG MAKRO
-    // =====================================================================
     if (hasCriticalIll) {
         // Ambil energi normal, lalu kalikan 80% (0.8)
         const oldTee = hasil.data_simpan.kebutuhan_energi_total;

@@ -1,9 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungMifflin.js (UNIVERSAL)
-// Berdasarkan: Penuntun Diet & Terapi Gizi Edisi 5 (PERSAGI)
-// Fitur: BMR (BB Aktual) + Validasi Slider Makronutrien Dewasa (Tabel 2.3)
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungMifflin = (data) => {
@@ -15,7 +9,6 @@ const hitungMifflin = (data) => {
         aktivitas_fisik, 
         faktor_stres, 
         kategori_penambahan_energi,
-        // Parameter Baru untuk Slider Persentase Makronutrien
         input_persen_protein,
         input_persen_lemak,
         input_persen_karbo 
@@ -24,10 +17,7 @@ const hitungMifflin = (data) => {
     const bbi = hitungBeratBadanIdeal(jenis_kelamin, tinggi_badan);
     const dataIMT = hitungIMT(berat_badan, tinggi_badan);
 
-    // =========================================================================
     // 1. ENERGI BASAL (BMR) - Rumus Mifflin Standar
-    // Sesuai pedoman: Menggunakan BB Aktual (berat_badan), BUKAN bbi
-    // =========================================================================
     let bmr = 0;
     if (jenis_kelamin === 'L') {
         bmr = (10 * berat_badan) + (6.25 * tinggi_badan) - (5 * umur) + 5;
@@ -35,9 +25,7 @@ const hitungMifflin = (data) => {
         bmr = (10 * berat_badan) + (6.25 * tinggi_badan) - (5 * umur) - 161; 
     }
 
-    // =========================================================================
-    // 2. FAKTOR AKTIVITAS (Tabel 2.2 PERSAGI)
-    // =========================================================================
+    // 2. FAKTOR AKTIVITAS
     let faktorAktivitas = 1.2;
     const aktivitasNormal = aktivitas_fisik?.toLowerCase();
     switch (aktivitasNormal) {
@@ -49,9 +37,7 @@ const hitungMifflin = (data) => {
         default: faktorAktivitas = 1.2; break;
     }
 
-    // =========================================================================
     // 3. FAKTOR STRES METABOLIK
-    // =========================================================================
     let faktorStres = 1.1; 
     const parsedStress = parseFloat(faktor_stres);
     if (!isNaN(parsedStress) && parsedStress >= 1.1 && parsedStress <= 1.7) {
@@ -81,33 +67,27 @@ const hitungMifflin = (data) => {
     // 5. KEBUTUHAN ENERGI TOTAL (TEE)
     const kebutuhan_energi_total = (bmr * faktorAktivitas * faktorStres) + penambahanKaloriNilai;
 
-    // =========================================================================
-    // 6. DISTRIBUSI MAKRONUTRIEN (Validasi Slider sesuai Tabel 2.3 Dewasa)
-    // =========================================================================
+    // 6. DISTRIBUSI MAKRONUTRIEN
     
-    // Nilai Default (Sesuai Tabel 2.3)
+    // Nilai Default
     let protein_persen = 15;
     let lemak_persen = 25;
 
-    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
     if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
 
-        // Validasi 2: Pagar Aman sesuai Tabel 2.3 PERSAGI
         if (p < 10 || p > 30) {
             throw new Error(`Persentase Protein Dewasa harus di rentang 10% - 30%. Input ditolak: ${p}%`);
         }
         if (l < 20 || l > 30) {
             throw new Error(`Persentase Lemak Dewasa harus di rentang 20% - 30%. Input ditolak: ${l}%`);
         }
-        
-        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
+
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
-        // Lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
     }

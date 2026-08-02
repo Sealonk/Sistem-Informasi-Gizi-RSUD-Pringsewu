@@ -1,10 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungCKD_CHF.js
-// Komplikasi Ganda: Ginjal Kronik (CKD) + Gagal Jantung (CHF)
-// Pendekatan: Titik Temu Paling Ketat (The Strictest Limit) dari Buku Biru Edisi 5
-// Fitur: Validasi Slider Lemak Dinamis (Protein Absolut Dikunci)
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungCKD_CHF = (data) => {
@@ -14,8 +7,7 @@ const hitungCKD_CHF = (data) => {
         tinggi_badan, 
         umur, 
         status_hemodialisa,
-        volume_urine, // Sangat krusial untuk Natrium, Kalium & Cairan
-        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
+        volume_urine,
         input_persen_lemak
     } = data;
 
@@ -26,10 +18,7 @@ const hitungCKD_CHF = (data) => {
     // Status boolean untuk mempermudah logika
     const isHD = status_hemodialisa && status_hemodialisa.toLowerCase() === 'ya';
 
-    // =========================================================================
     // 2. KEBUTUHAN ENERGI TOTAL (TEE) - Mengikuti Standar CKD
-    // Umur < 60 = 35 * BBI | Umur >= 60 = 30 * BBI
-    // =========================================================================
     let kebutuhan_energi_total = 0;
     if (umur >= 60) {
         kebutuhan_energi_total = 30 * bbi;
@@ -37,16 +26,11 @@ const hitungCKD_CHF = (data) => {
         kebutuhan_energi_total = 35 * bbi;
     }
 
-    // Menyimpan nilai ke variabel energiBasal agar format JSON ke Frontend aman
     const energiBasal = kebutuhan_energi_total;
 
-    // =========================================================================
-    // 3. DISTRIBUSI MAKRONUTRIEN (Validasi Slider & Irisan Ketat CKD + CHF)
-    // =========================================================================
+    // 3. DISTRIBUSI MAKRONUTRIEN
     
     // 3a. PROTEIN: Dikunci Mutlak
-    // Jika Pre-HD = 0.8 g/kg (Irisan dari CKD 0.6-0.8 dan CHF 0.8-1.5)
-    // Jika HD = 1.2 g/kg (Syarat mutlak hemodialisis)
     let protein_gram = 0;
     if (isHD) {
         protein_gram = 1.2 * bbi; 
@@ -56,19 +40,16 @@ const hitungCKD_CHF = (data) => {
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // 3b. LEMAK TOTAL: Default 25% (Satu-satunya irisan aman dari CKD 25-30% dan CHF 20-25%)
-    let lemak_persen = 25; // Default
+    // 3b. LEMAK TOTAL: Default 25%
+    let lemak_persen = 25;
 
-    // Validasi input slider lemak dari Frontend
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
-        
-        // Pagar Aman Lemak (Memberikan ruang hingga 30% agar karbohidrat bisa ditekan turun)
+
         if (l < 15 || l > 30) {
             throw new Error(`Persentase Lemak CKD + CHF harus antara 15% - 30%. Input ditolak: ${l}%`);
         }
-        
-        // Validasi Matematis Ekstra
+
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
@@ -79,7 +60,6 @@ const hitungCKD_CHF = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak Proporsional (Jenuh dipatok tetap aman < 10%)
     const lemak_jenuh_persen = Math.floor(lemak_persen * (10/25));
     const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
@@ -96,25 +76,20 @@ const hitungCKD_CHF = (data) => {
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // =========================================================================
     // 4. MIKRONUTRIEN & CAIRAN (Penggabungan Batas Paling Ketat)
-    // =========================================================================
-    
-    // Natrium: Dibatasi maksimal 1500 mg (Menerapkan batas CHF yang lebih ketat dari CKD)
+
     const natrium_mg = 1500; 
-    const kolesterol_mg = 200; // Batas CHF
+    const kolesterol_mg = 200;
 
     let kalium_mg = 0;
     let kalsium_mg = 0;
     let fosfor_mg = 0;
 
-    // Mengolah input volume urine
     const volUrine = (volume_urine !== undefined && volume_urine !== null && volume_urine !== "") 
                         ? parseFloat(volume_urine) 
                         : null;
 
     if (isHD) {
-        // --- ATURAN HEMODIALISA ---
         if (volUrine !== null) {
             if (volUrine === 0) {
                 kalium_mg = 2000;  
@@ -127,13 +102,11 @@ const hitungCKD_CHF = (data) => {
         kalsium_mg = 1000;    
         fosfor_mg = 17 * bbi; 
     } else {
-        // --- ATURAN PRE-DIALISIS ---
         kalium_mg = 39 * bbi; 
         kalsium_mg = 1200;    
         fosfor_mg = 800;      
     }
 
-    // Perhitungan Cairan Dinamis (Urine + 500 ml) untuk menjaga balance CHF & CKD
     let kebutuhan_cairan = "Sesuai balance cairan (volume urine 24 jam + 500 ml)";
     if (volUrine !== null) {
         const totalCairan = volUrine + 500;
@@ -144,7 +117,6 @@ const hitungCKD_CHF = (data) => {
     return {
         berat_badan_ideal: parseFloat(bbi.toFixed(2)),
 
-        // Nilai koreksi diset 0 karena menggunakan perhitungan kalori mutlak (tanpa koreksi Mifflin)
         koreksi: {
             energi_basal: parseFloat(energiBasal.toFixed(2)),
             koreksi_umur: 0, 
@@ -160,8 +132,6 @@ const hitungCKD_CHF = (data) => {
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
                 karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
-                
-                // Rincian Lemak & Mikro untuk UI Frontend
                 lemak_jenuh_gr: parseFloat(lemak_jenuh_gram.toFixed(2)),
                 lemak_tidak_jenuh_gr: parseFloat(lemak_tidak_jenuh_gram.toFixed(2)),
                 natrium_mg: natrium_mg,
@@ -196,7 +166,6 @@ const hitungCKD_CHF = (data) => {
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
-            
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_tidak_jenuh_gram: parseFloat(lemak_tidak_jenuh_gram.toFixed(2)),
             natrium_mg: natrium_mg,

@@ -1,9 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungLambung.js (Dispepsia / Saluran Cerna Atas)
-// Pendekatan Hybrid: Energi (Excel RS/Mifflin) + Makro (Buku Biru)
-// Fitur: Validasi Slider Makronutrien Dinamis + Custom Stres Multiplier
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungLambung = (data) => {
@@ -14,7 +8,6 @@ const hitungLambung = (data) => {
         umur, 
         aktivitas_fisik, 
         faktor_stres,
-        // Parameter Baru untuk Slider Persentase Makronutrien (Opsional)
         input_persen_protein,
         input_persen_lemak,
         input_persen_karbo
@@ -24,10 +17,7 @@ const hitungLambung = (data) => {
     const bbi = hitungBeratBadanIdeal(jenis_kelamin, tinggi_badan);
     const dataIMT = hitungIMT(berat_badan, tinggi_badan);
 
-    // =========================================================================
     // 2. ENERGI BASAL (BMR) - Menggunakan Rumus Mifflin-St Jeor dengan BBI
-    // Sesuai format Excel Rumah Sakit Pringsewu
-    // =========================================================================
     let bmr = 0;
     if (jenis_kelamin === 'L') {
         bmr = (10 * bbi) + (6.25 * tinggi_badan) - (5 * umur) + 5;
@@ -35,9 +25,7 @@ const hitungLambung = (data) => {
         bmr = (10 * bbi) + (6.25 * tinggi_badan) - (5 * umur) - 161; 
     }
 
-    // =========================================================================
-    // 3. FAKTOR AKTIVITAS (Menggunakan sistem Pengali/Multiplier Excel)
-    // =========================================================================
+    // 3. FAKTOR AKTIVITAS
     let faktorAktivitas = 1.2; // Default: Berbaring di tempat tidur
     const aktivitasNormal = aktivitas_fisik?.toLowerCase();
     switch (aktivitasNormal) {
@@ -58,9 +46,7 @@ const hitungLambung = (data) => {
             break;
     }
 
-    // =========================================================================
-    // 4. FAKTOR STRES METABOLIK (Mendukung Custom Input Angka Desimal 1.1 - 1.7)
-    // =========================================================================
+    // 4. FAKTOR STRES METABOLIK
     let faktorStres = 1.1; // Default: Tidak ada stress
     const parsedStress = parseFloat(faktor_stres);
     
@@ -88,26 +74,19 @@ const hitungLambung = (data) => {
         }
     }
 
-    // =========================================================================
     // 5. KEBUTUHAN ENERGI TOTAL (TEE)
     // = BMR * Aktivitas * Stress
-    // =========================================================================
     const kebutuhan_energi_total = bmr * faktorAktivitas * faktorStres;
 
-    // =========================================================================
-    // 6. DISTRIBUSI MAKRONUTRIEN LAMBUNG / DISPEPSIA (Validasi Slider)
-    // =========================================================================
+    // 6. DISTRIBUSI MAKRONUTRIEN LAMBUNG / DISPEPSIA
     
-    // Nilai Default Buku Biru (Kondisi Stabil Nyaman)
     let protein_persen = 10;
     let lemak_persen = 15;
 
-    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
     if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
 
-        // Validasi 1: Pagar Aman Buku Biru Lambung murni
         if (p < 10 || p > 20) {
             throw new Error(`Persentase Protein Lambung harus kadar normal (10% - 20%). Input ditolak: ${p}%`);
         }
@@ -115,13 +94,10 @@ const hitungLambung = (data) => {
             throw new Error(`Persentase Lemak Lambung ketat rendah (10% - 15%) agar tidak memicu mual. Input ditolak: ${l}%`);
         }
 
-        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
-
-        // Lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
     }
@@ -140,7 +116,6 @@ const hitungLambung = (data) => {
      const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // Keterangan klinis tambahan dari Buku Biru
     const keterangan_serat = "Rendah serat (terutama serat tidak larut air)";
     const anjuran_makan = "Porsi kecil & sering. Hindari bumbu tajam, asam, kopi, cokelat, minuman berkarbonasi.";
 

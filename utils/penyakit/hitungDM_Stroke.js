@@ -1,10 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungDM_Stroke.js
-// Komplikasi Ganda: Diabetes Melitus + Stroke
-// Pendekatan: Menggunakan batas irisan paling ketat (The Strictest Limit) dari Buku Biru Edisi 5
-// Fitur: Faktor Stres Khusus DM (10,20,30) + Validasi Slider Lemak Dinamis
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungDM_Stroke = (data) => {
@@ -24,9 +17,7 @@ const hitungDM_Stroke = (data) => {
     const bbi = hitungBeratBadanIdeal(jenis_kelamin, tinggi_badan);
     const dataIMT = hitungIMT(berat_badan, tinggi_badan);
 
-    // =========================================================================
-    // 2. KEBUTUHAN ENERGI BASAL (Cara Praktis DM)
-    // =========================================================================
+    // 2. KEBUTUHAN ENERGI BASAL
     let energiBasal = 0;
     if (jenis_kelamin === 'L') {
         energiBasal = bbi * 30;
@@ -59,9 +50,7 @@ const hitungDM_Stroke = (data) => {
     }
     koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // =========================================================================
     // 5. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
-    // =========================================================================
     let koreksiStresNilai = 0;
     let persentaseStres = 0.10; // Default 10% 
     
@@ -101,19 +90,15 @@ const hitungDM_Stroke = (data) => {
     // 7. KEBUTUHAN ENERGI TOTAL (TEE)
     const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
-    // =========================================================================
-    // 8. DISTRIBUSI MAKRONUTRIEN DM + STROKE (Validasi Slider Lemak)
-    // =========================================================================
-    
+    // 8. DISTRIBUSI MAKRONUTRIEN DM + STROKE
+
     let protein_persen = 10; // Default
     let lemak_persen = 25;   // Default
 
-    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
     if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
 
-        // Validasi 1: Harus masuk rentang ("Pagar Aman") Buku Biru untuk DM murni
         if (p < 10 || p > 25) {
             throw new Error(`Persentase Protein DM + Stroke harus antara 10% - 25%. Input ditolak: ${p}%`);
         }
@@ -121,12 +106,10 @@ const hitungDM_Stroke = (data) => {
             throw new Error(`Persentase Lemak DM + Stroke harus antara 20% - 35%. Input ditolak: ${l}%`);
         }
 
-        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
-        // Jika lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
     }
@@ -145,7 +128,6 @@ const hitungDM_Stroke = (data) => {
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // Rincian Lemak (Keduanya sepakat di batas Jenuh dan PUFA ini)
     const lemak_jenuh_persen = 7; 
     const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
     
@@ -155,14 +137,11 @@ const hitungDM_Stroke = (data) => {
     const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen; // Sisa
     const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    // =========================================================================
-    // 9. MIKRONUTRIEN & CAIRAN (Penggabungan Batas Paling Ketat)
-    // =========================================================================
-    const natrium_mg = 2300;     // DM
-    const kolesterol_mg = 200;   // Keduanya sepakat
-    const serat_gram = 25;       // Irisan: DM (20-25) & Stroke (25-30)
+    // 9. MIKRONUTRIEN & CAIRAN
+    const natrium_mg = 2300;   
+    const kolesterol_mg = 200;  
+    const serat_gram = 25;       
 
-    // Cairan Stroke: 30-40 ml/kg BB (Kita pakai tengah: 35 ml/kg x BB Aktual/Ideal)
     const berat_patokan_cairan = (berat_badan > 0) ? berat_badan : bbi;
     const cairan_ml = 35 * berat_patokan_cairan;
     const kebutuhan_cairan = `${cairan_ml} ml`;
@@ -186,8 +165,6 @@ const hitungDM_Stroke = (data) => {
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
                 karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
-                
-                // Tambahan Rincian Khusus DM + Stroke
                 lemak_jenuh_gr: parseFloat(lemak_jenuh_gram.toFixed(2)),
                 lemak_pufa_gr: parseFloat(lemak_pufa_gram.toFixed(2)),
                 lemak_mufa_gr: parseFloat(lemak_mufa_gram.toFixed(2)),
@@ -221,7 +198,6 @@ const hitungDM_Stroke = (data) => {
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
-
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_pufa_gram: parseFloat(lemak_pufa_gram.toFixed(2)),
             lemak_mufa_gram: parseFloat(lemak_mufa_gram.toFixed(2)),

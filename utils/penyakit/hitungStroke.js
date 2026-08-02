@@ -1,9 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungStroke.js
-// Berdasarkan: Penuntun Diet & Terapi Gizi Edisi 5 (PERSAGI)
-// Fitur: Validasi Slider Lemak Dinamis (Protein Absolut Dikunci)
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungStroke = (data) => {
@@ -11,7 +5,6 @@ const hitungStroke = (data) => {
         jenis_kelamin, 
         berat_badan, 
         tinggi_badan,
-        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
         input_persen_lemak 
     } = data;
 
@@ -20,11 +13,7 @@ const hitungStroke = (data) => {
     const dataIMT = hitungIMT(berat_badan, tinggi_badan); 
     const statusGizi = dataIMT.statusGizi.toLowerCase();
 
-    // =========================================================================
-    // 2. KEBUTUHAN ENERGI TOTAL (TEE) - Berdasarkan Status Gizi (Buku Biru)
-    // Gizi Baik: 25-30 kkal/kg BB | Malnutrisi: 30-35 kkal/kg BB 
-    // Obesitas: Penyesuaian khusus (Kita gunakan 25 kkal/kg BBI)
-    // =========================================================================
+    // 2. KEBUTUHAN ENERGI TOTAL (TEE)
     let kebutuhan_energi_total = 0;
     
     // Asumsi: Sistem menghitung fase pemulihan (bukan fase hiperakut hari pertama)
@@ -39,32 +28,24 @@ const hitungStroke = (data) => {
         kebutuhan_energi_total = 30 * bbi;
     }
 
-    // Disimpan ke energiBasal agar struktur JSON Frontend tidak error
     const energiBasal = kebutuhan_energi_total;
 
-    // =========================================================================
-    // 3. DISTRIBUSI MAKRONUTRIEN STROKE (Validasi Slider & Batas Ketat)
-    // =========================================================================
-    
-    // 3a. PROTEIN: Dikunci Mutlak (1 - 1.5 g/kg BB/hari) -> Kita patok presisi di 1.2 g/kg.
-    // Tidak ada slider untuk protein.
+    // 3. DISTRIBUSI MAKRONUTRIEN STROKE
+
     const protein_gram = 1.2 * bbi;
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // 3b. LEMAK TOTAL: Default 25% (Pagar aman Buku Biru 25% - 35%)
+    // 3b. LEMAK TOTAL: Default 25%
     let lemak_persen = 25;
 
-    // Validasi input slider lemak dari Frontend
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
-        
-        // Pagar Aman Lemak (Stroke Murni)
+
         if (l < 25 || l > 35) {
             throw new Error(`Persentase Lemak Stroke harus antara 25% - 35%. Input ditolak: ${l}%`);
         }
-        
-        // Validasi Matematis Ekstra
+
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein mutlak (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%. Tidak ada ruang untuk karbohidrat.`);
         }
@@ -82,8 +63,6 @@ const hitungStroke = (data) => {
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total; 
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // Rincian Lemak Stroke (Buku Biru): Jenuh <7%, PUFA <10%, MUFA <20%
-    // Diatur proporsional terhadap input lemak user agar selaras (maksimal Jenuh 7%)
     const lemak_jenuh_persen = Math.floor(lemak_persen * (7/25));
     const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
     
@@ -93,15 +72,12 @@ const hitungStroke = (data) => {
     const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen;
     const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    // =========================================================================
-    // 4. MIKRONUTRIEN & CAIRAN (Buku Biru Stroke)
-    // =========================================================================
-    const kolesterol_mg = 200;       // < 200 mg/hari
-    const serat_gram = 30;           // 25 - 30 gram/hari
-    
-    // Cairan 30-40 ml/kg BB (Menggunakan BB Aktual jika ada, jika tidak BB Ideal)
+    // 4. MIKRONUTRIEN & CAIRAN
+    const kolesterol_mg = 200;      
+    const serat_gram = 30;        
+
     const berat_patokan_cairan = (berat_badan > 0) ? berat_badan : bbi;
-    const cairan_ml = 35 * berat_patokan_cairan; // Ambil nilai tengah 35 ml
+    const cairan_ml = 35 * berat_patokan_cairan; 
     const kebutuhan_cairan = `${cairan_ml} ml`;
 
     // 5. Return Format Data ke Controller
@@ -123,8 +99,6 @@ const hitungStroke = (data) => {
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
                 karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
-                
-                // Tambahan Buku Biru
                 lemak_jenuh_gr: parseFloat(lemak_jenuh_gram.toFixed(2)),
                 lemak_pufa_gr: parseFloat(lemak_pufa_gram.toFixed(2)),
                 lemak_mufa_gr: parseFloat(lemak_mufa_gram.toFixed(2)),
@@ -157,7 +131,6 @@ const hitungStroke = (data) => {
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
-
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_pufa_gram: parseFloat(lemak_pufa_gram.toFixed(2)),
             lemak_mufa_gram: parseFloat(lemak_mufa_gram.toFixed(2)),

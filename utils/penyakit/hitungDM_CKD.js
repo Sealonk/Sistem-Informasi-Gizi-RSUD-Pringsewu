@@ -1,9 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungDM_CKD.js (Nefropati Diabetik)
-// Pendekatan Hybrid: Energi (Cara Praktis DM) + Makro/Mikro (Buku Biru CKD)
-// Fitur: Faktor Stres Khusus DM (10,20,30) + Validasi Slider Lemak Dinamis
-// ==========================================
-
 const { hitungBeratBadanIdeal } = require('../sharedRumus');
 
 const hitungDM_CKD = (data) => {
@@ -15,8 +9,7 @@ const hitungDM_CKD = (data) => {
         faktor_stres, 
         kategori_penambahan_energi,
         status_hemodialisa,
-        volume_urine, // Sangat krusial untuk Natrium, Kalium & Cairan
-        // Parameter Baru untuk Slider (Protein dikunci, jadi hanya Lemak yang dikontrol user)
+        volume_urine,
         input_persen_lemak 
     } = data;
 
@@ -26,9 +19,7 @@ const hitungDM_CKD = (data) => {
     // Status boolean untuk mempermudah logika
     const isHD = status_hemodialisa && status_hemodialisa.toLowerCase() === 'ya';
 
-    // =========================================================================
-    // 2. KEBUTUHAN ENERGI (Cara Praktis Buku Biru)
-    // =========================================================================
+    // 2. KEBUTUHAN ENERGI
     
     // A. Energi Basal (30 kkal Pria, 25 kkal Wanita)
     let energiBasal = 0;
@@ -62,9 +53,7 @@ const hitungDM_CKD = (data) => {
     }
     const koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // =========================================================================
     // D. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
-    // =========================================================================
     let persentaseStres = 0.10; 
     
     const parsedStress = parseFloat(faktor_stres);
@@ -85,7 +74,7 @@ const hitungDM_CKD = (data) => {
     }
     const koreksiStresNilai = energiBasal * persentaseStres;
 
-    // E. Penambahan Kehamilan (Sesuai Buku Biru Gestasional)
+    // E. Penambahan Kehamilan
     let penambahanKaloriNilai = 0;
     if (kategori_penambahan_energi) {
         const kat = kategori_penambahan_energi.toUpperCase();
@@ -99,9 +88,7 @@ const hitungDM_CKD = (data) => {
     // TEE Total
     const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
-    // =========================================================================
     // 3. DISTRIBUSI MAKRONUTRIEN (Nefropati Diabetik - Validasi Slider Lemak)
-    // =========================================================================
     
     // 3a. PROTEIN: Dikunci mutlak berdasarkan Ginjal (HD = 1.2 g/kg, Pre-HD = 0.8 g/kg)
     let protein_gram = 0;
@@ -116,16 +103,13 @@ const hitungDM_CKD = (data) => {
     // 3b. LEMAK TOTAL: Default 25% (Kesepakatan dengan Ahli Gizi RS)
     let lemak_persen = 25;
 
-    // Jika Frontend mengirim nilai slider lemak, lakukan validasi ketat
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
-        
-        // Pagar Aman Lemak (Rentang diizinkan 20% - 30%)
+
         if (l < 15 || l > 30) {
             throw new Error(`Persentase Lemak DM + CKD harus antara 15% - 30%. Input ditolak: ${l}%`);
         }
-        
-        // Validasi: Pastikan sisa karbohidrat tidak negatif
+
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
@@ -136,7 +120,6 @@ const hitungDM_CKD = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak Proporsional menyesuaikan tarikan slider (Standar 30% -> Jenuh 7%, PUFA 10%, MUFA 13%)
     const lemak_jenuh_persen = Math.floor(lemak_persen * (7/30));
     const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
     
@@ -154,9 +137,7 @@ const hitungDM_CKD = (data) => {
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // =========================================================================
-    // 4. MIKRONUTRIEN & CAIRAN (Logika Ganda Sesuai Buku Biru)
-    // =========================================================================
+    // 4. MIKRONUTRIEN & CAIRAN
     let natrium_mg = 0;
     let kalium_mg = 0;
     let kalsium_mg = 0;
@@ -183,7 +164,7 @@ const hitungDM_CKD = (data) => {
         fosfor_mg = 17 * bbi; 
     } else {
         natrium_mg = 2000;    
-        kalium_mg = 39 * bbi; // 39 mg/kg BBI     
+        kalium_mg = 39 * bbi;     
         kalsium_mg = 1200;    
         fosfor_mg = 10 * bbi; 
     }
@@ -215,8 +196,6 @@ const hitungDM_CKD = (data) => {
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
                 karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
-                
-                // Rincian Lemak & Mikro untuk UI
                 lemak_jenuh_gr: parseFloat(lemak_jenuh_gram.toFixed(2)),
                 lemak_pufa_gr: parseFloat(lemak_pufa_gram.toFixed(2)),
                 lemak_mufa_gr: parseFloat(lemak_mufa_gram.toFixed(2)),
@@ -252,7 +231,6 @@ const hitungDM_CKD = (data) => {
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
-
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_pufa_gram: parseFloat(lemak_pufa_gram.toFixed(2)),
             lemak_mufa_gram: parseFloat(lemak_mufa_gram.toFixed(2)),

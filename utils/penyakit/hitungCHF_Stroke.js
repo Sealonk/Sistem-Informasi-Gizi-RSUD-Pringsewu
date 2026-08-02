@@ -1,10 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungCHF_Stroke.js
-// Komplikasi Ganda: Penyakit Jantung (CHF) + Stroke
-// Pendekatan Hybrid: Energi (Excel RS/Mifflin) + Makro/Mikro (Buku Biru)
-// Fitur: Validasi Slider Lemak (Titik Temu Paksa 25%) + Custom Stres Multiplier
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungCHF_Stroke = (data) => {
@@ -23,9 +16,7 @@ const hitungCHF_Stroke = (data) => {
     const bbi = hitungBeratBadanIdeal(jenis_kelamin, tinggi_badan);
     const dataIMT = hitungIMT(berat_badan, tinggi_badan);
 
-    // =========================================================================
-    // 2. ENERGI BASAL (BMR) - Rumus Mifflin-St Jeor dengan BBI (Format Excel)
-    // =========================================================================
+    // 2. ENERGI BASAL (BMR) - Rumus Mifflin-St Jeor dengan BBI
     let bmr = 0;
     if (jenis_kelamin === 'L') {
         bmr = (10 * bbi) + (6.25 * tinggi_badan) - (5 * umur) + 5;
@@ -33,9 +24,7 @@ const hitungCHF_Stroke = (data) => {
         bmr = (10 * bbi) + (6.25 * tinggi_badan) - (5 * umur) - 161; 
     }
 
-    // =========================================================================
-    // 3. FAKTOR AKTIVITAS (Menggunakan sistem Pengali/Multiplier Excel)
-    // =========================================================================
+    // 3. FAKTOR AKTIVITAS
     let faktorAktivitas = 1.2; 
     const aktivitasNormal = aktivitas_fisik?.toLowerCase();
     switch (aktivitasNormal) {
@@ -46,9 +35,7 @@ const hitungCHF_Stroke = (data) => {
         case 'sangat berat': faktorAktivitas = 2.0; break;
     }
 
-    // =========================================================================
-    // 4. FAKTOR STRES METABOLIK (Mendukung Custom Input Angka Desimal 1.1 - 1.7)
-    // =========================================================================
+    // 4. FAKTOR STRES METABOLIK
     let faktorStres = 1.1; 
     const parsedStress = parseFloat(faktor_stres);
     
@@ -65,25 +52,17 @@ const hitungCHF_Stroke = (data) => {
         }
     }
 
-    // =========================================================================
     // 5. KEBUTUHAN ENERGI TOTAL (TEE)
-    // = BMR * Aktivitas * Stress (Kehamilan dinolkan karena berisiko pada CHF)
-    // =========================================================================
     const kebutuhan_energi_total = bmr * faktorAktivitas * faktorStres;
 
-    // =========================================================================
-    // 6. DISTRIBUSI MAKRONUTRIEN CHF + STROKE (Validasi Slider & Batas Ketat)
-    // =========================================================================
-    
+    // 6. DISTRIBUSI MAKRONUTRIEN CHF + STROKE
     let protein_persen = 15;
     let lemak_persen = 25;
 
-    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
     if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
 
-        // Validasi 1: Pagar Aman Buku Biru CHF
         if (p < 15 || p > 25) {
             throw new Error(`Persentase Protein CHF + Stroke harus antara 15% - 25%. Input ditolak: ${p}%`);
         }
@@ -91,12 +70,10 @@ const hitungCHF_Stroke = (data) => {
             throw new Error(`Persentase Lemak CHF + Stroke harus antara 20% - 35%. Input ditolak: ${l}%`);
         }
 
-        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
-        // Lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
     }
@@ -108,8 +85,6 @@ const hitungCHF_Stroke = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total;
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak (Proporsional dari input)
-    // Jenuh dipatok ketat <7% sesuai Stroke
     const lemak_jenuh_persen = Math.floor(lemak_persen * (6/25));
     const kalori_lemak_jenuh = (lemak_jenuh_persen / 100) * kebutuhan_energi_total;
     const lemak_jenuh_gram = kalori_lemak_jenuh / 9;
@@ -129,14 +104,11 @@ const hitungCHF_Stroke = (data) => {
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // =========================================================================
     // 7. MIKRONUTRIEN, CAIRAN, DAN PEDOMAN KLINIS (Buku Biru)
-    // =========================================================================
     const natrium_mg = 1500;       // Sangat dibatasi < 1500 mg/hari (Syarat ketat CHF)
     const kolesterol_mg = 200;     // Maksimal 200 mg/hari (Keduanya sepakat)
     const serat_gram = 25;         // Syarat Stroke (25-30g)
     
-    // Gabungan peringatan klinis Cairan
     const kebutuhan_cairan = "Sesuai balance cairan (Perhatikan pembatasan CHF & cegah edema Stroke)"; 
 
     // 8. Return Format Data ke Controller
@@ -148,7 +120,7 @@ const hitungCHF_Stroke = (data) => {
             koreksi_aktivitas: parseFloat(faktorAktivitas.toFixed(2)),
             stress_metabolik: parseFloat(faktorStres.toFixed(2)),
             koreksi_umur: 0,
-            kehamilan: 0 // Dinolkan
+            kehamilan: 0
         },
 
         perhitungan: {
@@ -157,8 +129,6 @@ const hitungCHF_Stroke = (data) => {
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
                 karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
-                
-                // Rincian Lemak & Mikro untuk UI Frontend
                 lemak_jenuh_gr: parseFloat(lemak_jenuh_gram.toFixed(2)),
                 lemak_pufa_gr: parseFloat(lemak_pufa_gram.toFixed(2)),
                 lemak_mufa_gr: parseFloat(lemak_mufa_gram.toFixed(2)),
@@ -192,7 +162,6 @@ const hitungCHF_Stroke = (data) => {
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
-
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_pufa_gram: parseFloat(lemak_pufa_gram.toFixed(2)),
             lemak_mufa_gram: parseFloat(lemak_mufa_gram.toFixed(2)),

@@ -1,10 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungDM_CHF.js
-// Komplikasi Ganda: Diabetes Melitus + Penyakit Jantung (CHF)
-// Pendekatan: Menggunakan batas paling ketat dari Buku Biru Edisi 5
-// Fitur: Faktor Stres Khusus DM (10, 20, 30) + Validasi Slider Dinamis
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungDM_CHF = (data) => {
@@ -16,7 +9,6 @@ const hitungDM_CHF = (data) => {
         aktivitas_fisik, 
         faktor_stres, 
         kategori_penambahan_energi,
-        // Parameter Baru untuk Slider Persentase Makronutrien
         input_persen_protein,
         input_persen_lemak,
         input_persen_karbo 
@@ -26,9 +18,7 @@ const hitungDM_CHF = (data) => {
     const bbi = hitungBeratBadanIdeal(jenis_kelamin, tinggi_badan);
     const dataIMT = hitungIMT(berat_badan, tinggi_badan);
 
-    // =========================================================================
-    // 2. KEBUTUHAN ENERGI BASAL (Cara Praktis DM)
-    // =========================================================================
+    // 2. KEBUTUHAN ENERGI BASAL
     let energiBasal = 0;
     if (jenis_kelamin === 'L') {
         energiBasal = bbi * 30;
@@ -39,11 +29,11 @@ const hitungDM_CHF = (data) => {
     // 3. KOREKSI UMUR (Usia < 40 tahun = 0%)
     let koreksiUmurNilai = 0;
     if (umur >= 40 && umur <= 59) {
-        koreksiUmurNilai = energiBasal * -0.05; // -5%
+        koreksiUmurNilai = energiBasal * -0.05;
     } else if (umur >= 60 && umur <= 69) {
-        koreksiUmurNilai = energiBasal * -0.10; // -10%
+        koreksiUmurNilai = energiBasal * -0.10;
     } else if (umur >= 70) {
-        koreksiUmurNilai = energiBasal * -0.20; // -20%
+        koreksiUmurNilai = energiBasal * -0.20;
     } else {
         koreksiUmurNilai = 0;
     }
@@ -61,11 +51,9 @@ const hitungDM_CHF = (data) => {
     }
     koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // =========================================================================
-    // 5. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
-    // =========================================================================
+    // 5. STRES METABOLIK
     let koreksiStresNilai = 0;
-    let persentaseStres = 0.10; // Default 10% 
+    let persentaseStres = 0.10;
     
     const parsedStress = parseFloat(faktor_stres);
     if (!isNaN(parsedStress)) {
@@ -85,7 +73,7 @@ const hitungDM_CHF = (data) => {
     }
     koreksiStresNilai = energiBasal * persentaseStres;
 
-    // 6. PENAMBAHAN KALORI (KEHAMILAN DM GESTASIONAL)
+    // 6. PENAMBAHAN KALORI
     let penambahanKaloriNilai = 0;
     if (kategori_penambahan_energi) {
         const kat = kategori_penambahan_energi.toUpperCase();
@@ -103,20 +91,16 @@ const hitungDM_CHF = (data) => {
     // 7. KEBUTUHAN ENERGI TOTAL (TEE)
     const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
-    // =========================================================================
-    // 8. DISTRIBUSI MAKRONUTRIEN DM + CHF (Validasi Slider Dinamis)
-    // =========================================================================
-    
-    // Nilai Default (Irisan Paling Aman)
+
+    // 8. DISTRIBUSI MAKRONUTRIEN DM + CHF
+
     let protein_persen = 10;
     let lemak_persen = 25;
 
-    // Jika Frontend mengirim nilai slider, lakukan validasi ketat
     if (input_persen_protein !== undefined && input_persen_lemak !== undefined) {
         const p = parseFloat(input_persen_protein);
         const l = parseFloat(input_persen_lemak);
 
-        // Validasi 2: Pagar Aman Irisan DM + CHF
         if (p < 10 || p > 25) {
             throw new Error(`Persentase Protein DM + CHF harus antara 10% - 25%. Input ditolak: ${p}%`);
         }
@@ -124,12 +108,10 @@ const hitungDM_CHF = (data) => {
             throw new Error(`Persentase Lemak DM + CHF harus antara 20% - 25%. Input ditolak: ${l}%`);
         }
 
-        // Validasi 2: Pastikan sisa karbohidrat tidak negatif
         if ((protein_persen + l) >= 100) {
             throw new Error(`Total Protein (${protein_persen.toFixed(1)}%) dan Lemak (${l}%) melebih/sama dengan 100%.`);
         }
 
-        // Lolos validasi, timpa nilai default
         protein_persen = p;
         lemak_persen = l;
     }
@@ -148,21 +130,17 @@ const hitungDM_CHF = (data) => {
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total;
     const karbohidrat_gram = kalori_karbohidrat / 4;
 
-    // Rincian Lemak (Lemak Jenuh DM lebih ketat yaitu < 7%)
     const lemak_jenuh_persen = 7;
     const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
     
     const lemak_pufa_persen = 10;
     const lemak_pufa_gram = ((lemak_pufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen; // Sisa (antara 3% - 8%)
+    const lemak_mufa_persen = lemak_persen - lemak_jenuh_persen - lemak_pufa_persen;
     const lemak_mufa_gram = ((lemak_mufa_persen / 100) * kebutuhan_energi_total) / 9;
 
-    // =========================================================================
-    // 9. MIKRONUTRIEN & CAIRAN (Penggabungan Batas Paling Ketat)
-    // =========================================================================
-    
-    // Natrium CHF (< 1500 mg) menimpa Natrium DM (< 2300 mg)
+    // 9. MIKRONUTRIEN & CAIRAN
+
     const natrium_mg = 1500; 
     const kolesterol_mg = 200; 
     const serat_gram = 25; // Sesuai aturan DM
@@ -187,8 +165,6 @@ const hitungDM_CHF = (data) => {
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
                 karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
-                
-                // Tambahan Rincian Khusus
                 lemak_jenuh_gr: parseFloat(lemak_jenuh_gram.toFixed(2)),
                 lemak_pufa_gr: parseFloat(lemak_pufa_gram.toFixed(2)),
                 lemak_mufa_gr: parseFloat(lemak_mufa_gram.toFixed(2)),
@@ -222,7 +198,6 @@ const hitungDM_CHF = (data) => {
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
-
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_pufa_gram: parseFloat(lemak_pufa_gram.toFixed(2)),
             lemak_mufa_gram: parseFloat(lemak_mufa_gram.toFixed(2)),

@@ -1,10 +1,3 @@
-// ==========================================
-// UTILS/PENYAKIT: hitungDM_CKD_CHF.js
-// Komplikasi Triple: Diabetes + Ginjal + Jantung
-// Pendekatan: Menggunakan batas paling ketat (The Strictest Limit) dari Buku Biru Edisi 5
-// Fitur: Faktor Stres Khusus DM (10,20,30) + Validasi Slider Lemak Dinamis
-// ==========================================
-
 const { hitungBeratBadanIdeal, hitungIMT } = require('../sharedRumus');
 
 const hitungDM_CKD_CHF = (data) => {
@@ -17,8 +10,7 @@ const hitungDM_CKD_CHF = (data) => {
         faktor_stres, 
         kategori_penambahan_energi,
         status_hemodialisa,
-        volume_urine, // Sangat krusial untuk cairan dan kalium
-        // Parameter Baru untuk Slider (Protein dikunci, hanya Lemak yang dikontrol user)
+        volume_urine,
         input_persen_lemak
     } = data;
 
@@ -29,11 +21,7 @@ const hitungDM_CKD_CHF = (data) => {
     // Status boolean Hemodialisa
     const isHD = status_hemodialisa && status_hemodialisa.toLowerCase() === 'ya';
 
-    // =========================================================================
-    // 2. KEBUTUHAN ENERGI (Cara Praktis DM - Buku Biru)
-    // =========================================================================
-    
-    // A. Energi Basal (30 kkal Pria, 25 kkal Wanita)
+    // 2. KEBUTUHAN ENERGI
     let energiBasal = 0;
     if (jenis_kelamin === 'L') {
         energiBasal = bbi * 30;
@@ -65,9 +53,7 @@ const hitungDM_CKD_CHF = (data) => {
     }
     const koreksiAktivitasNilai = energiBasal * persentaseAktivitas;
 
-    // =========================================================================
-    // D. STRES METABOLIK (KHUSUS DM: 10%, 20%, 30%)
-    // =========================================================================
+    // D. STRES METABOLIK
     let persentaseStres = 0.10; 
     
     const parsedStress = parseFloat(faktor_stres);
@@ -88,7 +74,7 @@ const hitungDM_CKD_CHF = (data) => {
     }
     const koreksiStresNilai = energiBasal * persentaseStres;
 
-    // E. Penambahan Kehamilan (Buku Biru DM Gestasional)
+    // E. Penambahan Kehamilan
     let penambahanKaloriNilai = 0;
     if (kategori_penambahan_energi) {
         const kat = kategori_penambahan_energi.toUpperCase();
@@ -102,9 +88,7 @@ const hitungDM_CKD_CHF = (data) => {
     // TEE Total
     const kebutuhan_energi_total = energiBasal + koreksiUmurNilai + koreksiAktivitasNilai + koreksiStresNilai + penambahanKaloriNilai;
 
-    // =========================================================================
-    // 3. DISTRIBUSI MAKRONUTRIEN (Irisan Ketat DM + CKD + CHF)
-    // =========================================================================
+    // 3. DISTRIBUSI MAKRONUTRIEN
     
     // 3a. PROTEIN: Mutlak bergantung pada Ginjal (HD vs Non-HD)
     let protein_gram = 0;
@@ -116,10 +100,9 @@ const hitungDM_CKD_CHF = (data) => {
     const kalori_protein = protein_gram * 4; 
     const protein_persen = (kalori_protein / kebutuhan_energi_total) * 100;
 
-    // 3b. LEMAK TOTAL: Default 25% (Irisan aman untuk ketiga organ)
+    // 3b. LEMAK TOTAL: Default 25%
     let lemak_persen = 25; 
 
-    // Validasi input slider lemak dari Frontend
     if (input_persen_lemak !== undefined) {
         const l = parseFloat(input_persen_lemak);
         
@@ -137,7 +120,6 @@ const hitungDM_CKD_CHF = (data) => {
     const kalori_lemak = (lemak_persen / 100) * kebutuhan_energi_total; 
     const lemak_gram = kalori_lemak / 9;
 
-    // Rincian Lemak (Patokan Jenuh 7% dari Nefropati Diabetik)
     const lemak_jenuh_persen = 7;
     const lemak_jenuh_gram = ((lemak_jenuh_persen / 100) * kebutuhan_energi_total) / 9;
     
@@ -155,23 +137,19 @@ const hitungDM_CKD_CHF = (data) => {
     const kalori_karbohidrat = (karbohidrat_persen / 100) * kebutuhan_energi_total; 
     const karbohidrat_gram = kalori_karbohidrat / 4; 
 
-    // =========================================================================
     // 4. MIKRONUTRIEN & CAIRAN (Penggabungan Batas Paling Ketat)
-    // =========================================================================
-    
-    // Natrium & Kolesterol: Diambil dari CHF (paling ketat)
-    const natrium_mg = 1500;       // CHF mengharuskan < 1500 mg (meskipun HD mengizinkan lebih)
-    const kolesterol_mg = 200;     // CHF mengharuskan < 200 mg
+
+    const natrium_mg = 1500;      
+    const kolesterol_mg = 200;    
 
     let kalium_mg = 0;
     let kalsium_mg = 0;
-    let fosfor_mg = 10 * bbi;      // CKD Nefropati (8-12 mg/kg BB)
+    let fosfor_mg = 10 * bbi;     
 
     const volUrine = (volume_urine !== undefined && volume_urine !== null && volume_urine !== "") 
                         ? parseFloat(volume_urine) 
                         : null;
 
-    // Kalium & Kalsium: Diambil dari CKD (HD vs Non-HD)
     if (isHD) {
         if (volUrine !== null) {
             if (volUrine === 0) {
@@ -185,11 +163,10 @@ const hitungDM_CKD_CHF = (data) => {
         kalsium_mg = 1000; 
         fosfor_mg = 17 * bbi;
     } else {
-        kalium_mg = 39 * bbi; // 39 mg/kg BBI
+        kalium_mg = 39 * bbi;
         kalsium_mg = 1200;
     }
 
-    // Cairan Dinamis (Irisan CHF dan CKD)
     let kebutuhan_cairan = "Sesuai balance cairan (urine 24 jam + 500 ml)";
     if (volUrine !== null) {
         const totalCairan = volUrine + 500;
@@ -215,8 +192,6 @@ const hitungDM_CKD_CHF = (data) => {
                 protein_gr: parseFloat(protein_gram.toFixed(2)),
                 lemak_gr: parseFloat(lemak_gram.toFixed(2)),
                 karbohidrat_gr: parseFloat(karbohidrat_gram.toFixed(2)),
-                
-                // Tambahan Rincian Gizi Khusus
                 lemak_jenuh_gr: parseFloat(lemak_jenuh_gram.toFixed(2)),
                 lemak_pufa_gr: parseFloat(lemak_pufa_gram.toFixed(2)),
                 lemak_mufa_gr: parseFloat(lemak_mufa_gram.toFixed(2)),
@@ -252,8 +227,6 @@ const hitungDM_CKD_CHF = (data) => {
             protein_gram: parseFloat(protein_gram.toFixed(2)),
             lemak_gram: parseFloat(lemak_gram.toFixed(2)),
             karbohidrat_gram: parseFloat(karbohidrat_gram.toFixed(2)),
-
-            // DB Support
             lemak_jenuh_gram: parseFloat(lemak_jenuh_gram.toFixed(2)),
             lemak_pufa_gram: parseFloat(lemak_pufa_gram.toFixed(2)),
             lemak_mufa_gram: parseFloat(lemak_mufa_gram.toFixed(2)),
