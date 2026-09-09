@@ -9,7 +9,6 @@ app = FastAPI(title="API Prediksi Pasien")
 
 class PredictionRequest(BaseModel):
     hari_kedepan: int
-    # tanggal_awal_prediksi dihapus, sistem akan mendeteksi hari ini secara otomatis
 
 @app.post("/api/predict")
 def predict_patients(req: PredictionRequest):
@@ -17,19 +16,15 @@ def predict_patients(req: PredictionRequest):
         raise HTTPException(status_code=400, detail="Periode prediksi harus antara 1-365 hari")
 
     try:
-        # Deteksi hari ini secara otomatis (misal: 2026-09-09)
         hari_ini = datetime.now().date()
+
+        start_date = hari_ini - relativedelta(years=1) 
         
-        # Tarik data 3 bulan ke belakang dari hari ini
-        start_date = hari_ini - relativedelta(months=3) 
-        
-        # Format ke string YYYY-MM-DD untuk query database
         df_raw = fetch_patient_data(start_date.strftime("%Y-%m-%d"), hari_ini.strftime("%Y-%m-%d"))
         
         if df_raw.empty:
             raise HTTPException(status_code=404, detail="Data pasien tidak ditemukan untuk rentang waktu ini.")
 
-        # Lempar tanggal hari ini sebagai batas akhir data historis (cutoff)
         table_data, summary = predict_xgboost(df_raw, req.hari_kedepan, hari_ini.strftime("%Y-%m-%d"))
         
         return {
