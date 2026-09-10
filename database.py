@@ -6,12 +6,15 @@ from sqlalchemy import create_engine
 load_dotenv()
 
 def get_db_engine():
-    user = os.getenv("DB_USER", "root")
-    password = os.getenv("DB_PASS", "root")
-    host = os.getenv("DB_HOST", "127.0.0.1")
-    db_name = os.getenv("DB_NAME", "db_gizi_pringsewu")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASS")
+    host = os.getenv("DB_HOST")
+    db_name = os.getenv("DB_NAME")
     
-    # Menggunakan SQLAlchemy engine dengan format mysql+pymysql
+    # Validasi keamanan
+    if not all([user, password, host, db_name]):
+        raise ValueError("Kredensial database pada file .env tidak lengkap atau tidak ditemukan!")
+    
     db_url = f"mysql+pymysql://{user}:{password}@{host}/{db_name}"
     return create_engine(db_url)
 
