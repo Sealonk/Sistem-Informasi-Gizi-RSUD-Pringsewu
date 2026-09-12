@@ -1,16 +1,20 @@
-import { axiosInstance } from "../auth/authService";
+const BASE_URL = (process.env.REACT_APP_PREDIKSI_API_URL || "/prediction-api").replace(/\/$/, "");
 
-export const postPrediksi = async ({ bulan, tahun, total_pasien }) => {
+async function request(path, options = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60000);
   try {
-    const response = await axiosInstance.post("/api/prediksi/predict", {
-      bulan,
-      tahun,
-      total_pasien,
-    });
-    return response.data;
+    const response = await fetch(`${BASE_URL}${path}`, { ...options, signal: controller.signal });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(typeof payload.detail === "string" ? payload.detail : payload.message || "Permintaan prediksi gagal. Silakan coba lagi.");
+    return payload;
   } catch (error) {
-    throw new Error(
-      error.response?.data?.message || "Gagal melakukan prediksi pasien"
-    );
-  }
-};
+    if (error.name === "AbortError") throw new Error("Server terlalu lama merespons. Silakan coba lagi.");
+    if (error instanceof TypeError || error instanceof SyntaxError) throw new Error("Layanan prediksi belum dapat diakses. Silakan coba lagi nanti.");
+    throw error;
+  } finally { clearTimeout(timeout); }
+}
+export const getInfoHistoris = () => request("/api/info-historis");
+export const postPrediksi = ({ hari_kedepan }) => request("/api/predict", {
+  method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hari_kedepan }),
+});

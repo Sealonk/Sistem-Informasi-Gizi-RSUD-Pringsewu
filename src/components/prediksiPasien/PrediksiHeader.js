@@ -21,7 +21,12 @@ const formatTime = (date) => {
   }).format(date)} WIB`;
 };
 
-export default function PrediksiHeader() {
+export default function PrediksiHeader({
+  title = "Prediksi Pasien",
+  description = "Prediksi jumlah pasien harian berdasarkan data historis menggunakan model AI.",
+  backTo = "/portal",
+  backLabel = "Kembali ke Portal",
+}) {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -89,7 +94,7 @@ export default function PrediksiHeader() {
                 mb-2
               "
             >
-              Prediksi Pasien
+              {title}
             </h1>
 
             <p
@@ -99,7 +104,7 @@ export default function PrediksiHeader() {
                 mb-4
               "
             >
-              Masukkan total jumlah pasien dalam 1 bulan, kemudian sistem akan memprediksi jumlah pasien per hari.
+              {description}
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -144,7 +149,7 @@ export default function PrediksiHeader() {
 
         <button
           type="button"
-          onClick={() => navigate("/portal")}
+          onClick={() => navigate(backTo)}
           className="
             h-12
             px-5
@@ -163,7 +168,7 @@ export default function PrediksiHeader() {
           "
         >
           <ArrowLeft size={18} />
-          Kembali ke Portal
+          {backLabel}
         </button>
       </div>
     </header>

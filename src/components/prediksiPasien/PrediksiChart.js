@@ -43,6 +43,8 @@ export default function PrediksiChart({ data }) {
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
             <XAxis
               dataKey="tanggal"
+              tickFormatter={(value) => new Date(`${value}T00:00:00`).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+              minTickGap={28}
               stroke="#94a3b8"
               fontSize={11}
               tickLine={false}
@@ -63,7 +65,7 @@ export default function PrediksiChart({ data }) {
               dataKey="jumlah"
               stroke="#8b5cf6"
               strokeWidth={3}
-              dot={{ r: 4, stroke: "#8b5cf6", strokeWidth: 2, fill: "#fff" }}
+              dot={data.length <= 31 ? { r: 4, stroke: "#8b5cf6", strokeWidth: 2, fill: "#fff" } : false}
               activeDot={{ r: 6, stroke: "#8b5cf6", strokeWidth: 2, fill: "#8b5cf6" }}
             />
           </LineChart>

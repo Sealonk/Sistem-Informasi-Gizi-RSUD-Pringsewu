@@ -12,7 +12,7 @@ export default function RingkasanPrediksi({ ringkasan }) {
   const items = [
     {
       icon: <Users size={18} className="text-violet-600" />,
-      label: "Total Pasien (1 Bulan)",
+      label: "Total Prediksi Periode",
       value: ringkasan.total_pasien,
       unit: "pasien",
       iconBg: "bg-violet-50",
@@ -48,7 +48,7 @@ export default function RingkasanPrediksi({ ringkasan }) {
   ];
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between h-[380px]">
+    <div className="w-full bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between min-h-[380px]">
       <div>
         <h3 className="font-bold text-slate-900 text-base mb-1">
           Ringkasan Prediksi
@@ -84,7 +84,7 @@ export default function RingkasanPrediksi({ ringkasan }) {
 
               <div className="text-right">
                 <span className="text-sm font-bold text-slate-900">
-                  {item.value}
+                  {typeof item.value === "number" ? item.value.toLocaleString("id-ID") : item.value}
                 </span>
                 {item.unit && (
                   <span className="text-[10px] text-slate-400 font-medium ml-1">

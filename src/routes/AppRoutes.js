@@ -15,6 +15,7 @@ import HasilPerhitungan from "../pages/perhitungan/HasilPerhitungan";
 import Riwayat from "../pages/riwayat/Riwayat";
 import DetailRiwayat from "../components/riwayat/DetailRiwayat";
 import RingkasanSistem from "../pages/ringkasanSistem/RingkasanSistem";
+import InfoHistoris from "../pages/prediksiPasien/InfoHistoris";
 import PrediksiPasien from "../pages/prediksiPasien/PrediksiPasien";
 import ProtectedRoute from "../routes/ProtectedRoute";
 
@@ -126,10 +127,12 @@ export default function AppRoutes() {
           path="/prediksi-pasien"
           element={
             <ProtectedRoute>
-              <PrediksiPasien />
+              <InfoHistoris />
             </ProtectedRoute>
           }
         />
+
+        <Route path="/prediksi-pasien/prediksi" element={<ProtectedRoute><PrediksiPasien /></ProtectedRoute>} />
 
         {/* MANAJEMEN USER */}
         <Route

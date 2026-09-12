@@ -1,8 +1,5 @@
 # Skenario Pengujian Blackbox — Modul Hasil & Simpan Riwayat
 
-Dokumen ini mendokumentasikan skenario pengujian blackbox menggunakan Selenium IDE untuk modul **Hasil Perhitungan** dan **Simpan Riwayat** pada Sistem Informasi Gizi RSUD Pringsewu, dengan pemetaan terhadap aspek-aspek fokus pengujian wajib.
-
----
 
 ## 1. Pemetaan Aspek Fokus Pengujian
 

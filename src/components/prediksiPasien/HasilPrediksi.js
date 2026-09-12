@@ -17,7 +17,7 @@ export default function HasilPrediksi({ data = [], ringkasan = {} }) {
     const link = document.createElement("a");
 
     const periodName = ringkasan?.periode
-      ? ringkasan.periode.replace(/\s+/g, "_").toLowerCase()
+      ? ringkasan.periode.replace(/[^a-zA-Z0-9-]+/g, "_").toLowerCase()
       : "periode";
 
     link.setAttribute("href", url);
@@ -26,6 +26,7 @@ export default function HasilPrediksi({ data = [], ringkasan = {} }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (
