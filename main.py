@@ -1,10 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from database import fetch_patient_data
 from ml_service import predict_xgboost
+from auth import verify_token
 
 app = FastAPI(title="API Prediksi Pasien")
 
@@ -12,7 +12,7 @@ class PredictionRequest(BaseModel):
     hari_kedepan: int
 
 @app.get("/api/info-historis")
-def get_historical_info():
+def get_historical_info(user_data: dict = Depends(verify_token)):
     try:
         hari_ini = datetime.now().date()
         
@@ -34,7 +34,7 @@ def get_historical_info():
         raise HTTPException(status_code=500, detail=f"Terjadi kesalahan internal: {str(e)}")
 
 @app.post("/api/predict")
-def predict_patients(req: PredictionRequest):
+def predict_patients(req: PredictionRequest, user_data: dict = Depends(verify_token)):
     if not (1 <= req.hari_kedepan <= 365):
         raise HTTPException(status_code=400, detail="Periode prediksi harus antara 1-365 hari")
 
