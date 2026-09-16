@@ -24,13 +24,13 @@ const CustomTooltip = ({ active, payload }) => {
 
 export default function PrediksiChart({ data }) {
   return (
-    <div className="w-full bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between h-[380px]">
+    <div className="prediction-chart w-full bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 flex flex-col justify-between h-[420px]">
       <div>
         <h3 className="font-bold text-slate-900 text-base mb-1">
           Grafik Prediksi Pasien Harian
         </h3>
         <p className="text-xs text-slate-500 mb-6">
-          Fluktuasi jumlah pasien per hari sepanjang bulan yang dipilih
+          Fluktuasi jumlah pasien per hari sepanjang periode yang dipilih
         </p>
       </div>
 

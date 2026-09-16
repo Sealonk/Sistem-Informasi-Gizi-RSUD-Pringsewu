@@ -13,7 +13,12 @@ export default function PortalMenuGrid({ onOpenMenu }) {
   });
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <section aria-labelledby="portal-modules-title">
+      <div className="portal-section-heading">
+        <div><p className="portal-kicker">RUANG KERJA</p><h2 id="portal-modules-title">Modul Pelayanan</h2></div>
+        <p>Pilih modul untuk memulai aktivitas Anda.</p>
+      </div>
+      <div className="portal-module-grid">
       {menus.map((menu) => (
         <PortalMenuCard
           key={menu.path}
@@ -22,5 +27,6 @@ export default function PortalMenuGrid({ onOpenMenu }) {
         />
       ))}
     </div>
+    </section>
   );
 }

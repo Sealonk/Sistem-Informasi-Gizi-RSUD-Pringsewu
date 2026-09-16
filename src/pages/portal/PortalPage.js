@@ -6,6 +6,7 @@ import PortalHeader from "../../components/portal/PortalHeader";
 import PortalMenuGrid from "../../components/portal/PortalMenuGrid";
 import { logoutUser } from "../../services/auth/authService";
 import { ShieldCheck, HeartPulse, Zap, Award } from "lucide-react";
+import "../../components/portal/portal.css";
 
 export default function PortalPage() {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ export default function PortalPage() {
   return (
     <div
       className="
+        portal-page
         min-h-screen
         bg-[#f8fbff]
         relative
@@ -53,44 +55,25 @@ export default function PortalPage() {
       />
 
       {/* Main Content Area */}
-      <div
-        className="
-          relative
-          z-10
-          px-6
-          pb-12
-          max-w-7xl
-          w-full
-          mx-auto
-          flex-1
-          flex
-          flex-col
-          justify-between
-          gap-10
-        "
-      >
-        <div className="space-y-6">
+      <main className="portal-main">
+        <div className="portal-main-stack">
           <PortalGreeting />
           
           <PortalMenuGrid onOpenMenu={navigate} />
 
           {/* Premium Bottom Features & Tips Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
+          <div className="portal-support-grid">
             
             {/* Dynamic Clinical Tips Widget */}
-            <div className="lg:col-span-2 relative overflow-hidden bg-white/70 backdrop-blur-md border border-blue-100 rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between gap-4">
+            <div className="portal-clinical">
               <div className="flex items-center gap-2">
-                <span className="flex h-2.5 w-2.5 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
-                </span>
                 <span className="text-xs font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1">
                   <Award size={14} /> Edukasi Klinis Hari Ini
                 </span>
               </div>
               
-              <div className="h-16 flex items-center">
-                <p className="text-slate-700 text-sm font-medium leading-relaxed italic transition-opacity duration-500">
+              <div className="portal-tip-text">
+                <p className="text-slate-600 text-sm leading-relaxed">
                   "{tipsGizi[tipIndex]}"
                 </p>
               </div>
@@ -99,17 +82,18 @@ export default function PortalPage() {
                 {tipsGizi.map((_, i) => (
                   <button
                     key={i}
+                    type="button"
+                    aria-label={`Tampilkan edukasi ${i + 1}`}
+                    aria-pressed={i === tipIndex}
                     onClick={() => setTipIndex(i)}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      i === tipIndex ? "w-6 bg-blue-600" : "w-1.5 bg-blue-100 hover:bg-blue-300"
-                    }`}
+                    className="portal-tip-dot"
                   />
                 ))}
               </div>
             </div>
 
             {/* Platform Highlights */}
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 shadow-lg shadow-blue-500/10 flex flex-col justify-between gap-6 relative overflow-hidden group">
+            <div className="portal-institution">
               <div className="absolute -right-10 -bottom-10 w-36 h-36 rounded-full bg-white/5 blur-xl group-hover:scale-125 transition-transform duration-500" />
               
               <div className="space-y-2">
@@ -145,9 +129,9 @@ export default function PortalPage() {
         </div>
 
         {/* Premium Brand Footer */}
-        <footer className="border-t border-slate-200/80 pt-6 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400 font-medium">
+        <footer className="portal-footer">
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span>Terintegrasi SIMRS RSUD Pringsewu</span>
           </div>
           <div className="text-center sm:text-right">
@@ -155,7 +139,7 @@ export default function PortalPage() {
           </div>
         </footer>
 
-      </div>
+      </main>
     </div>
   );
 }

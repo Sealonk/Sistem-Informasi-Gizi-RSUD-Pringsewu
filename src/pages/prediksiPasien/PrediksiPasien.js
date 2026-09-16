@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { ChartNoAxesCombined, LoaderCircle } from "lucide-react";
 import PortalBackground from "../../components/portal/PortalBackground";
 import FeedbackAlert from "../../components/common/FeedbackAlert";
 import PrediksiHeader from "../../components/prediksiPasien/PrediksiHeader";
@@ -35,15 +36,15 @@ export default function PrediksiPasien() {
     finally { pending.current = false; setLoading(false); }
   };
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f8fbff] px-4 py-6 text-slate-900 md:px-8">
+    <main className="prediction-page relative min-h-screen overflow-hidden bg-[#f8fbff] px-4 py-6 text-slate-900 md:px-8">
       <PortalBackground />
       <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-6">
         <PrediksiHeader backTo="/prediksi-pasien" backLabel="Kembali ke Info Historis" />
         <InputPrediksi hari={hari} setHari={(value) => { setHari(value); setHasil(null); setError(null); }} onPredict={handlePredict} isLoading={loading} />
         {error && <FeedbackAlert type="error" message={error} onClose={() => setError(null)} />}
         <div aria-live="polite" aria-busy={loading}>
-          {loading && <p className="py-8 text-center text-sm text-slate-500" role="status">Sedang menghitung prediksi pasien. Mohon tunggu...</p>}
-          {!loading && !hasil && !error && <p className="py-8 text-center text-sm text-slate-500">Hasil prediksi akan ditampilkan di sini setelah Anda menekan Prediksi Sekarang.</p>}
+          {loading && <div className="prediction-panel prediction-empty" role="status"><span className="prediction-empty-icon"><LoaderCircle size={28} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /></span><h2 className="font-semibold text-slate-700">Menghitung prediksi pasien</h2><p>Mohon tunggu, hasil prediksi sedang diproses.</p></div>}
+          {!loading && !hasil && !error && <div className="prediction-panel prediction-empty"><span className="prediction-empty-icon"><ChartNoAxesCombined size={28} aria-hidden="true" /></span><h2 className="font-semibold text-slate-700">Hasil Prediksi Pasien</h2><p>Tentukan periode, lalu tekan <span className="font-medium text-slate-600">Prediksi Sekarang</span> untuk melihat grafik, ringkasan, dan rincian harian.</p></div>}
           {hasil && (hasil.data.length ? <HasilPrediksi data={hasil.data.map((row) => ({ tanggal: row.tanggal, jumlah: row.prediksi }))} ringkasan={{
             total_pasien: hasil.summary.total, rata_rata: hasil.summary.average,
             prediksi_tertinggi: hasil.summary.maximum, prediksi_terendah: hasil.summary.minimum,

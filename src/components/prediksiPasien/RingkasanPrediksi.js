@@ -48,7 +48,7 @@ export default function RingkasanPrediksi({ ringkasan }) {
   ];
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between min-h-[380px]">
+    <div className="prediction-summary w-full bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 flex flex-col justify-between h-full min-h-[420px]">
       <div>
         <h3 className="font-bold text-slate-900 text-base mb-1">
           Ringkasan Prediksi
@@ -61,7 +61,7 @@ export default function RingkasanPrediksi({ ringkasan }) {
       <div className="flex-1 flex flex-col justify-between">
         {items.map((item, index) => (
           <div key={index} className="w-full">
-            <div className="flex items-center justify-between py-2.5">
+            <div className="prediction-summary-row flex flex-wrap items-center justify-between gap-2 py-3">
               <div className="flex items-center gap-3">
                 <div
                   className={`
@@ -82,8 +82,8 @@ export default function RingkasanPrediksi({ ringkasan }) {
                 </span>
               </div>
 
-              <div className="text-right">
-                <span className="text-sm font-bold text-slate-900">
+              <div className="min-w-0 text-right">
+                <span className="break-words text-sm font-bold text-slate-900 tabular-nums">
                   {typeof item.value === "number" ? item.value.toLocaleString("id-ID") : item.value}
                 </span>
                 {item.unit && (

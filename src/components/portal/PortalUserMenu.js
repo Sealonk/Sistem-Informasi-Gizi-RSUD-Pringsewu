@@ -28,12 +28,15 @@ export default function PortalUserMenu({
       <button
         type="button"
         onClick={onToggleUserMenu}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+        aria-expanded={showUserMenu}
+        aria-controls="portal-user-dropdown"
+        aria-label="Menu akun"
+        className="portal-account-button"
       >
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold">
+        <div className="portal-avatar">
           {getInitial()}
         </div>
-        <span className="hidden sm:inline text-sm font-medium text-slate-700">
+        <span className="hidden max-w-[180px] truncate text-sm font-semibold text-slate-700 sm:inline">
           {user?.nama_lengkap || "Petugas Gizi"}
         </span>
         <ChevronDown
@@ -45,7 +48,7 @@ export default function PortalUserMenu({
       </button>
 
       {showUserMenu && (
-        <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden z-20">
+        <div id="portal-user-dropdown" className="portal-account-dropdown">
           <button
             type="button"
             onClick={onLogout}

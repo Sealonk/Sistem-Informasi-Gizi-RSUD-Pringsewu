@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, CalendarDays, Clock3, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import "./prediksi.css";
 
 const formatDate = (date) => {
   return new Intl.DateTimeFormat("id-ID", {
@@ -39,137 +40,23 @@ export default function PrediksiHeader({
   }, []);
 
   return (
-    <header
-      className="
-        rounded-[32px]
-        border
-        border-slate-200/80
-        bg-white/75
-        backdrop-blur-md
-        p-5
-        sm:p-6
-        shadow-sm
-        hover:shadow-md
-        transition-all
-        duration-300
-      "
-    >
-      <div
-        className="
-          flex
-          items-start
-          justify-between
-          gap-6
-          flex-wrap
-        "
-      >
-        <div className="flex items-start gap-4">
-          <div
-            className="
-              w-14
-              h-14
-              rounded-2xl
-              bg-violet-50
-              text-violet-600
-              flex
-              items-center
-              justify-center
-              shrink-0
-            "
-          >
-            <TrendingUp size={24} />
-          </div>
-
-          <div className="flex-1">
-            <div className="text-xs font-semibold text-slate-400 mb-1 tracking-wider uppercase">
-              Beranda &gt; Prediksi Pasien
-            </div>
-            
-            <h1
-              className="
-                text-2xl
-                font-bold
-                tracking-tight
-                text-slate-900
-                mb-2
-              "
-            >
-              {title}
-            </h1>
-
-            <p
-              className="
-                text-sm
-                text-slate-500
-                mb-4
-              "
-            >
-              {description}
-            </p>
-
-            <div className="flex flex-wrap gap-3">
-              <div
-                className="
-                  inline-flex
-                  items-center
-                  gap-2
-                  px-4
-                  py-2
-                  rounded-xl
-                  bg-violet-50
-                  text-violet-600
-                  text-sm
-                  font-medium
-                "
-              >
-                <CalendarDays size={16} />
-                {formatDate(currentTime)}
-              </div>
-
-              <div
-                className="
-                  inline-flex
-                  items-center
-                  gap-2
-                  px-4
-                  py-2
-                  rounded-xl
-                  bg-violet-50
-                  text-violet-600
-                  text-sm
-                  font-medium
-                "
-              >
-                <Clock3 size={16} />
-                {formatTime(currentTime)}
-              </div>
-            </div>
+    <header className="prediction-panel prediction-header">
+      <div className="prediction-header-main">
+        <div className="prediction-title-group">
+          <span className="prediction-header-icon"><TrendingUp size={25} aria-hidden="true" /></span>
+          <div className="min-w-0">
+            <div className="prediction-eyebrow">Beranda <span aria-hidden="true">/</span> Prediksi Pasien</div>
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">{title}</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">{description}</p>
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => navigate(backTo)}
-          className="
-            h-12
-            px-5
-            rounded-2xl
-            border
-            border-violet-200
-            bg-white
-            text-violet-600
-            text-sm
-            font-semibold
-            flex
-            items-center
-            gap-2
-            hover:bg-violet-50
-            transition-all
-          "
-        >
-          <ArrowLeft size={18} />
-          {backLabel}
+        <button type="button" onClick={() => navigate(backTo)} className="prediction-secondary shrink-0">
+          <ArrowLeft size={16} aria-hidden="true" />{backLabel}
         </button>
+      </div>
+      <div className="prediction-header-meta">
+        <span><CalendarDays size={14} aria-hidden="true" />{formatDate(currentTime)}</span>
+        <span className="tabular-nums"><Clock3 size={14} aria-hidden="true" />{formatTime(currentTime)}</span>
       </div>
     </header>
   );

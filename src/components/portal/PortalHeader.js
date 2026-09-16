@@ -6,16 +6,16 @@ export default function PortalHeader({
   onLogout,
 }) {
   return (
-    <div className="bg-white border-b border-slate-200 mb-10">
-      <div className="px-6 py-5 max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="portal-topbar">
+      <div className="portal-topbar-inner">
+        <div className="portal-brand">
           <img
             src="/img/logo-pringsewu.png"
             alt="Logo RSUD Pringsewu"
-            className="w-12 h-12 object-contain"
+            className="portal-brand-logo"
           />
           <div>
-            <h1 className="text-sm font-semibold text-slate-700">
+            <h1 className="portal-brand-title">
               RSUD PRINGSEWU
             </h1>
             <p className="text-xs text-slate-500">

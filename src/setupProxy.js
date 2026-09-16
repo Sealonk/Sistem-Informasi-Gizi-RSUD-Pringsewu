@@ -1,10 +1,26 @@
 // Development proxy for the local prediction service.
 const http = require("http");
+const https = require("https");
 module.exports = function (app) {
+  if (!process.env.AI_API_URL) {
+    throw new Error("AI_API_URL belum dikonfigurasi di .env frontend.");
+  }
+  const target = new URL(process.env.AI_API_URL);
+  if (!["http:", "https:"].includes(target.protocol)) {
+    throw new Error("AI_API_URL harus menggunakan http:// atau https://.");
+  }
+  const transport = target.protocol === "https:" ? https : http;
   app.use("/prediction-api", (req, res) => {
-    const upstream = http.request({
-      hostname: "127.0.0.1", port: 8000, path: req.url, method: req.method,
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+    const upstream = transport.request({
+      protocol: target.protocol,
+      hostname: target.hostname,
+      port: target.port || undefined,
+      path: `${target.pathname.replace(/\/$/, "")}${req.url}`,
+      method: req.method,
+      headers: {
+        "Content-Type": "application/json", Accept: "application/json",
+        ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {}),
+      },
     }, (response) => {
       res.status(response.statusCode);
       res.setHeader("Content-Type", response.headers["content-type"] || "application/json");
