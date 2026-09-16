@@ -11,11 +11,16 @@ def get_db_engine():
     host = os.getenv("DB_HOST")
     db_name = os.getenv("DB_NAME")
     
-    # Validasi keamanan
     if not all([user, password, host, db_name]):
         raise ValueError("Kredensial database pada file .env tidak lengkap atau tidak ditemukan!")
     
-    db_url = f"mysql+pymysql://{user}:{password}@{host}/{db_name}"
+    # Deteksi otomatis: Jika host mengandung "/cloudsql/", gunakan koneksi Unix Socket khusus GCP
+    if host.startswith("/cloudsql/"):
+        db_url = f"mysql+pymysql://{user}:{password}@/{db_name}?unix_socket={host}"
+    else:
+        # Gunakan koneksi TCP biasa untuk pengembangan lokal
+        db_url = f"mysql+pymysql://{user}:{password}@{host}/{db_name}"
+        
     return create_engine(db_url)
 
 def fetch_patient_data(start_date, end_date):
@@ -27,6 +32,5 @@ def fetch_patient_data(start_date, end_date):
         WHERE tgl_masuk >= '{start_date}' AND tgl_masuk <= '{end_date}'
     """
     
-    # Membaca SQL dengan engine SQLAlchemy (tidak perlu conn.close() secara manual)
     df = pd.read_sql(query, con=engine)
     return df
