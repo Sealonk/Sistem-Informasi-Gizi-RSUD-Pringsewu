@@ -1,4 +1,6 @@
+import os
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -7,6 +9,18 @@ from ml_service import predict_xgboost
 from auth import verify_token
 
 app = FastAPI(title="API Prediksi Pasien")
+
+origins_env = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
+
+allow_origins_list = [origin.strip() for origin in origins_env.split(",")]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class PredictionRequest(BaseModel):
     hari_kedepan: int
