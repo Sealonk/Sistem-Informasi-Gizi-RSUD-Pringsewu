@@ -2,12 +2,12 @@
 const http = require("http");
 const https = require("https");
 module.exports = function (app) {
-  if (!process.env.AI_API_URL) {
-    throw new Error("AI_API_URL belum dikonfigurasi di .env frontend.");
+  if (!process.env.REACT_APP_AI_API_URL) {
+    throw new Error("REACT_APP_AI_API_URL belum dikonfigurasi di .env frontend.");
   }
-  const target = new URL(process.env.AI_API_URL);
+  const target = new URL(process.env.REACT_APP_AI_API_URL);
   if (!["http:", "https:"].includes(target.protocol)) {
-    throw new Error("AI_API_URL harus menggunakan http:// atau https://.");
+    throw new Error("REACT_APP_AI_API_URL harus menggunakan http:// atau https://.");
   }
   const transport = target.protocol === "https:" ? https : http;
   app.use("/prediction-api", (req, res) => {
